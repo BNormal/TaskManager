@@ -5,10 +5,12 @@ import org.dreambot.api.script.AbstractScript;
 public abstract class Script extends AbstractScript implements Cloneable {
 
 	protected boolean running = false;
+	protected boolean taskScript = false;
+
 	private Task task = null;
 
 	public Script() {
-
+		
 	}
 
 	@Override
@@ -20,6 +22,14 @@ public abstract class Script extends AbstractScript implements Cloneable {
 
 	public void setTask(Task task) {
 		this.task = task;
+	}
+
+	public boolean isTaskScript() {
+		return taskScript;
+	}
+
+	public void setTaskScript(boolean taskScript) {
+		this.taskScript = taskScript;
 	}
 
 	public Script clone() throws CloneNotSupportedException {

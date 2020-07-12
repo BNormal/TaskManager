@@ -160,6 +160,7 @@ public class TaskEngineGUI {
 					}
 					if (script != null) {
 						script.setTask(task);
+						script.setTaskScript(true);
 						tasksModel.addElement(script);
 						scripts.add(script);
 					}
