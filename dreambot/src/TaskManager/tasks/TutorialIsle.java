@@ -3,6 +3,8 @@ package TaskManager.tasks;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Rectangle;
 
 import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.map.Tile;
@@ -26,7 +28,6 @@ public class TutorialIsle extends Script {
 	WidgetChild NPCName = null;
 	private State state = null;
 	private Timer totalTime = new Timer();
-	private boolean needsInput = false;
 	
 	private enum State {
 		NAMING, CHARACTER_CREATION, FOLLOWING_INSTRUCTION, DIALOGUE, NOTHING
@@ -82,12 +83,23 @@ public class TutorialIsle extends Script {
 			if (interfaceItem != null && interfaceItem.isVisible()) {
 				String text = interfaceItem.getChild(0).getText();
 				if (text.contains("Getting started")) {
-					needsInput = true;
+					NPC guide = getNpcs().closest("Gielinor Guide");
+					Point p = guide.getModel().calculateCenterPoint();
+	                Rectangle GAME_SCREEN = new Rectangle(5, 5, 511, 333);
+	                Rectangle CANVAS = new Rectangle(0, 0, 765, 503);
+	                int heightAdjust = 0;
+	                int widthAdjust = 0;
+	                p.setLocation(p.getX() * (CANVAS.getWidth() / GAME_SCREEN.getWidth())+widthAdjust, p.getY() * (CANVAS.getHeight() / GAME_SCREEN.getHeight())+heightAdjust);
+	                getMouse().hop(p);
+	                sleepUntil(() -> getClient().getMenu().contains("Talk-to"), 2000);
+	                if (getClient().getMenu().contains("Talk-to")) {
+	                    getMouse().click();
+	                    sleepUntil(() -> getDialogues().inDialogue(), 10000);
+	                }
 					//getNpcs().closest("Gielinor Guide").interact();
 					//sleepUntil(() -> getDialogues().inDialogue(), Calculations.random(3000, 5000));
 				} else if (text.contains("Options menu")) {
 					if (!getTabs().isOpen(Tab.OPTIONS)) {
-						needsInput = false;
 						getTabs().openWithMouse(Tab.OPTIONS);
 						getRandomManager().enableSolver(RandomEvent.RESIZABLE_DISABLER);
 					} else {
@@ -148,7 +160,7 @@ public class TutorialIsle extends Script {
 			if (getDialogues().getOptions() != null && getDialogues().getOptions().length > 0) {
 				getDialogues().chooseOption(1);
 			} else {
-				getDialogues().clickContinue();
+				getDialogues().spaceToContinue();
 			}
 			break;
 		case NOTHING:
@@ -167,10 +179,6 @@ public class TutorialIsle extends Script {
 		g.drawRect(20, 37, 200, 47);
 		Utilities.drawShadowString(g, "Time Running: " + totalTime.formatTime(), x, 50);
 		Utilities.drawShadowString(g, "Stage: " + state, x, 60);
-		if (needsInput) {
-			g.setFont(new Font("Arial", 1, 20));
-			Utilities.drawShadowString(g, "NEEDS YOUR INPUT HERE", 400, 200);
-		}
 	}
 	
 	@Override
