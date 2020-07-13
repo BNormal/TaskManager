@@ -2,6 +2,9 @@ package TaskManager;
 
 import java.awt.Graphics2D;
 
+import javax.swing.UIManager;
+
+import org.dreambot.api.randoms.RandomEvent;
 import org.dreambot.api.script.AbstractScript;
 import org.dreambot.api.script.Category;
 import org.dreambot.api.script.ScriptManifest;
@@ -15,6 +18,11 @@ public class TaskEngine extends AbstractScript {
 	
 	@Override
     public void onStart() {
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Throwable e) {
+			e.printStackTrace();
+		}
 		gui.open();
 		started = true;
 	}
@@ -25,11 +33,14 @@ public class TaskEngine extends AbstractScript {
 			return 0;
 		if (currentScript == null) {
 			currentScript = gui.getCurrentScript();
-			if (currentScript != null)
+			if (currentScript != null) {
+				if (currentScript.getEngine() == null)
+					currentScript.setEngine(this);
 				currentScript.onStart();
+			}
 			return 0;
 		}
-		if (currentScript.getTask().isFinished() || !currentScript.isRunning()) {
+		if (currentScript.getTask() != null && currentScript.getTask().isFinished() || !currentScript.isRunning()) {
 			currentScript.onExit();
 			currentScript = null;
 			gui.nextScript();

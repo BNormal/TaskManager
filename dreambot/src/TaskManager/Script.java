@@ -1,11 +1,13 @@
 package TaskManager;
 
+import org.dreambot.api.Client;
 import org.dreambot.api.script.AbstractScript;
 
 public abstract class Script extends AbstractScript implements Cloneable {
 
 	protected boolean running = false;
 	protected boolean taskScript = false;
+	protected AbstractScript engine;
 
 	private Task task = null;
 
@@ -13,9 +15,14 @@ public abstract class Script extends AbstractScript implements Cloneable {
 		
 	}
 
-	@Override
-	public abstract int onLoop();
+	public AbstractScript getEngine() {
+		return engine;
+	}
 
+	public void setEngine(AbstractScript engine) {
+		this.engine = engine;
+	}
+	
 	public Task getTask() {
 		return task;
 	}
@@ -54,5 +61,7 @@ public abstract class Script extends AbstractScript implements Cloneable {
 	public boolean isRunning() {
 		return running;
 	}
+
+	public abstract int onLoop();
 	
 }
