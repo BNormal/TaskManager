@@ -21,7 +21,7 @@ import org.dreambot.api.wrappers.widgets.WidgetChild;
 import JewelrySmelter.Utilities;
 import TaskManager.Script;
 
-@ScriptManifest(author = "NumberZ", name = "Tutorial Island (unf)", version = 1.0, description = "Does tutorial island for you.", category = Category.MISC)
+@ScriptManifest(author = "NumberZ", name = "Tutorial Island", version = 1.0, description = "Does tutorial island for you.", category = Category.MISC)
 public class TutorialIsle extends Script {
 
 	WidgetChild interfaceItem = null;
