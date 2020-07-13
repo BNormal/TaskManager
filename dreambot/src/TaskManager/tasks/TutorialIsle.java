@@ -5,6 +5,8 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.filter.Filter;
@@ -19,6 +21,7 @@ import org.dreambot.api.wrappers.interactive.NPC;
 import org.dreambot.api.wrappers.widgets.WidgetChild;
 
 import JewelrySmelter.Utilities;
+import TaskManager.Condition;
 import TaskManager.Script;
 
 @ScriptManifest(author = "NumberZ", name = "Tutorial Island", version = 1.0, description = "Does tutorial island for you.", category = Category.MISC)
@@ -28,6 +31,10 @@ public class TutorialIsle extends Script {
 	WidgetChild NPCName = null;
 	private State state = null;
 	private Timer totalTime = new Timer();
+	
+	public TutorialIsle() {
+		//supportedConditions.add(Condition.RunOnce);
+	}
 	
 	private enum State {
 		NAMING, CHARACTER_CREATION, FOLLOWING_INSTRUCTION, DIALOGUE, FINISHED, NOTHING

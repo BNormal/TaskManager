@@ -1,6 +1,8 @@
 package TaskManager;
 
-import org.dreambot.api.Client;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.dreambot.api.script.AbstractScript;
 
 public abstract class Script extends AbstractScript implements Cloneable {
@@ -8,11 +10,29 @@ public abstract class Script extends AbstractScript implements Cloneable {
 	protected boolean running = false;
 	protected boolean taskScript = false;
 	protected AbstractScript engine;
+	protected int runCount = 0;
+	protected List<Condition> supportedConditions = new ArrayList<Condition>();
 
 	private Task task = null;
 
 	public Script() {
 		
+	}
+	
+	public List<Condition> supportedCondition() {
+		return supportedConditions;
+	}
+	
+	public int getRunCount() {
+		return runCount;
+	}
+
+	public void setRunCount(int runCount) {
+		this.runCount = runCount;
+	}
+	
+	public void increaseRunCount() {
+		runCount++;
 	}
 
 	public AbstractScript getEngine() {

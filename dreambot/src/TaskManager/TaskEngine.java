@@ -4,7 +4,6 @@ import java.awt.Graphics2D;
 
 import javax.swing.UIManager;
 
-import org.dreambot.api.randoms.RandomEvent;
 import org.dreambot.api.script.AbstractScript;
 import org.dreambot.api.script.Category;
 import org.dreambot.api.script.ScriptManifest;
