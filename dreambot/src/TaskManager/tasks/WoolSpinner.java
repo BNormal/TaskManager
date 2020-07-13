@@ -1,4 +1,4 @@
-package WoolSpinner;
+package TaskManager.tasks;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -8,7 +8,6 @@ import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.map.Area;
 import org.dreambot.api.methods.map.Tile;
 import org.dreambot.api.methods.tabs.Tab;
-import org.dreambot.api.script.AbstractScript;
 import org.dreambot.api.script.Category;
 import org.dreambot.api.script.ScriptManifest;
 import org.dreambot.api.utilities.Timer;
@@ -16,9 +15,10 @@ import org.dreambot.api.utilities.impl.Condition;
 import org.dreambot.api.wrappers.interactive.GameObject;
 import org.dreambot.api.wrappers.widgets.WidgetChild;
 
-@ScriptManifest(author = "NumberZ", category = Category.CRAFTING, name = "WoolSpinner SOLO", version = 1.0, description = "Spins wool at Lumbridge Castle.")
-public class WoolSpinner extends AbstractScript {
+import TaskManager.Script;
 
+@ScriptManifest(author = "NumberZ", category = Category.CRAFTING, name = "Wool Spinner", version = 1.0, description = "Spins wool at Lumbridge Castle.")
+public class WoolSpinner extends Script {
 	private Timer totalTime = new Timer();
 	private Timer animDelay = new Timer();
 	@SuppressWarnings("unused")
@@ -34,30 +34,29 @@ public class WoolSpinner extends AbstractScript {
 	WidgetChild child1 = null;
 	WidgetChild child2 = null;
 	WidgetChild levelUp = null;
-
 	private State state;
 
 	private enum State {
 		BANKDEPOSIT, BANKWITHDRAW, WALK_TO_BANK, WALK_TO_SPINNER, SPIN_WOOL, ANTIBAN;
 	}
-
+	
 	private State getState() {
-		if (BANK_AREA.contains(getLocalPlayer().getTile()) && !getInventory().contains(WOOL)
-				&& !getInventory().contains(BALL_OF_WOOL) && getInventory().emptySlotCount() < 28
-				|| BANK_AREA.contains(getLocalPlayer().getTile()) && !getInventory().contains(WOOL)
-						&& getInventory().contains(BALL_OF_WOOL)) {
+		if (BANK_AREA.contains(engine.getLocalPlayer().getTile()) && !engine.getInventory().contains(WOOL)
+				&& !engine.getInventory().contains(BALL_OF_WOOL) && engine.getInventory().emptySlotCount() < 28
+				|| BANK_AREA.contains(engine.getLocalPlayer().getTile()) && !engine.getInventory().contains(WOOL)
+						&& engine.getInventory().contains(BALL_OF_WOOL)) {
 			return State.BANKDEPOSIT;
 		}
 
-		if (BANK_AREA.contains(getLocalPlayer()) && getInventory().emptySlotCount() == 28) {
+		if (BANK_AREA.contains(engine.getLocalPlayer()) && engine.getInventory().emptySlotCount() == 28) {
 			return State.BANKWITHDRAW;
 		}
 
-		if (getInventory().count(WOOL) > 0 && !SPINNER_AREA.contains(getLocalPlayer())) {
+		if (engine.getInventory().count(WOOL) > 0 && !SPINNER_AREA.contains(engine.getLocalPlayer())) {
 			return State.WALK_TO_SPINNER;
 		}
-		if (SPINNER_AREA.contains(getLocalPlayer()) && getInventory().contains(WOOL)) {
-			levelUp = getWidgets().getWidgetChild(233, 3);
+		if (SPINNER_AREA.contains(engine.getLocalPlayer()) && engine.getInventory().contains(WOOL)) {
+			levelUp = engine.getWidgets().getWidgetChild(233, 3);
 			if (levelUp != null && levelUp.isVisible()) {
 				levelUp.interact();
 			}
@@ -69,92 +68,93 @@ public class WoolSpinner extends AbstractScript {
 		}
 		return State.WALK_TO_BANK;
 	}
-
+	
 	@Override
 	public int onLoop() {
-		if (getLocalPlayer().isAnimating())
+		if (engine.getLocalPlayer().isAnimating())
 			animDelay.reset();
 		state = getState();
 		switch (state) {
 		case BANKDEPOSIT:
-			if (getBank().isOpen()) {
+			if (engine.getBank().isOpen()) {
 				currentStage = "Depositing into bank.";
-				getBank().depositAllItems();
+				engine.getBank().depositAllItems();
 				sleepUntil(new Condition() {
 					public boolean verify() {
-						return getInventory().onlyContains(i -> getInventory().isEmpty());
+						return engine.getInventory().onlyContains(i -> engine.getInventory().isEmpty());
 					}
 
 				}, Calculations.random(900, 1200));
+				increaseRunCount();
 			} else {
 				currentStage = "Opening bank.";
-				getBank().open();
+				engine.getBank().open();
 				sleepUntil(new Condition() {
 					public boolean verify() {
-						return getBank().isOpen();
+						return engine.getBank().isOpen();
 					}
 				}, Calculations.random(900, 1200));
 
 			}
 			break;
 		case BANKWITHDRAW:
-			if (getBank().isOpen() && !getInventory().contains(WOOL)) {
-				if (getBank().contains(WOOL)) {
+			if (engine.getBank().isOpen() && !engine.getInventory().contains(WOOL)) {
+				if (engine.getBank().contains(WOOL)) {
 					currentStage = "Withdrawing from bank.";
-					getBank().withdrawAll(WOOL);
+					engine.getBank().withdrawAll(WOOL);
 
 					sleepUntil(new Condition() {
 						public boolean verify() {
-							return getInventory().contains(WOOL);
+							return engine.getInventory().contains(WOOL);
 						}
 
 					}, Calculations.random(900, 1200));
 				} else {
 					currentStage = "Logging out.";
-					getBank().close();
+					engine.getBank().close();
 					sleep(500, 1000);
-					getTabs().logout();
+					engine.getTabs().logout();
 					stop();
 				}
 			} else {
 				currentStage = "Opening bank.";
-				getBank().open();
+				engine.getBank().open();
 				sleepUntil(new Condition() {
 					public boolean verify() {
-						return getBank().isOpen();
+						return engine.getBank().isOpen();
 					}
 				}, Calculations.random(900, 1200));
 
 			}
 			break;
 		case WALK_TO_SPINNER:
-			if (getLocalPlayer().isMoving() && getWalking().getDestinationDistance() > 2)
+			if (engine.getLocalPlayer().isMoving() && engine.getWalking().getDestinationDistance() > 2)
 				break;
-			if (getLocalPlayer().getTile().getZ() == 2) {
-				if (TOP_STAIRS.contains(getLocalPlayer().getTile())) {
+			if (engine.getLocalPlayer().getTile().getZ() == 2) {
+				if (TOP_STAIRS.contains(engine.getLocalPlayer().getTile())) {
 					currentStage = "Climbing down stairs.";
-					getGameObjects().closest("Staircase").interact("Climb-down");
+					engine.getGameObjects().closest("Staircase").interact("Climb-down");
 				} else {
 					currentStage = "Walking to stairs.";
-					getWalking().walk(new Tile(3205, 3209, 2));//Top Stairs
+					engine.getWalking().walk(new Tile(3205, 3209, 2));//Top Stairs
 				}
-			} else if (getLocalPlayer().getTile().getZ() == 1) {
-				if (!getMap().canReach(SPINNER_TILE)) {
+			} else if (engine.getLocalPlayer().getTile().getZ() == 1) {
+				if (!engine.getMap().canReach(SPINNER_TILE)) {
 					if (Calculations.random(1, 2) == 1) {
 						currentStage = "Opening door.";
-						getWalking().walk(new Tile(3207, 3214, 1));
+						engine.getWalking().walk(new Tile(3207, 3214, 1));
 						sleep(300, 500);
 					}
-					getGameObjects().getTopObjectOnTile(new Tile(3207, 3214, 1)).interact("Open");
+					engine.getGameObjects().getTopObjectOnTile(new Tile(3207, 3214, 1)).interact("Open");
 					sleep(500, 1000);
 				} else {
-					getCamera().rotateToYaw(383 + Calculations.random(0, 5));
-					GameObject spinner = getGameObjects().closest("Spinning wheel");
+					engine.getCamera().rotateToYaw(383 + Calculations.random(0, 5));
+					GameObject spinner = engine.getGameObjects().closest("Spinning wheel");
 					currentStage = "Walking to spinner.";
-					getWalking().walk(new Tile(spinner.getX() + Calculations.random(0, 1), spinner.getY() + Calculations.random(0, 2), spinner.getZ()));
-					sleepUntil(() -> getLocalPlayer().isMoving(), Calculations.random(1000, 1500));
-					sleepWhile(() -> getLocalPlayer().isMoving(), Calculations.random(4000, 6000));
-					if (!getLocalPlayer().isMoving()) {
+					engine.getWalking().walk(new Tile(spinner.getX() + Calculations.random(0, 1), spinner.getY() + Calculations.random(0, 2), spinner.getZ()));
+					sleepUntil(() -> engine.getLocalPlayer().isMoving(), Calculations.random(1000, 1500));
+					sleepWhile(() -> engine.getLocalPlayer().isMoving(), Calculations.random(4000, 6000));
+					if (!engine.getLocalPlayer().isMoving()) {
 						currentStage = "Opening spinning options.";
 						if (Calculations.random(0, 1) == 1)
 							spinner.interactForceRight("Spin");
@@ -165,28 +165,28 @@ public class WoolSpinner extends AbstractScript {
 
 						public boolean verify() {
 
-							return getLocalPlayer().distance(SPINNER_TILE) < 4;
+							return engine.getLocalPlayer().distance(SPINNER_TILE) < 4;
 						}
 					}, Calculations.random(3000, 6000));
 				}
 			}
 			break;
 		case SPIN_WOOL:
-			child1 = getWidgets().getWidgetChild(270, 14);
-			child2 = getWidgets().getWidgetChild(162, 34);
-			if (!isAnimating() && child1 == null && !getLocalPlayer().isMoving()) {
+			child1 = engine.getWidgets().getWidgetChild(270, 14);
+			child2 = engine.getWidgets().getWidgetChild(162, 34);
+			if (!isAnimating() && child1 == null && !engine.getLocalPlayer().isMoving()) {
 				currentStage = "Opening spinning options.";
-				GameObject spinner = getGameObjects().closest("Spinning wheel");
+				GameObject spinner = engine.getGameObjects().closest("Spinning wheel");
 				//if (Calculations.random(1, 3) <= 1)
 					//getCamera().rotateToEntity(spinner);
 				spinner.interactForceRight("Spin");
 				sleep(1000, 2000);
-				child1 = getWidgets().getWidgetChild(270, 14);
+				child1 = engine.getWidgets().getWidgetChild(270, 14);
 				sleepWhile(() -> child1 == null || !child1.isVisible(), Calculations.random(1000, 2000));
 			}
 			if (child1 != null && child1.isVisible()) {
 				currentStage = "Make All.";
-				WidgetChild child3 = getWidgets().getWidgetChild(270, 12);
+				WidgetChild child3 = engine.getWidgets().getWidgetChild(270, 12);
 				if (child3.getActions() == null || child3.getActions().length == 0) {
 					child1.interact();
 					currentStage = "Spinning wool.";
@@ -215,36 +215,36 @@ public class WoolSpinner extends AbstractScript {
 
 			break;
 		case WALK_TO_BANK:
-			if (getLocalPlayer().isMoving() && getWalking().getDestinationDistance() > 2)
+			if (engine.getLocalPlayer().isMoving() && engine.getWalking().getDestinationDistance() > 2)
 				break;
-			if (getLocalPlayer().getTile().getZ() == 2) {
+			if (engine.getLocalPlayer().getTile().getZ() == 2) {
 				currentStage = "Walking to bank.";
-				getWalking().walk(BANK_TILE);
+				engine.getWalking().walk(BANK_TILE);
 				if (Calculations.random(0, 5) != 1)
-					getCamera().rotateToYaw(383 + Calculations.random(0, 5));
+					engine.getCamera().rotateToYaw(383 + Calculations.random(0, 5));
 				sleepUntil(new Condition() {
 
 					public boolean verify() {
 
-						return getLocalPlayer().distance(BANK_TILE) < 4;
+						return engine.getLocalPlayer().distance(BANK_TILE) < 4;
 					}
 				}, Calculations.random(3000, 6000));
-			} else if (getLocalPlayer().getTile().getZ() <= 1) {
-				if (!getMap().canReach(new Tile(3205, 3209, 1))) {
+			} else if (engine.getLocalPlayer().getTile().getZ() <= 1) {
+				if (!engine.getMap().canReach(new Tile(3205, 3209, 1))) {
 					if (Calculations.random(1, 2) == 1) {
 						currentStage = "Walking to door.";
-						getWalking().walk(new Tile(3207, 3214, 1));
+						engine.getWalking().walk(new Tile(3207, 3214, 1));
 						sleep(500, 1000);
 					}
 					currentStage = "Opening door.";
-					getGameObjects().getTopObjectOnTile(new Tile(3207, 3214, 1)).interact("Open");//door
+					engine.getGameObjects().getTopObjectOnTile(new Tile(3207, 3214, 1)).interact("Open");//door
 					sleep(500, 1000);
 				} else {
-					GameObject stairs = getGameObjects().closest("Staircase");
-					if (getLocalPlayer().distance(stairs) > 3)
+					GameObject stairs = engine.getGameObjects().closest("Staircase");
+					if (engine.getLocalPlayer().distance(stairs) > 3)
 					{
 						currentStage = "Walking to stairs.";
-						getWalking().walk(new Tile(3205 + Calculations.random(0, 1), 3209 + Calculations.random(0, 1), 1));
+						engine.getWalking().walk(new Tile(3205 + Calculations.random(0, 1), 3209 + Calculations.random(0, 1), 1));
 						sleep(1000, 2000);
 					}
 					currentStage = "Climbing stairs.";
@@ -253,7 +253,7 @@ public class WoolSpinner extends AbstractScript {
 
 						public boolean verify() {
 
-							return getLocalPlayer().getTile().getZ() == 2;
+							return engine.getLocalPlayer().getTile().getZ() == 2;
 						}
 					}, Calculations.random(600, 1000));
 				}
@@ -272,16 +272,16 @@ public class WoolSpinner extends AbstractScript {
 		int Anti1 = Calculations.random(10);
 		switch (Anti1) {
 		case 1:
-			getTabs().open(Tab.SKILLS);
+			engine.getTabs().open(Tab.SKILLS);
 			sleep(Calculations.random(1240, 2500));
-			getTabs().open(Tab.INVENTORY);
+			engine.getTabs().open(Tab.INVENTORY);
 			break;
 		case 2:
 			//getCamera().rotateTo(getCamera().getYaw() + Calculations.random(-1000, 1000), getCamera().getPitch() + Calculations.random(-300, 300));
 			sleep(Calculations.random(1240, 2500));
 			break;
 		case 3:
-			getCamera().rotateToYaw(383 + Calculations.random(0, 5));
+			engine.getCamera().rotateToYaw(383 + Calculations.random(0, 5));
 			sleep(Calculations.random(1240, 2500));
 			break;
 		case 4:
@@ -289,20 +289,20 @@ public class WoolSpinner extends AbstractScript {
 			break;
 		case 6:
 		case 7:
-			if (getMap().canReach(getGameObjects().closest("Staircase")))
-				getMouse().move(getGameObjects().closest("Staircase"));
+			if (engine.getMap().canReach(engine.getGameObjects().closest("Staircase")))
+				engine.getMouse().move(engine.getGameObjects().closest("Staircase"));
 			else
-				getMouse().move(new Tile(3207, 3214, 1));
+				engine.getMouse().move(new Tile(3207, 3214, 1));
 			break;
 		default:
-			getMouse().moveMouseOutsideScreen();
+			engine.getMouse().moveMouseOutsideScreen();
 			sleep(Calculations.random(1240, 8500));
 			break;
 		}
 	}
 	
 	public boolean isAnimating() {
-		return (getLocalPlayer().isAnimating() || animDelay.elapsed() < 3000);
+		return (engine.getLocalPlayer().isAnimating() || animDelay.elapsed() < 3000);
 	}
 
 	public void onPaint(Graphics g) {
@@ -311,5 +311,4 @@ public class WoolSpinner extends AbstractScript {
 		g.drawString("Time Running: " + totalTime.formatTime(), 25, 50);
 		g.drawString("Stage: " + currentStage, 25, 60);
 	}
-
 }
