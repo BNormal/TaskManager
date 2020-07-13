@@ -183,7 +183,7 @@ public class TutorialIsle extends Script {
 				} else if (text.contains("You've been given an item")) {
 					getTabs().openWithMouse(Tab.INVENTORY);
 				} else if (text.contains("Fishing")) {
-					getNpcs().closest("Fishing spot").interact();
+					getNpcs().closest("Fishing spot").interactForceRight("Net");
 					sleepUntil(() -> getLocalPlayer().isAnimating(), Calculations.random(3000, 5000));
 					sleepUntil(() -> !getLocalPlayer().isAnimating(), Calculations.random(3000, 5000));
 				} else if (text.contains("gained some experience")) {
