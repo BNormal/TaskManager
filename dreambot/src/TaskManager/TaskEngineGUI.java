@@ -15,6 +15,7 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeListener;
 
 import TaskManager.tasks.TutorialIsle;
+import TaskManager.tasks.VarrockMiner;
 import TaskManager.tasks.WoolSpinner;
 
 import javax.swing.event.ChangeEvent;
@@ -28,6 +29,7 @@ import javax.swing.ListSelectionModel;
 public class TaskEngineGUI {
 
 	private ArrayList<Script> scripts = new ArrayList<Script>();
+	private DefaultListModel<Script> tasksModel;
 	private JFrame frmTaskManager;
 	private JComboBox<Condition> cbxConditon;
 	private JSpinner spinAmount;
@@ -66,6 +68,7 @@ public class TaskEngineGUI {
 	public void loadSctipts() {//Add your scripts here for now
 		scripts.add(new TutorialIsle());
 		scripts.add(new WoolSpinner());
+		scripts.add(new VarrockMiner());
 	}
 
 	/**
@@ -143,7 +146,7 @@ public class TaskEngineGUI {
 		scrollTasksPane.setBounds(10, 126, 264, 118);
 		frmTaskManager.getContentPane().add(scrollTasksPane);
 		
-		DefaultListModel<Script> tasksModel = new DefaultListModel<Script>();
+		tasksModel = new DefaultListModel<Script>();
 		JList<Script> listTasks = new JList<Script>(tasksModel);
 		listTasks.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		scrollTasksPane.setViewportView(listTasks);
@@ -168,7 +171,7 @@ public class TaskEngineGUI {
 						script.setTask(task);
 						script.setTaskScript(true);
 						tasksModel.addElement(script);
-						scripts.add(script);
+						script.init();
 					}
 				}
 			}
@@ -180,9 +183,8 @@ public class TaskEngineGUI {
 		btnRemove.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				int index = listTasks.getSelectedIndex();
-				if (index >= 0 && index < scripts.size()) {
+				if (index >= 0 && index < tasksModel.size()) {
 					tasksModel.remove(index);
-					scripts.remove(index);
 				}
 			}
 		});
@@ -208,6 +210,10 @@ public class TaskEngineGUI {
 		}
 	}
 	
+	public DefaultListModel<Script> getScripts() {
+		return tasksModel;
+	}
+	
 	public void open() {
 		frmTaskManager.setVisible(true);
 	}
@@ -221,9 +227,13 @@ public class TaskEngineGUI {
 		return running;
 	}
 
+	public int getCurrentScriptId() {
+		return currentScript;
+	}
+	
 	public Script getCurrentScript() {
-		if (currentScript >= 0 && currentScript < scripts.size())
-			return scripts.get(currentScript);
+		if (currentScript >= 0 && currentScript < tasksModel.size())
+			return tasksModel.get(currentScript);
 		return null;
 	}
 

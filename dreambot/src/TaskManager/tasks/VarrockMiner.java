@@ -11,6 +11,8 @@ import org.dreambot.api.methods.map.Area;
 import org.dreambot.api.methods.map.Tile;
 import org.dreambot.api.methods.skills.Skill;
 import org.dreambot.api.methods.walking.web.node.impl.bank.WebBankArea;
+import org.dreambot.api.script.Category;
+import org.dreambot.api.script.ScriptManifest;
 import org.dreambot.api.utilities.Timer;
 import org.dreambot.api.wrappers.interactive.GameObject;
 import org.dreambot.api.wrappers.items.Item;
@@ -18,6 +20,7 @@ import org.dreambot.core.Instance;
 
 import TaskManager.Script;
 
+@ScriptManifest(author = "NumberZ", category = Category.MINING, name = "Varrock Miner", version = 1.0, description = "Mines ores in Varrock")
 public class VarrockMiner extends Script {
 	private Timer timer = new Timer(0);
 
@@ -33,7 +36,10 @@ public class VarrockMiner extends Script {
 
 	@Override
 	public void onStart() {
+		if (engine == null)
+			engine = this;
 		timer = new Timer(0);
+		running = true;
 	}
 
 	@Override
@@ -121,6 +127,7 @@ public class VarrockMiner extends Script {
 						running = false;
 				}
 				if (engine.getInventory().contains(oreID)) {
+					increaseRunCount();
 					engine.getBank().depositAllExcept(pickaxe);
 				}
 				if (readyToMine() && engine.getBank().close()) {

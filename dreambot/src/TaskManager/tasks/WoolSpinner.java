@@ -35,6 +35,14 @@ public class WoolSpinner extends Script {
 	WidgetChild levelUp = null;
 	private State state;
 
+	
+	@Override
+	public void onStart() {
+		if (engine == null)
+			engine = this;
+		running = true;
+	}
+	
 	private enum State {
 		BANKDEPOSIT, BANKWITHDRAW, WALK_TO_BANK, WALK_TO_SPINNER, SPIN_WOOL, ANTIBAN;
 	}
@@ -111,11 +119,14 @@ public class WoolSpinner extends Script {
 
 					}, Calculations.random(900, 1200));
 				} else {
-					currentStage = "Logging out.";
-					engine.getBank().close();
-					sleep(500, 1000);
-					engine.getTabs().logout();
-					stop();
+					running = false;
+					if (!taskScript) {
+						currentStage = "Logging out.";
+						engine.getBank().close();
+						sleep(500, 1000);
+						engine.getTabs().logout();
+						stop();
+					}
 				}
 			} else {
 				currentStage = "Opening bank.";

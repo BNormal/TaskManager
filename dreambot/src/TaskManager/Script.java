@@ -19,6 +19,10 @@ public abstract class Script extends AbstractScript implements Cloneable {
 		
 	}
 	
+	public void init() {
+		
+	}
+	
 	public List<Condition> supportedCondition() {
 		return supportedConditions;
 	}
