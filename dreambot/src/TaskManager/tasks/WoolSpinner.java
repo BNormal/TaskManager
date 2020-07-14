@@ -17,12 +17,11 @@ import org.dreambot.api.wrappers.widgets.WidgetChild;
 
 import TaskManager.Script;
 
-@ScriptManifest(author = "NumberZ", category = Category.CRAFTING, name = "Wool Spinner", version = 1.0, description = "Spins wool at Lumbridge Castle.")
+@ScriptManifest(author = "NumberZ", category = Category.CRAFTING, name = "Wool Spinner", version = 1.0, description = "Spins wool at Lumbridge Castle Does not gather wool.")
 public class WoolSpinner extends Script {
 	private Timer totalTime = new Timer();
 	private Timer animDelay = new Timer();
 	@SuppressWarnings("unused")
-	private int SHEARS = 1735;
 	private int WOOL = 1737;
 	private int BALL_OF_WOOL = 1759;
 	private Tile BANK_TILE = new Tile(3209, 3220, 2);
@@ -71,6 +70,8 @@ public class WoolSpinner extends Script {
 	
 	@Override
 	public int onLoop() {
+		if (!running)
+			running = true;
 		if (engine.getLocalPlayer().isAnimating())
 			animDelay.reset();
 		state = getState();

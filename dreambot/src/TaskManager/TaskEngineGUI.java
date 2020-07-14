@@ -15,6 +15,7 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeListener;
 
 import TaskManager.tasks.TutorialIsle;
+import TaskManager.tasks.WoolSpinner;
 
 import javax.swing.event.ChangeEvent;
 import java.awt.event.ActionListener;
@@ -60,6 +61,11 @@ public class TaskEngineGUI {
 	 */
 	public TaskEngineGUI() {
 		initialize();
+	}
+
+	public void loadSctipts() {//Add your scripts here for now
+		scripts.add(new TutorialIsle());
+		scripts.add(new WoolSpinner());
 	}
 
 	/**
@@ -182,10 +188,6 @@ public class TaskEngineGUI {
 		});
 		frmTaskManager.getContentPane().add(btnRemove);
 		updateAmountDescription();
-	}
-
-	public void loadSctipts() {
-		scripts.add(new TutorialIsle());
 	}
 	
 	public Task getTaskFromScript(int index) {
