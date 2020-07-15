@@ -7,7 +7,7 @@
 - When using Eclipse make sure to include client.jar in your project
 - Right click your project and click **Properties**
 - Go to the **Java Build Path** column and **Libraries** tab
-- Click on the **Add External Jar** button and go to *C:\Users\{your pc name here}\DreamBot\BotData* and open **client.jar**
+- Click on the **Add External Jar** button and go to *"C:\Users\{your pc name here}\DreamBot\BotData"* and open **client.jar**
 - Now select **Apply and Close** and you're ready to go!
 
 ## Add your script to the dreambot
