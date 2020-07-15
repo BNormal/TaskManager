@@ -1,4 +1,4 @@
-package TaskManager.tasks;
+package TaskManager.scripts;
 
 import java.awt.BasicStroke;
 import java.awt.Color;

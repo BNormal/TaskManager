@@ -1,4 +1,4 @@
-package TaskManager.tasks.quests;
+package TaskManager.scripts.quests;
 
 import java.awt.Color;
 import java.awt.Font;

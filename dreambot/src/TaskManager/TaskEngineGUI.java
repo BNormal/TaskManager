@@ -14,10 +14,10 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeListener;
 
-import TaskManager.tasks.TutorialIsle;
-import TaskManager.tasks.VarrockMiner;
-import TaskManager.tasks.WoolSpinner;
-import TaskManager.tasks.quests.RomeoAndJuliet;
+import TaskManager.scripts.TutorialIsle;
+import TaskManager.scripts.VarrockMiner;
+import TaskManager.scripts.WoolSpinner;
+import TaskManager.scripts.quests.RomeoAndJuliet;
 
 import javax.swing.event.ChangeEvent;
 import java.awt.event.ActionListener;
