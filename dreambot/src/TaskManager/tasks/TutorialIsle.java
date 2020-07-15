@@ -6,6 +6,7 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.dreambot.api.methods.Calculations;
@@ -457,7 +458,12 @@ public class TutorialIsle extends Script {
 			}
 			break;
 		case FINISHED:
-			onExit();
+			running = false;
+			time = new Date(totalTime.elapsed());
+			if (!taskScript) {
+				engine.getTabs().logout();
+				this.stop();
+			}
 			break;
 		case NOTHING:
 			break;
@@ -495,10 +501,6 @@ public class TutorialIsle extends Script {
 	@Override
     public void onExit() {
 		running = false;
-		if (!taskScript) {
-			engine.getTabs().logout();
-			this.stop();
-		}
 	}
 
 }

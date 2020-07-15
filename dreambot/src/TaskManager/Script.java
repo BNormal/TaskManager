@@ -1,6 +1,7 @@
 package TaskManager;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.dreambot.api.script.AbstractScript;
@@ -9,6 +10,7 @@ public abstract class Script extends AbstractScript implements Cloneable {
 
 	protected boolean running = false;
 	protected boolean taskScript = false;
+	protected Date time;
 	protected AbstractScript engine;
 	protected int runCount = 0;
 	protected List<Condition> supportedConditions = new ArrayList<Condition>();
