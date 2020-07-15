@@ -61,7 +61,6 @@ public class TutorialIsle extends Script {
 		super.onStart();
 		if (engine == null)
 			engine = this;
-		running = true;
 		engine.getRandomManager().disableSolver(RandomEvent.RESIZABLE_DISABLER);
 		if (engine.getRandomManager().getCurrentSolver() != null && engine.getRandomManager().getCurrentSolver().getEventString().equalsIgnoreCase("RESIZABLE_DISABLER"))
 			engine.getRandomManager().getCurrentSolver().disable();

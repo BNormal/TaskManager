@@ -21,7 +21,6 @@ import TaskManager.Script;
 public class WoolSpinner extends Script {
 	private Timer totalTime = new Timer();
 	private Timer animDelay = new Timer();
-	@SuppressWarnings("unused")
 	private int WOOL = 1737;
 	private int BALL_OF_WOOL = 1759;
 	private Tile BANK_TILE = new Tile(3209, 3220, 2);
@@ -38,9 +37,9 @@ public class WoolSpinner extends Script {
 	
 	@Override
 	public void onStart() {
+		super.onStart();
 		if (engine == null)
 			engine = this;
-		running = true;
 	}
 	
 	private enum State {

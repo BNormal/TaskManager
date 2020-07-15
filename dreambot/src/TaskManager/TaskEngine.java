@@ -83,7 +83,7 @@ public class TaskEngine extends AbstractScript {
 		for (int i = 0; i < 4; i++) {
 			if (i + gui.getCurrentScriptId() >= gui.getScripts().size())
 				break;
-			Script script = gui.getScripts().get(i);
+			Script script = gui.getScripts().get(i + gui.getCurrentScriptId());
 			String scriptTitle = script.getManifest().name() + (script.getTotalTime() != null ? " - " + script.getTotalTime().formatTime() : "");
 			if (i + gui.getCurrentScriptId() == gui.getCurrentScriptId())
 				Utilities.drawShadowString(g, "> " + scriptTitle, x + 5, y + 33 + i * 10, Color.GREEN, Color.BLACK);

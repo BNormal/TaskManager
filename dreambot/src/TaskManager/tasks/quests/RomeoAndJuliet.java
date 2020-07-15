@@ -88,7 +88,6 @@ public class RomeoAndJuliet extends Script {
 		super.onStart();
 		if (engine == null)
 			engine = this;
-		running = true;
 	}
 	
 	@Override

@@ -25,6 +25,7 @@ public abstract class Script extends AbstractScript implements Cloneable {
 	@Override
 	public void onStart() {
 		totalTime = new Timer();
+		running = true;
 	}
 	
 	public void init() {
