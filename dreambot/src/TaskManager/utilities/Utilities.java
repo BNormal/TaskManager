@@ -1,4 +1,4 @@
-package JewelrySmelter;
+package TaskManager.utilities;
 
 
 import java.awt.Color;

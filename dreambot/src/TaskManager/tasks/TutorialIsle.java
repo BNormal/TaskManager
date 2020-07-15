@@ -18,7 +18,7 @@ import org.dreambot.api.wrappers.interactive.GameObject;
 import org.dreambot.api.wrappers.interactive.NPC;
 import org.dreambot.api.wrappers.widgets.WidgetChild;
 
-import JewelrySmelter.Utilities;
+import TaskManager.utilities.Utilities;
 import TaskManager.Script;
 
 @ScriptManifest(author = "NumberZ", name = "Tutorial Island", version = 1.0, description = "Does tutorial island for you.", category = Category.MISC)

@@ -12,7 +12,7 @@ import org.dreambot.api.script.Category;
 import org.dreambot.api.script.ScriptManifest;
 import org.dreambot.api.utilities.Timer;
 
-import JewelrySmelter.Utilities;
+import TaskManager.utilities.Utilities;
 
 @ScriptManifest(author = "NumberZ", name = "Task Engine", version = 1.0, description = "Allows you to runs a script to do a task then switch to another task or stop completely.", category = Category.MISC)
 public class TaskEngine extends AbstractScript {
