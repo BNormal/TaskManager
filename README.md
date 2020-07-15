@@ -11,5 +11,5 @@
 - Expand **Java**, select **Jar File** and then click **Next**
 - Uncheck everything and expand your project (typically named dreambot) and check only the src
 - Under **Select the export destination:** click **Browse** and go to "C:\Users\{your pc name here}\DreamBot\Scripts"
-- After selecting the destination, put the name of your script after the destination "C:\Users\Ben\DreamBot\Scripts\Bots.jar"
+- After selecting the destination, put the name of your script after the destination "C:\Users\{your pc name here}\DreamBot\Scripts\Bots.jar"
 - Click **Finish** and say **Yes** to overwrite and lastly **Ok**.
