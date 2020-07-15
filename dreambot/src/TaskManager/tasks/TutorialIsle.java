@@ -5,9 +5,7 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.filter.Filter;
@@ -16,13 +14,11 @@ import org.dreambot.api.methods.tabs.Tab;
 import org.dreambot.api.randoms.RandomEvent;
 import org.dreambot.api.script.Category;
 import org.dreambot.api.script.ScriptManifest;
-import org.dreambot.api.utilities.Timer;
 import org.dreambot.api.wrappers.interactive.GameObject;
 import org.dreambot.api.wrappers.interactive.NPC;
 import org.dreambot.api.wrappers.widgets.WidgetChild;
 
 import JewelrySmelter.Utilities;
-import TaskManager.Condition;
 import TaskManager.Script;
 
 @ScriptManifest(author = "NumberZ", name = "Tutorial Island", version = 1.0, description = "Does tutorial island for you.", category = Category.MISC)
@@ -31,7 +27,6 @@ public class TutorialIsle extends Script {
 	WidgetChild interfaceItem = null;
 	WidgetChild NPCName = null;
 	private State state = null;
-	private Timer totalTime = new Timer();
 	
 	public TutorialIsle() {
 		//supportedConditions.add(Condition.RunOnce);
@@ -63,6 +58,7 @@ public class TutorialIsle extends Script {
 	
 	@Override
     public void onStart() {
+		super.onStart();
 		if (engine == null)
 			engine = this;
 		running = true;
@@ -150,7 +146,7 @@ public class TutorialIsle extends Script {
 						engine.getGameObjects().closest("Door").interact();
 						sleepUntil(() -> engine.getLocalPlayer().getY() < 3125, Calculations.random(3000, 5000));
 					} else if (text.contains("It's time to enter")) {
-						engine.getGameObjects().closest("Ladder").interact();
+						engine.getGameObjects().closest("Ladder").interactForceRight("Climb-down");
 						sleepUntil(() -> engine.getLocalPlayer().getX() > 3094, Calculations.random(3000, 5000));
 					} else if (text.contains("made your first weapon")) {
 						engine.getWalking().walk(new Tile(3094 + Calculations.random(-1, 0), 9501 + Calculations.random(0, 1), 0));

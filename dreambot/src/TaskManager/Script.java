@@ -5,9 +5,10 @@ import java.util.Date;
 import java.util.List;
 
 import org.dreambot.api.script.AbstractScript;
+import org.dreambot.api.utilities.Timer;
 
 public abstract class Script extends AbstractScript implements Cloneable {
-
+	protected Timer totalTime = null;
 	protected boolean running = false;
 	protected boolean taskScript = false;
 	protected Date time;
@@ -21,12 +22,25 @@ public abstract class Script extends AbstractScript implements Cloneable {
 		
 	}
 	
+	@Override
+	public void onStart() {
+		totalTime = new Timer();
+	}
+	
 	public void init() {
 		
 	}
 	
 	public List<Condition> supportedCondition() {
 		return supportedConditions;
+	}
+
+	public Timer getTotalTime() {
+		return totalTime;
+	}
+
+	public void setTotalTime(Timer totalTime) {
+		this.totalTime = totalTime;
 	}
 	
 	public int getRunCount() {
@@ -63,6 +77,17 @@ public abstract class Script extends AbstractScript implements Cloneable {
 
 	public void setTaskScript(boolean taskScript) {
 		this.taskScript = taskScript;
+	}
+	
+	public boolean taskFinished() {
+		if (task.getCondition() == Condition.Time) {
+			if (task.getAmount() == 0)
+				return false;
+			long time = (long) task.getConditionItem();
+			if (totalTime.elapsed() > time)
+				return true;
+		}
+		return false;
 	}
 
 	public Script clone() throws CloneNotSupportedException {

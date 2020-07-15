@@ -4,7 +4,7 @@ public class Task {
 	
 	private Condition condition;
 	private int amount;
-	private Object ConditionItem = null;
+	private Object conditionItem = null;
 	
 	public Task(Condition condition, int amount) {
 		this.condition = condition;
@@ -28,17 +28,10 @@ public class Task {
 	}
 	
 	public void setConditionItem(Object item) {
-		this.ConditionItem = item;
+		this.conditionItem = item;
 	}
 	
-	public boolean isFinished() {
-		if (condition == Condition.Time) {
-			if (amount != 0)
-				return false;
-			long time = (long) ConditionItem;
-			if (time < System.currentTimeMillis())
-				return true;
-		}
-		return false;
+	public Object getConditionItem() {
+		return conditionItem;
 	}
 }

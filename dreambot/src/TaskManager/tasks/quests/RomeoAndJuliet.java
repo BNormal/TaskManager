@@ -12,15 +12,14 @@ import org.dreambot.api.methods.map.Area;
 import org.dreambot.api.methods.map.Tile;
 import org.dreambot.api.script.Category;
 import org.dreambot.api.script.ScriptManifest;
-import org.dreambot.api.utilities.Timer;
+import org.dreambot.api.wrappers.interactive.GameObject;
 import org.dreambot.api.wrappers.widgets.WidgetChild;
 
 import JewelrySmelter.Utilities;
 import TaskManager.Script;
 
-@ScriptManifest(author = "NumberZ", category = Category.QUEST, name = "Romeo and Juliet", version = 1.0, description = "Completes Romeo and Juliet quests")
+@ScriptManifest(author = "NumberZ", category = Category.QUEST, name = "Romeo and Juliet", version = 1.0, description = "Completes Romeo and Juliet quest")
 public class RomeoAndJuliet extends Script {
-	private Timer totalTime = new Timer();
 	private State state;
 	private int progressId = -1;
 	private Area romeosArea = new Area(3207, 3420, 3219, 3434, 0);
@@ -47,12 +46,14 @@ public class RomeoAndJuliet extends Script {
 	}
 	
 	private int getQuestProgress() {
-		interfaceItem = getWidgets().getWidgetChild(399, 6, 14);
+		interfaceItem = engine.getWidgets().getWidgetChild(399, 6, 14);
 		if (interfaceItem != null) {
 			if (interfaceItem.getTextColor() == 16711680)//not started/red
 				return 0;
 			else if (interfaceItem.getTextColor() == 16776960)//started/yellow
 				return 1;
+			else if (interfaceItem.getTextColor() == 901389)//completed/green
+				return 9;
 		}
 		return -1;
 	}
@@ -73,8 +74,18 @@ public class RomeoAndJuliet extends Script {
 		}
 	}
 	
+	public GameObject getObject(Tile tile, String name) {//Not being used
+		GameObject[] objects = engine.getGameObjects().getObjectsOnTile(tile);
+		for (int i = 0; i < objects.length; i++) {
+			if (objects[i].getName().toLowerCase().contains(name.toLowerCase()))
+				return objects[i];
+		}
+		return null;
+	}
+	
 	@Override
 	public void onStart() {
+		super.onStart();
 		if (engine == null)
 			engine = this;
 		running = true;
@@ -84,7 +95,7 @@ public class RomeoAndJuliet extends Script {
 	public int onLoop() {
 		state = getState();
 		if (dangerArea.contains(engine.getLocalPlayer())) {
-			if (engine.getWalking().getRunEnergy() > 5 && !engine.getWalking().isRunEnabled()) {
+			if (engine.getWalking().getRunEnergy() >= 2 && !engine.getWalking().isRunEnabled()) {
 				engine.getWalking().toggleRun();
 			}
 		}
@@ -101,7 +112,7 @@ public class RomeoAndJuliet extends Script {
 			} else if (progressId == 2 || progressId == 7) {//go to juliet for the first time or giving her potion
 				if (engine.getLocalPlayer().getX() > 10000)
 					;//cutscene, don't do anything
-				else if (engine.getLocalPlayer().getZ() == 0) {
+				else if (engine.getLocalPlayer().getZ() == 0) {//first floor
 					if (engine.getLocalPlayer().getX() > 3168) {
 						engine.getWalking().walk(new Tile(3165 + Calculations.random(1, 2), 3433 + Calculations.random(1, 2), 0));
 						sleepUntil(() -> engine.getWalking().getDestinationDistance() < 4, 6000);
@@ -116,16 +127,18 @@ public class RomeoAndJuliet extends Script {
 							sleepUntil(() -> engine.getLocalPlayer().getZ() == 1, 6000);
 						}
 					}
-				} else if (engine.getLocalPlayer().getZ() == 1) {
+				} else if (engine.getLocalPlayer().getZ() == 1) {//second floor
 					if (!engine.getMap().canReach(new Tile(3158, 3429, 1))) {
-						engine.getGameObjects().getTopObjectOnTile(new Tile(3157, 3431, 1)).interactForceRight("Open");//door
+						engine.getGameObjects().getTopObjectOnTile(new Tile(3157, 3430, 1)).interactForceRight("Open");
+						//getObject(new Tile(3157, 3430, 1), "Door").interactForceRight("Open");
 						sleepUntil(() -> engine.getMap().canReach(new Tile(3158, 3429, 1)), 6000);
 					} else {
 						if (!engine.getMap().canReach(new Tile(3158, 3428, 1))) {
-							engine.getGameObjects().getTopObjectOnTile(new Tile(3158, 3427, 1)).interactForceRight("Open");//door
+							engine.getGameObjects().getTopObjectOnTile(new Tile(3158, 3426, 1)).interactForceRight("Open");
+							//getObject(new Tile(3158, 3426, 1), "Door").interactForceRight("Open");
 							sleepUntil(() -> engine.getMap().canReach(new Tile(3158, 3428, 1)), 6000);
 						} else {
-							if (progressId == 2 && !getInventory().contains("Message") || progressId == 7 && getInventory().contains("Cadava potion")) {
+							if (progressId == 2 && !engine.getInventory().contains("Message") || progressId == 7 && engine.getInventory().contains("Cadava potion")) {
 								engine.getWalking().walk(new Tile(3158 + Calculations.random(-1, 2), 3428, 1));
 								sleepUntil(() -> engine.getWalking().getDestinationDistance() < 4, 6000);
 								engine.getNpcs().closest("Juliet").interact();
@@ -146,11 +159,13 @@ public class RomeoAndJuliet extends Script {
 					progressId = 9;//Quest complete!
 				else if (engine.getLocalPlayer().getZ() == 1) {
 					if (!engine.getMap().canReach(new Tile(3158, 3429, 1))) {
-						engine.getGameObjects().getTopObjectOnTile(new Tile(3158, 3427, 1)).interactForceRight("Open");//door 
+						engine.getGameObjects().getTopObjectOnTile(new Tile(3158, 3426, 1)).interactForceRight("Open");
+						//getObject(new Tile(3158, 3426, 1), "Door").interactForceRight("Open");
 						sleepUntil(() -> engine.getMap().canReach(new Tile(3158, 3429, 1)), 6000);
 					} else {
 						if (!engine.getMap().canReach(new Tile(3155, 3433, 1))) {
-							engine.getGameObjects().getTopObjectOnTile(new Tile(3157, 3431, 1)).interactForceRight("Open");//door
+							engine.getGameObjects().getTopObjectOnTile(new Tile(3157, 3430, 1)).interactForceRight("Open");
+							//getObject(new Tile(3157, 3430, 1), "Door").interactForceRight("Open");
 							sleepUntil(() -> engine.getMap().canReach(new Tile(3155, 3433, 1)), 6000);
 						} else {
 							engine.getWalking().walk(new Tile(3155 + Calculations.random(-1, 2), 3433, 1));
@@ -161,8 +176,9 @@ public class RomeoAndJuliet extends Script {
 					}
 				} else if (engine.getLocalPlayer().getZ() == 0) {
 					 if (engine.getLocalPlayer().getX() < 3165) {
-						 if (!engine.getMap().canReach(new Tile(3165, 3433, 0))) {
-							engine.getGameObjects().getTopObjectOnTile(new Tile(3164, 3433, 0)).interactForceRight("Open");//door
+						if (!engine.getMap().canReach(new Tile(3166, 3433, 0))) {
+							engine.getGameObjects().getTopObjectOnTile(new Tile(3165, 3433, 0)).interactForceRight("Open");
+							//getObject(new Tile(3165, 3433, 0), "Door").interactForceRight("Open");
 							sleepUntil(() -> engine.getMap().canReach(new Tile(3165, 3433, 0)), 6000);
 						} else {
 							engine.getWalking().walk(new Tile(3211 + Calculations.random(1, 2), 3424 + Calculations.random(1, 2), 0));
@@ -191,7 +207,8 @@ public class RomeoAndJuliet extends Script {
 				} else {
 					if ((new Tile(3192, 3403, 0)).distance(engine.getLocalPlayer()) < 7) {
 						if (!engine.getMap().canReach(new Tile(3192, 3403, 0))) {
-							engine.getGameObjects().getTopObjectOnTile(new Tile(3192, 3403, 0)).interactForceRight("Open");//door
+							engine.getGameObjects().getTopObjectOnTile(new Tile(3192, 3403, 0)).interactForceRight("Open");
+							//getObject(new Tile(3192, 3403, 0), "Door").interactForceRight("Open");
 							sleepUntil(() -> engine.getMap().canReach(new Tile(3192, 3403, 0)), 6000);
 						}
 					}
@@ -217,7 +234,8 @@ public class RomeoAndJuliet extends Script {
 					} else {
 						if ((new Tile(3192, 3403, 0)).distance(engine.getLocalPlayer()) < 7) {
 							if (!engine.getMap().canReach(new Tile(3192, 3403, 0))) {
-								engine.getGameObjects().getTopObjectOnTile(new Tile(3192, 3403, 0)).interactForceRight("Open");//door
+								engine.getGameObjects().getTopObjectOnTile(new Tile(3192, 3403, 0)).interactForceRight("Open");
+								//getObject(new Tile(3192, 3403, 0), "Door").interactForceRight("Open");
 								sleepUntil(() -> engine.getMap().canReach(new Tile(3192, 3403, 0)), 6000);
 							}
 						}

@@ -17,6 +17,7 @@ import javax.swing.event.ChangeListener;
 import TaskManager.tasks.TutorialIsle;
 import TaskManager.tasks.VarrockMiner;
 import TaskManager.tasks.WoolSpinner;
+import TaskManager.tasks.quests.RomeoAndJuliet;
 
 import javax.swing.event.ChangeEvent;
 import java.awt.event.ActionListener;
@@ -69,6 +70,7 @@ public class TaskEngineGUI {
 		scripts.add(new TutorialIsle());
 		scripts.add(new WoolSpinner());
 		scripts.add(new VarrockMiner());
+		scripts.add(new RomeoAndJuliet());
 	}
 
 	/**
@@ -159,7 +161,7 @@ public class TaskEngineGUI {
 				if (index >= 0 && index < scripts.size()) {
 					Task task = new Task((Condition) cbxConditon.getSelectedItem(), (int) spinAmount.getValue());
 					if (cbxConditon.getSelectedItem() == Condition.Time) {
-						task.setConditionItem(System.currentTimeMillis() + ((int) spinAmount.getValue() * 60000));
+						task.setConditionItem(Long.valueOf((int) spinAmount.getValue() * 60000));
 					}
 					Script script = null;
 					try {

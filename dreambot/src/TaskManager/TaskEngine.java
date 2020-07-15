@@ -6,6 +6,7 @@ import java.awt.Graphics2D;
 
 import javax.swing.UIManager;
 
+import org.dreambot.api.randoms.RandomEvent;
 import org.dreambot.api.script.AbstractScript;
 import org.dreambot.api.script.Category;
 import org.dreambot.api.script.ScriptManifest;
@@ -30,6 +31,9 @@ public class TaskEngine extends AbstractScript {
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
+		getRandomManager().disableSolver(RandomEvent.RESIZABLE_DISABLER);
+		if (getRandomManager().getCurrentSolver() != null && getRandomManager().getCurrentSolver().getEventString().equalsIgnoreCase("RESIZABLE_DISABLER"))
+			getRandomManager().getCurrentSolver().disable();
 		gui.open();
 		started = true;
 	}
@@ -47,7 +51,7 @@ public class TaskEngine extends AbstractScript {
 			}
 			return 0;
 		}
-		if (currentScript.getTask() != null && currentScript.getTask().isFinished() || !currentScript.isRunning()) {
+		if (currentScript.getTask() != null && currentScript.taskFinished() || !currentScript.isRunning()) {
 			currentScript.onExit();
 			currentScript = null;
 			gui.nextScript();
@@ -62,6 +66,7 @@ public class TaskEngine extends AbstractScript {
 		
 	}
 	
+	@SuppressWarnings("deprecation")
 	@Override
     public void onPaint(Graphics2D g) {
 		int x = 310;
@@ -78,10 +83,12 @@ public class TaskEngine extends AbstractScript {
 		for (int i = 0; i < 4; i++) {
 			if (i + gui.getCurrentScriptId() >= gui.getScripts().size())
 				break;
+			Script script = gui.getScripts().get(i);
+			String scriptTitle = script.getManifest().name() + (script.getTotalTime() != null ? " - " + script.getTotalTime().formatTime() : "");
 			if (i + gui.getCurrentScriptId() == gui.getCurrentScriptId())
-				Utilities.drawShadowString(g, "> " + gui.getScripts().get(i).getManifest().name(), x + 5, y + 33 + i * 10, Color.GREEN, Color.BLACK);
+				Utilities.drawShadowString(g, "> " + scriptTitle, x + 5, y + 33 + i * 10, Color.GREEN, Color.BLACK);
 			else {
-				Utilities.drawShadowString(g, "   " + gui.getScripts().get(i).getManifest().name(), x + 5, y + 33 + i * 10, gray, Color.BLACK);
+				Utilities.drawShadowString(g, "   " + scriptTitle, x + 5, y + 33 + i * 10, gray, Color.BLACK);
 				gray = gray.darker();
 			}
 		}

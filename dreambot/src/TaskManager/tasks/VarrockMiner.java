@@ -13,7 +13,6 @@ import org.dreambot.api.methods.skills.Skill;
 import org.dreambot.api.methods.walking.web.node.impl.bank.WebBankArea;
 import org.dreambot.api.script.Category;
 import org.dreambot.api.script.ScriptManifest;
-import org.dreambot.api.utilities.Timer;
 import org.dreambot.api.wrappers.interactive.GameObject;
 import org.dreambot.api.wrappers.items.Item;
 import org.dreambot.core.Instance;
@@ -22,7 +21,6 @@ import TaskManager.Script;
 
 @ScriptManifest(author = "NumberZ", category = Category.MINING, name = "Varrock Miner", version = 1.0, description = "Mines ores in Varrock")
 public class VarrockMiner extends Script {
-	private Timer timer = new Timer(0);
 
 	private String pickaxe = "pickaxe";
 	private GameObject currentNode;
@@ -36,9 +34,9 @@ public class VarrockMiner extends Script {
 
 	@Override
 	public void onStart() {
+		super.onStart();
 		if (engine == null)
 			engine = this;
-		timer = new Timer(0);
 		running = true;
 	}
 
@@ -80,8 +78,8 @@ public class VarrockMiner extends Script {
 				currentNode = engine.getGameObjects().closest(clayRockFilter());
 			if (currentNode != null) {
 				currentNode.interact("Mine");
-				sleep(2000);
-				sleepWhile(() -> engine.getLocalPlayer().isAnimating(), Calculations.random(12000, 10400));
+				sleepWhile(() -> engine.getLocalPlayer().isAnimating(), Calculations.random(12000, 15400));
+				sleepWhile(() -> !engine.getLocalPlayer().isAnimating(), Calculations.random(12000, 15400));
 			}
 		}
 		return result;
@@ -174,7 +172,7 @@ public class VarrockMiner extends Script {
 			hasPickaxe = weapon.getName().contains("pickaxe");
 		}
 		if (!hasPickaxe) {
-			for (Item item : getInventory().all()) {
+			for (Item item : engine.getInventory().all()) {
 				if (item != null && item.getName().toLowerCase().contains("pickaxe")) {
 					hasPickaxe = true;
 					break;
@@ -198,7 +196,7 @@ public class VarrockMiner extends Script {
 		graphics.setStroke(new BasicStroke(2));
 		graphics.drawRect(x, y, width, height);
 		graphics.setColor(Color.WHITE);
-		graphics.drawString("Total Time: " + timer.formatTime(), x1, y1);
+		graphics.drawString("Total Time: " + totalTime.formatTime(), x1, y1);
 		graphics.drawString("Exp Gained: " + engine.getSkillTracker().getGainedExperience(Skill.MINING), x1, y1 + 12);
 		graphics.drawString(
 				"Exp Gained Per Hour: " + engine.getSkillTracker().getGainedExperiencePerHour(Skill.MINING), x1, y1 + 12 * 2
