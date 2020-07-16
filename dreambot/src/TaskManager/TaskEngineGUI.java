@@ -14,9 +14,9 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeListener;
 
-import TaskManager.scripts.TutorialIsle;
 import TaskManager.scripts.VarrockMiner;
 import TaskManager.scripts.WoolSpinner;
+import TaskManager.scripts.misc.TutorialIsle;
 import TaskManager.scripts.quests.ErnestTheChicken;
 import TaskManager.scripts.quests.RomeoAndJuliet;
 
