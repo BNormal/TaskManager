@@ -17,6 +17,7 @@ import javax.swing.event.ChangeListener;
 import TaskManager.scripts.TutorialIsle;
 import TaskManager.scripts.VarrockMiner;
 import TaskManager.scripts.WoolSpinner;
+import TaskManager.scripts.quests.ErnestTheChicken;
 import TaskManager.scripts.quests.RomeoAndJuliet;
 
 import javax.swing.event.ChangeEvent;
@@ -71,6 +72,7 @@ public class TaskEngineGUI {
 		scripts.add(new WoolSpinner());
 		scripts.add(new VarrockMiner());
 		scripts.add(new RomeoAndJuliet());
+		scripts.add(new ErnestTheChicken());
 	}
 
 	/**
