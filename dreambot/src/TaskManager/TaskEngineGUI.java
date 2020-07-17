@@ -188,7 +188,7 @@ public class TaskEngineGUI {
 					} else if (cbxConditon.getSelectedItem() == Condition.Continually) {
 						task.setAmount(0);
 					} else if (cbxConditon.getSelectedItem() == Condition.Level) {
-						task.setAmount((long) spinAmount.getValue());
+						task.setAmount(Long.valueOf((int) spinAmount.getValue()));
 						task.setConditionItem(cbxSkills.getSelectedItem());
 					}
 					Script script = null;

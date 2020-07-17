@@ -113,7 +113,9 @@ public abstract class Script extends AbstractScript implements Cloneable {
 			} else if (task.getCondition() == Condition.Continually) {
 				return getManifest().name() + ": " + task.getCondition().name() + " - Infinitely/Completed.";
 			} else if (task.getCondition() == Condition.Level) {
-				return getManifest().name() + ": " + task.getCondition().name() + " - Level " + task.getAmount() + ".";
+				String skill = task.getConditionItem().toString();
+				skill = skill.substring(0, 1).toUpperCase() + skill.substring(1).toLowerCase();
+				return getManifest().name() + ": " + task.getCondition().name() + " - Level " + task.getAmount() + " " + skill + ".";
 			} else {
 				return getManifest().name() + ": " + task.getCondition().name() + " " + task.getAmount() + ".";
 			}
