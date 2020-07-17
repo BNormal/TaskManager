@@ -3,7 +3,7 @@ package TaskManager;
 public class Task {
 	
 	private Condition condition;
-	private int amount;
+	private long amount;
 	private Object conditionItem = null;
 	
 	public Task(Condition condition, int amount) {
@@ -19,11 +19,11 @@ public class Task {
 		this.condition = condition;
 	}
 
-	public int getAmount() {
+	public long getAmount() {
 		return amount;
 	}
 
-	public void setAmount(int amount) {
+	public void setAmount(long amount) {
 		this.amount = amount;
 	}
 	

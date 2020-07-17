@@ -19,6 +19,7 @@ import org.dreambot.api.wrappers.interactive.NPC;
 import org.dreambot.api.wrappers.widgets.WidgetChild;
 
 import TaskManager.utilities.Utilities;
+import TaskManager.Condition;
 import TaskManager.Script;
 
 @ScriptManifest(author = "NumberZ", name = "Tutorial Island", version = 1.0, description = "Does tutorial island for you.", category = Category.MISC)
@@ -29,7 +30,7 @@ public class TutorialIsle extends Script {
 	private State state = null;
 	
 	public TutorialIsle() {
-		//supportedConditions.add(Condition.RunOnce);
+		supportedConditions.add(Condition.Continually);
 	}
 	
 	private enum State {

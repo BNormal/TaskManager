@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.dreambot.api.methods.skills.Skill;
 import org.dreambot.api.script.AbstractScript;
 import org.dreambot.api.utilities.Timer;
 
@@ -82,11 +83,17 @@ public abstract class Script extends AbstractScript implements Cloneable {
 	
 	public boolean taskFinished() {
 		if (task.getCondition() == Condition.Time) {
-			if (task.getAmount() == 0)
-				return false;
-			long time = (long) task.getConditionItem();
+			long time = task.getAmount();
 			if (totalTime.elapsed() > time)
 				return true;
+		} else if (task.getCondition() == Condition.Continually) {
+			return false;
+		} else if (task.getCondition() == Condition.Level) {
+			int goalLevel = (int) task.getAmount();
+			int realLevel = engine.getSkills().getRealLevel((Skill) task.getConditionItem());
+			if (realLevel >= goalLevel)
+				return true;
+			return false;
 		}
 		return false;
 	}
@@ -97,17 +104,22 @@ public abstract class Script extends AbstractScript implements Cloneable {
 
 	public String toString() {
 		if (task != null) {
-			if (task.getAmount() > 0) {
-				if (task.getCondition() == Condition.Time)
-					return getManifest().name() + ": " + task.getCondition().name() + " " + task.getAmount() + " minute(s)";
+			if (task.getCondition() == Condition.Time) {
+				if (task.getAmount() / 60 > 0)
+					return getManifest().name() + ": " + task.getCondition().name() + " - " + (task.getAmount() / 60) + " Hour" + (task.getAmount() / 60 > 1 ? "s" : "") + ", " + (task.getAmount() % 60) + " Minute" + (task.getAmount() % 60 > 1 ? "s" : "");
+				else
+					return getManifest().name() + ": " + task.getCondition().name() + " - " + task.getAmount() + " Minute" + (task.getAmount() > 1 ? "s" : "");
+				
+			} else if (task.getCondition() == Condition.Continually) {
+				return getManifest().name() + ": " + task.getCondition().name() + " - Infinitely/Completed.";
+			} else if (task.getCondition() == Condition.Level) {
+				return getManifest().name() + ": " + task.getCondition().name() + " - Level " + task.getAmount() + ".";
+			} else {
 				return getManifest().name() + ": " + task.getCondition().name() + " " + task.getAmount() + ".";
-			} else if (task.getAmount() == 0) {
-				return getManifest().name() + ": " + task.getCondition().name() + " - infinitely/completed.";
 			}
 		} else {
 			return getManifest().name();
 		}
-		return "blank";
 	}
 	
 	public boolean isRunning() {

@@ -31,6 +31,12 @@ public class VarrockMiner extends Script {
 	private Area MINING_AREA = new Area(
 			new Tile(3181, 3381, 0), new Tile(3176, 3374, 0), new Tile(3171, 3369, 0), new Tile(3171, 3364, 0), new Tile(3177, 3361, 0), new Tile(3185, 3367, 0), new Tile(3186, 3379, 0)
 	);
+	
+	public VarrockMiner() {
+		supportedConditions.add(TaskManager.Condition.Continually);
+		supportedConditions.add(TaskManager.Condition.Time);
+		supportedConditions.add(TaskManager.Condition.Level);
+	}
 
 	@Override
 	public void onStart() {

@@ -16,6 +16,7 @@ import org.dreambot.api.wrappers.interactive.GameObject;
 import org.dreambot.api.wrappers.widgets.WidgetChild;
 
 import TaskManager.utilities.Utilities;
+import TaskManager.Condition;
 import TaskManager.Script;
 
 @ScriptManifest(author = "NumberZ", category = Category.QUEST, name = "Romeo and Juliet", version = 1.0, description = "Completes Romeo and Juliet quest")
@@ -27,6 +28,10 @@ public class RomeoAndJuliet extends Script {
 	private Area apothecaryArea = new Area(3192, 3406, 3197, 3402, 0);
 	private Area dangerArea = new Area(3217, 3380, 3244, 3359, 0);
 	WidgetChild interfaceItem; 
+	
+	public RomeoAndJuliet() {
+		supportedConditions.add(Condition.Continually);
+	}
 	
 	private enum State {
 		PROGRESS, DIALOGUE, FINISHED, NOTHING;

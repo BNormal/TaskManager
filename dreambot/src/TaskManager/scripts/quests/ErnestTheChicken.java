@@ -20,6 +20,7 @@ import org.dreambot.api.wrappers.interactive.GameObject;
 import org.dreambot.api.wrappers.items.GroundItem;
 import org.dreambot.api.wrappers.widgets.WidgetChild;
 
+import TaskManager.Condition;
 import TaskManager.Script;
 import TaskManager.utilities.Utilities;
 
@@ -36,6 +37,10 @@ public class ErnestTheChicken extends Script {
 	private int[] mansionY = {3354, 3363, 3363, 3373, 3373, 3360, 3361, 3354};
 	private Shape mansionArea = new Polygon(mansionX, mansionY, 8);
 
+	public ErnestTheChicken() {
+		supportedConditions.add(Condition.Continually);
+	}
+	
 	private enum State {
 		PROGRESS, DIALOGUE, FINISHED, NOTHING;
 	}

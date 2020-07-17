@@ -34,6 +34,11 @@ public class WoolSpinner extends Script {
 	WidgetChild levelUp = null;
 	private State state;
 
+	public WoolSpinner() {
+		supportedConditions.add(TaskManager.Condition.Continually);
+		supportedConditions.add(TaskManager.Condition.Time);
+		supportedConditions.add(TaskManager.Condition.Level);
+	}
 	
 	@Override
 	public void onStart() {

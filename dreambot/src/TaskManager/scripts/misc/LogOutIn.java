@@ -5,10 +5,16 @@ import java.util.Date;
 import org.dreambot.api.script.Category;
 import org.dreambot.api.script.ScriptManifest;
 
+import TaskManager.Condition;
 import TaskManager.Script;
 
 @ScriptManifest(author = "NumberZ", category = Category.MISC, name = "Log in/out (unf)", version = 1.0, description = "Logs an account in or out")
 public class LogOutIn extends Script {
+	
+	public LogOutIn() {
+		supportedConditions.add(Condition.Continually);
+	}
+	
 	@Override
 	public void onStart() {
 		super.onStart();

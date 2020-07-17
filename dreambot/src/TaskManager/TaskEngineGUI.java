@@ -14,6 +14,8 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeListener;
 
+import org.dreambot.api.methods.skills.Skill;
+
 import TaskManager.scripts.VarrockMiner;
 import TaskManager.scripts.WoolSpinner;
 import TaskManager.scripts.misc.TutorialIsle;
@@ -24,6 +26,8 @@ import javax.swing.event.ChangeEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.JScrollPane;
 import javax.swing.JList;
 import javax.swing.ListSelectionModel;
@@ -33,8 +37,12 @@ public class TaskEngineGUI {
 	private ArrayList<Script> scripts = new ArrayList<Script>();
 	private DefaultListModel<Script> tasksModel;
 	private JFrame frmTaskManager;
+	private JComboBox<String> cbxScripts;
 	private JComboBox<Condition> cbxConditon;
+	private DefaultComboBoxModel<Condition> conditionModel;
+	private JComboBox<Skill> cbxSkills;
 	private JSpinner spinAmount;
+	private SpinnerNumberModel snm;
 	private JLabel lblAmountDescription;
 	private boolean running = false;
 	private int currentScript = 0;
@@ -88,25 +96,37 @@ public class TaskEngineGUI {
 		loadSctipts();
 		
 		DefaultComboBoxModel<String> scriptModel = new DefaultComboBoxModel<String>();
-		JComboBox<String> cbxScripts = new JComboBox<String>(scriptModel);
-
+		cbxScripts = new JComboBox<String>(scriptModel);
 		for (Script script : scripts) {
 			scriptModel.addElement(script.toString());
 		}
 		cbxScripts.setFocusable(false);
 		cbxScripts.setBounds(69, 11, 205, 20);
-		frmTaskManager.getContentPane().add(cbxScripts);
 		
-		DefaultComboBoxModel<Condition> conditionModel = new DefaultComboBoxModel<Condition>();
-		for (Condition condition : Condition.values())
-			conditionModel.addElement(condition);
+		conditionModel = new DefaultComboBoxModel<Condition>();
+		cbxScripts.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				updateConditions();
+			}
+		});
+		frmTaskManager.getContentPane().add(cbxScripts);
+
+		cbxSkills = new JComboBox<Skill>(Skill.values());
+		cbxSkills.setFocusable(false);
+		cbxSkills.setBounds(159, 39, 115, 20);
+		cbxSkills.setVisible(false);
+		frmTaskManager.getContentPane().add(cbxSkills);
+		
+		//for (Condition condition : Condition.values())
+			//conditionModel.addElement(condition);
 		cbxConditon = new JComboBox<Condition>(conditionModel);
 		cbxConditon.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				updateOptions();
 				updateAmountDescription();
 			}
 		});
-		cbxConditon.setBounds(69, 39, 205, 20);
+		cbxConditon.setBounds(69, 39, 80, 20);
 		cbxConditon.setFocusable(false);
 		frmTaskManager.getContentPane().add(cbxConditon);
 		
@@ -142,7 +162,8 @@ public class TaskEngineGUI {
 				updateAmountDescription();
 			}
 		});
-		spinAmount.setModel(new SpinnerNumberModel(1, 0, 100000, 1));
+		snm = new SpinnerNumberModel(1, 1, 100000, 1);
+		spinAmount.setModel(snm);
 		spinAmount.setBounds(69, 64, 80, 20);
 		frmTaskManager.getContentPane().add(spinAmount);
 		
@@ -163,7 +184,12 @@ public class TaskEngineGUI {
 				if (index >= 0 && index < scripts.size()) {
 					Task task = new Task((Condition) cbxConditon.getSelectedItem(), (int) spinAmount.getValue());
 					if (cbxConditon.getSelectedItem() == Condition.Time) {
-						task.setConditionItem(Long.valueOf((int) spinAmount.getValue() * 60000));
+						task.setAmount(Long.valueOf((int) spinAmount.getValue() * 60000));
+					} else if (cbxConditon.getSelectedItem() == Condition.Continually) {
+						task.setAmount(0);
+					} else if (cbxConditon.getSelectedItem() == Condition.Level) {
+						task.setAmount((long) spinAmount.getValue());
+						task.setConditionItem(cbxSkills.getSelectedItem());
 					}
 					Script script = null;
 					try {
@@ -193,20 +219,60 @@ public class TaskEngineGUI {
 			}
 		});
 		frmTaskManager.getContentPane().add(btnRemove);
+		updateConditions();
 		updateAmountDescription();
 	}
 	
+	protected void updateConditions() {
+		Script script = scripts.get(cbxScripts.getSelectedIndex());
+		if (script != null) {
+			List<Condition> supportedConditions = script.supportedCondition();
+			if (supportedConditions.size() < 1)
+				return;
+			conditionModel.removeAllElements();
+			for (Condition c : supportedConditions) {
+				conditionModel.addElement(c);
+			}
+		}
+	}
+
 	public Task getTaskFromScript(int index) {
 		if (index < 0 || index >= scripts.size())
 			return null;
 		return scripts.get(index).getTask();
 	}
 	
+	private void updateOptions() {
+		if (cbxConditon.getSelectedItem() == Condition.Level) {
+			snm = new SpinnerNumberModel(1, 1, 99, 1);
+			spinAmount.setModel(snm);
+			int amount = (Integer) spinAmount.getValue();
+			if (amount > 99)
+				spinAmount.setValue(99);
+			cbxSkills.setVisible(true);
+		} else {
+			cbxSkills.setVisible(false);
+			snm = new SpinnerNumberModel(1, 1, 100000, 1);
+			spinAmount.setModel(snm);
+		}
+		if (cbxConditon.getSelectedItem() == Condition.Continually)
+			spinAmount.setEnabled(false);
+		else
+			spinAmount.setEnabled(true);
+	}
+	
 	public void updateAmountDescription() {
 		int amount = (Integer) spinAmount.getValue();
 		if (amount > 0) {
 			if (cbxConditon.getSelectedItem() == Condition.Time)
-				lblAmountDescription.setText(amount + " minute(s).");
+				if (amount / 60 > 0)
+					lblAmountDescription.setText((amount / 60) + " Hour" + (amount / 60 > 1 ? "s" : "") + ", " + (amount % 60) + " Minute" + (amount % 60 > 1 ? "s" : ""));
+				else
+					lblAmountDescription.setText(amount + " Minute" + (amount > 1 ? "s" : ""));
+			else if (cbxConditon.getSelectedItem() == Condition.Continually)
+				lblAmountDescription.setText("Infinitely/Completed");
+			else if (cbxConditon.getSelectedItem() == Condition.Level)
+				lblAmountDescription.setText("Level " + amount);
 			else
 				lblAmountDescription.setText(amount + " time(s).");
 		} else if (amount == 0) {
