@@ -24,11 +24,9 @@ public class Miner extends Script {
 
 	private String pickaxe = "pickaxe";
 	private GameObject currentNode;
-
-	//tin node 11360, 11361, silver node 11369, 11368
 	private final Color BACKGROUND = new Color(0, 192, 192, 128);
 	private int oreID = 434;
-	private Area BANK_AREA = new Area(3250, 3422, 3257, 3420, 0);
+	private MiningSpot location;
 	private Area MINING_AREA = new Area(
 			new Tile(3181, 3381, 0), new Tile(3176, 3374, 0), new Tile(3171, 3369, 0), new Tile(3171, 3364, 0), new Tile(3177, 3361, 0), new Tile(3185, 3367, 0), new Tile(3186, 3379, 0)
 	);
@@ -208,11 +206,36 @@ public class Miner extends Script {
 		graphics.setColor(Color.WHITE);
 		graphics.drawString("Total Time: " + totalTime.formatTime(), x1, y1);
 		graphics.drawString("Exp Gained: " + engine.getSkillTracker().getGainedExperience(Skill.MINING), x1, y1 + 12);
-		graphics.drawString(
-				"Exp Gained Per Hour: " + engine.getSkillTracker().getGainedExperiencePerHour(Skill.MINING), x1, y1 + 12 * 2
-		);
+		graphics.drawString("Exp Gained Per Hour: " + engine.getSkillTracker().getGainedExperiencePerHour(Skill.MINING), x1, y1 + 12 * 2);
 		graphics.drawString("Levels Gained: " + engine.getSkillTracker().getGainedLevels(Skill.MINING), x1, y1 + 12 * 3);
 		graphics.drawString("Current Level: " + engine.getSkills().getRealLevel(Skill.MINING), x1, y1 + 12 * 4);
 		graphics.drawString("Has Target: " + (currentNode != null ? currentNode.exists() : "false"), x1, y1 + 12 * 5);
+	}
+	
+	public static enum MiningSpot {
+		VarrockEast(new Area(3250, 3422, 3257, 3420, 0), new Area(3278, 3371, 3291, 3359, 0), MinerData.TIN_NODE, MinerData.COPPER_NODE, MinerData.IRON_NODE),
+		VarrockWest(new Area(3181, 3446, 3185, 3433, 0), new Area(3169, 3380, 3183, 3366, 0), MinerData.CLAY_NODE, MinerData.TIN_NODE, MinerData.IRON_NODE, MinerData.SILVER_NODE);
+
+		private Area bankArea;
+		private Area miningArea;
+		private int[][] rockIds;
+
+		private MiningSpot(Area bankArea, Area miningArea, int[]... rockIds) {
+			this.bankArea = bankArea;
+			this.miningArea = miningArea;
+			this.rockIds = rockIds;
+		}
+
+		public Area getBankArea() {
+			return bankArea;
+		}
+
+		public Area getMiningArea() {
+			return miningArea;
+		}
+
+		public int[][] getRockId() {
+			return rockIds;
+		}
 	}
 }
