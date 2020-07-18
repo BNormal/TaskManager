@@ -7,6 +7,7 @@ import java.awt.Graphics;
 import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.map.Area;
 import org.dreambot.api.methods.map.Tile;
+import org.dreambot.api.methods.skills.Skill;
 import org.dreambot.api.methods.tabs.Tab;
 import org.dreambot.api.script.Category;
 import org.dreambot.api.script.ScriptManifest;
@@ -37,6 +38,7 @@ public class WoolSpinner extends Script {
 	public WoolSpinner() {
 		supportedConditions.add(TaskManager.Condition.Time);
 		supportedConditions.add(TaskManager.Condition.Level);
+		supportedSkills.add(Skill.CRAFTING);
 	}
 	
 	@Override

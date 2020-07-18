@@ -41,6 +41,7 @@ public class TaskEngineGUI {
 	private JComboBox<Condition> cbxConditon;
 	private DefaultComboBoxModel<Condition> conditionModel;
 	private JComboBox<Skill> cbxSkills;
+	private DefaultComboBoxModel<Skill> modelSkills = new DefaultComboBoxModel<Skill>();
 	private JSpinner spinAmount;
 	private SpinnerNumberModel snm;
 	private JLabel lblAmountDescription;
@@ -107,11 +108,12 @@ public class TaskEngineGUI {
 		cbxScripts.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				updateConditions();
+				updateSkills();
 			}
 		});
 		frmTaskManager.getContentPane().add(cbxScripts);
 
-		cbxSkills = new JComboBox<Skill>(Skill.values());
+		cbxSkills = new JComboBox<Skill>(modelSkills);
 		cbxSkills.setFocusable(false);
 		cbxSkills.setBounds(159, 39, 115, 20);
 		cbxSkills.setVisible(false);
@@ -220,6 +222,7 @@ public class TaskEngineGUI {
 		});
 		frmTaskManager.getContentPane().add(btnRemove);
 		updateConditions();
+		updateSkills();
 		updateAmountDescription();
 	}
 	
@@ -232,6 +235,19 @@ public class TaskEngineGUI {
 			conditionModel.removeAllElements();
 			for (Condition c : supportedConditions) {
 				conditionModel.addElement(c);
+			}
+		}
+	}
+	
+	public void updateSkills() {
+		Script script = scripts.get(cbxScripts.getSelectedIndex());
+		if (script != null) {
+			List<Skill> supportedSkills = script.supportedSkills();
+			modelSkills.removeAllElements();
+			if (supportedSkills.size() < 1)
+				return;
+			for (Skill s : supportedSkills) {
+				modelSkills.addElement(s);
 			}
 		}
 	}

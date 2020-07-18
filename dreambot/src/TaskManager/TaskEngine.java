@@ -14,7 +14,7 @@ import org.dreambot.api.utilities.Timer;
 
 import TaskManager.utilities.Utilities;
 
-@ScriptManifest(author = "NumberZ", name = "Task Engine", version = 1.0, description = "Allows you to runs a script to do a task then switch to another task or stop completely.", category = Category.MISC)
+@ScriptManifest(author = "NumberZ", name = "Task Manager", version = 1.0, description = "Allows you to runs a script to do a task then switch to another task or stop completely.", category = Category.MISC)
 public class TaskEngine extends AbstractScript {
 
 	private TaskEngineGUI gui = new TaskEngineGUI();
