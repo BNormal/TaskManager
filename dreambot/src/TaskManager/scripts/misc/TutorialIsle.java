@@ -29,10 +29,6 @@ public class TutorialIsle extends Script {
 	WidgetChild NPCName = null;
 	private State state = null;
 	
-	public TutorialIsle() {
-		supportedConditions.add(Condition.Continually);
-	}
-	
 	private enum State {
 		NAMING, CHARACTER_CREATION, FOLLOWING_INSTRUCTION, DIALOGUE, FINISHED, NOTHING
 	}

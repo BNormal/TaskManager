@@ -36,10 +36,6 @@ public class ErnestTheChicken extends Script {
 	private int[] mansionX = {3091, 3091, 3097, 3097, 3119, 3120, 3126, 3126};
 	private int[] mansionY = {3354, 3363, 3363, 3373, 3373, 3360, 3361, 3354};
 	private Shape mansionArea = new Polygon(mansionX, mansionY, 8);
-
-	public ErnestTheChicken() {
-		supportedConditions.add(Condition.Continually);
-	}
 	
 	private enum State {
 		PROGRESS, DIALOGUE, FINISHED, NOTHING;

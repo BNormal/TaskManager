@@ -29,10 +29,6 @@ public class RomeoAndJuliet extends Script {
 	private Area dangerArea = new Area(3217, 3380, 3244, 3359, 0);
 	WidgetChild interfaceItem; 
 	
-	public RomeoAndJuliet() {
-		supportedConditions.add(Condition.Continually);
-	}
-	
 	private enum State {
 		PROGRESS, DIALOGUE, FINISHED, NOTHING;
 	}

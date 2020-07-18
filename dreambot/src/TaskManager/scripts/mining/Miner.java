@@ -1,4 +1,4 @@
-package TaskManager.scripts;
+package TaskManager.scripts.mining;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -19,8 +19,8 @@ import org.dreambot.core.Instance;
 
 import TaskManager.Script;
 
-@ScriptManifest(author = "NumberZ", category = Category.MINING, name = "Varrock Miner", version = 1.0, description = "Mines ores in Varrock")
-public class VarrockMiner extends Script {
+@ScriptManifest(author = "NumberZ", category = Category.MINING, name = "Miner", version = 1.0, description = "Mines ores in various areas")
+public class Miner extends Script {
 
 	private String pickaxe = "pickaxe";
 	private GameObject currentNode;
@@ -28,16 +28,21 @@ public class VarrockMiner extends Script {
 	//tin node 11360, 11361, silver node 11369, 11368
 	private final Color BACKGROUND = new Color(0, 192, 192, 128);
 	private int oreID = 434;
+	private Area BANK_AREA = new Area(3250, 3422, 3257, 3420, 0);
 	private Area MINING_AREA = new Area(
 			new Tile(3181, 3381, 0), new Tile(3176, 3374, 0), new Tile(3171, 3369, 0), new Tile(3171, 3364, 0), new Tile(3177, 3361, 0), new Tile(3185, 3367, 0), new Tile(3186, 3379, 0)
 	);
 	
-	public VarrockMiner() {
-		supportedConditions.add(TaskManager.Condition.Continually);
+	public Miner() {
 		supportedConditions.add(TaskManager.Condition.Time);
 		supportedConditions.add(TaskManager.Condition.Level);
 	}
-
+	
+	@Override
+	public void init() {
+		
+	}
+	
 	@Override
 	public void onStart() {
 		super.onStart();

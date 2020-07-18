@@ -16,8 +16,8 @@ import javax.swing.event.ChangeListener;
 
 import org.dreambot.api.methods.skills.Skill;
 
-import TaskManager.scripts.VarrockMiner;
 import TaskManager.scripts.WoolSpinner;
+import TaskManager.scripts.mining.Miner;
 import TaskManager.scripts.misc.TutorialIsle;
 import TaskManager.scripts.quests.ErnestTheChicken;
 import TaskManager.scripts.quests.RomeoAndJuliet;
@@ -78,7 +78,7 @@ public class TaskEngineGUI {
 	public void loadSctipts() {//Add your scripts here for now
 		scripts.add(new TutorialIsle());
 		scripts.add(new WoolSpinner());
-		scripts.add(new VarrockMiner());
+		scripts.add(new Miner());
 		scripts.add(new RomeoAndJuliet());
 		scripts.add(new ErnestTheChicken());
 	}
