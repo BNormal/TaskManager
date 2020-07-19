@@ -94,7 +94,7 @@ public class WoodcutterGUI {
 		lblLocation.setBounds(10, 14, 53, 14);
 		frameWoodcutter.getContentPane().add(lblLocation);
 		
-		JLabel lblLog = new JLabel("Log:");
+		JLabel lblLog = new JLabel("Tree:");
 		lblLog.setBounds(10, 45, 53, 14);
 		frameWoodcutter.getContentPane().add(lblLog);
 		
@@ -193,7 +193,7 @@ public class WoodcutterGUI {
 		return ((WoodcuttingSpot) cbxLocation.getSelectedItem());
 	}
 	
-	public Tree getOreNode() {
+	public Tree getTree() {
 		if (cbxLocation.getSelectedIndex() < 0)
 			return null;
 		return ((Tree) cbxTree.getSelectedItem());

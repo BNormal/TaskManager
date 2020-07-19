@@ -24,6 +24,7 @@ import TaskManager.scripts.misc.TutorialIsle;
 import TaskManager.scripts.quests.CookAssistant;
 import TaskManager.scripts.quests.ErnestTheChicken;
 import TaskManager.scripts.quests.RomeoAndJuliet;
+import TaskManager.scripts.woodcutting.Woodcutter;
 import TaskManager.scripts.woodcutting.WoodcutterData.Axe;
 
 import java.awt.event.ActionListener;
@@ -81,7 +82,7 @@ public class TaskEngineGUI {
 	{
 		@Override
 		public int compare(Script a, Script b) {
-			return a.toString().compareTo(b.toString());
+			return a.getName().compareTo(b.getName());
 		} 
 	}
 	
@@ -93,6 +94,7 @@ public class TaskEngineGUI {
 		scripts.add(new CookAssistant());
 		scripts.add(new ErnestTheChicken());
 		scripts.add(new LogOutIn());
+		scripts.add(new Woodcutter());
 		Collections.sort(scripts, new SortByName());
 	}
 
@@ -116,7 +118,7 @@ public class TaskEngineGUI {
 		DefaultComboBoxModel<String> scriptModel = new DefaultComboBoxModel<String>();
 		cbxScripts = new JComboBox<String>(scriptModel);
 		for (Script script : scripts) {
-			scriptModel.addElement(script.getDetails());
+			scriptModel.addElement(script.toString());
 		}
 		cbxScripts.setFocusable(false);
 		cbxScripts.setBounds(69, 11, 205, 20);

@@ -52,8 +52,6 @@ public class WoodcutterData {
 		@Override
 		public String toString() {
 			String name = name();
-			if (name.contains("_"))
-				name = name.substring(0, name.indexOf("_"));
 			return name.substring(0, 1) + name.substring(1).replaceAll("_", " ").toLowerCase();
 		}
 	}

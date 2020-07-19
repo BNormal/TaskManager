@@ -248,6 +248,12 @@ public class Woodcutter extends Script {
 		public Tree[] getTrees() {
 			return tree;
 		}
+		
+		@Override
+		public String toString() {
+			String name = name();
+			return name.replaceAll("_", " ");
+		}
 	}
 }
 

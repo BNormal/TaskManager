@@ -251,5 +251,11 @@ public class Miner extends Script {
 		public OreNode[] getRockNodes() {
 			return rockIds;
 		}
+		
+		@Override
+		public String toString() {
+			String name = name();
+			return name.replaceAll("_", " ");
+		}
 	}
 }
