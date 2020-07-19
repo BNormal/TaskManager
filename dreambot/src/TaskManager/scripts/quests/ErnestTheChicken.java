@@ -520,7 +520,8 @@ public class ErnestTheChicken extends Script {
 					} else {
 						engine.getNpcs().closest("Professor Oddenstein").interact();
 						sleepUntil(() -> engine.getDialogues().canContinue(), Calculations.random(3000, 5000));
-						progressId = 5;
+						if (engine.getDialogues().canContinue())
+							progressId = 5;
 					}
 				}
 			} else if (progressId == 5) {//cutscene
