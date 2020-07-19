@@ -517,7 +517,7 @@ public class ErnestTheChicken extends Script {
 					if (!engine.getMap().canReach(new Tile(3107, 3364, 2))) {
 						getObject(new Tile(3108, 3364, 2), "Door").interact("Open");//lc
 						sleepUntil(() -> engine.getMap().canReach(new Tile(3107, 3364, 2)), 6000);
-					} else {
+					} else if (engine.getMap().canReach(engine.getNpcs().closest("Professor Oddenstein"))) {
 						engine.getNpcs().closest("Professor Oddenstein").interact();
 						sleepUntil(() -> engine.getDialogues().canContinue(), Calculations.random(3000, 5000));
 						if (engine.getDialogues().canContinue())
