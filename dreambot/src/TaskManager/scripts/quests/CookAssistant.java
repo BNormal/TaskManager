@@ -1,9 +1,10 @@
-package TaskManager.tasks.quests;
+package TaskManager.scripts.quests;
 
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import org.dreambot.api.methods.Calculations;
@@ -14,8 +15,8 @@ import org.dreambot.api.script.ScriptManifest;
 import org.dreambot.api.utilities.Timer;
 import org.dreambot.api.wrappers.widgets.WidgetChild;
 
-import JewelrySmelter.Utilities;
 import TaskManager.Script;
+import TaskManager.utilities.Utilities;
 
 @ScriptManifest(author = "Trialander", category = Category.QUEST, name = "Cooks Assistant", version = 1.0, description = "Completes Cooks Assistant")
 public class CookAssistant extends Script {
@@ -32,10 +33,13 @@ public class CookAssistant extends Script {
 	WidgetChild interfaceItem;
 
 	private enum State {
-		TALK_COOK, DIALOGUE, GET_FLOUR, GET_EGG, GET_MILK, TURN_IN, NOTHING;
+		TALK_COOK, DIALOGUE, GET_FLOUR, GET_EGG, GET_MILK, TURN_IN, FINISHED, NOTHING;
 	}
 
 	private State getState() {
+		if (engine.getWidgets().getWidget(277) != null && engine.getWidgets().getWidget(277).isVisible() || getQuestProgress() == 5) {
+			return State.FINISHED;
+		}
 		if (getQuestProgress() == 0 && !engine.getDialogues().inDialogue())
 			return State.TALK_COOK;
 
@@ -92,9 +96,9 @@ public class CookAssistant extends Script {
 
 	@Override
 	public void onStart() {
+		super.onStart();
 		if (engine == null)
 			engine = this;
-		running = true;
 	}
 
 	@Override
@@ -250,11 +254,16 @@ public class CookAssistant extends Script {
 				engine.getWalking().walk(kitchen.getRandomTile());
 				sleepUntil(() -> engine.getWalking().getDestinationDistance() < 6, 6000);
 			}
-
 			break;
+		case FINISHED:
+			running = false;
+			time = new Date(totalTime.elapsed());
+			if (!taskScript) {
+				engine.getTabs().logout();
+				this.stop();
+			}
+		default:
 		}
-
-		// TODO Auto-generated method stub
 		return 0;
 	}
 

@@ -284,7 +284,6 @@ public class RomeoAndJuliet extends Script {
 			running = false;
 			time = new Date(totalTime.elapsed());
 			if (!taskScript) {
-				log("logged out");
 				engine.getTabs().logout();
 				this.stop();
 			}
