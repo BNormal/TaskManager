@@ -3,11 +3,26 @@ package TaskManager.scripts.mining;
 public class MinerData {
 	
 	public enum OreNode {
+		RUNE_ESSENCE_NODE(),
 		CLAY_NODE(11363, 11362),
 		TIN_NODE(11360, 11361),
 		COPPER_NODE(11161, 10943),
+		BLURITE_NODE(),
+		LIMESTONE_NODE(),
 		IRON_NODE(11365, 11364),
-		SILVER_NODE(11368, 11369);
+		SILVER_NODE(11368, 11369),
+		VOLCANIC_ASH_NODE(),
+		COAL_NODE(11366),
+		PURE_ESSENCE_NODE(),
+		SANDSTONE_NODE(),
+		GOLD_NODE(11371, 11370),
+		VULCANIC_SULPHUR_NODE(),
+		GRANITE_NODE(),
+		MITHRIL_NODE(11372, 11373),
+		LOVAKITE_NODE(),
+		ADAMANTITE_NODE(11375, 11374),
+		RUNITE_NODE(11376, 11377),
+		AMETHYST_NODE();
 		
 		private int[] rockIds;
 		
@@ -101,7 +116,7 @@ public class MinerData {
 			this.pickaxeId = pickaxeId;
 		}
 
-		public int getOreId() {
+		public int getPickaxeId() {
 			return pickaxeId;
 		}
 
@@ -113,7 +128,7 @@ public class MinerData {
 		public String toString() {
 			String name = name();
 			if (name.equals("THIRD_AGE_PICKAXE"))
-				return "3rd Age Pickaxe";
+				return "3rd age pickaxe";
 			return name.substring(0, 1) + name.substring(1).replaceAll("_", " ").toLowerCase();
 		}
 	}

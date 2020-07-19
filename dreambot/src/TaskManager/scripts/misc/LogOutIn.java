@@ -35,6 +35,8 @@ public class LogOutIn extends Script {
 	
 	@Override
 	public int onLoop() {
+		if (!engine.getLocalPlayer().isOnScreen())
+			return 0;
 		if (!gui.isLoggingOut())
 			engine.getClient().getInstance().getScriptManager().setAccount(gui.getNickname());
 		engine.getTabs().logout();
