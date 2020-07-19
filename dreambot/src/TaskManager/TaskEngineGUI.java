@@ -111,6 +111,7 @@ public class TaskEngineGUI {
 		frmTaskManager.setBounds(100, 100, 300, 345);
 		frmTaskManager.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frmTaskManager.getContentPane().setLayout(null);
+		frmTaskManager.setResizable(false);
 		
 		loadSctipts();
 		

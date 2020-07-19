@@ -87,6 +87,7 @@ public class MinerGUI {
 		frameMiner.setBounds(100, 100, 280, 290);
 		frameMiner.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frameMiner.getContentPane().setLayout(null);
+		frameMiner.setResizable(false);
 		
 		cbxLocation = new JComboBox<MiningSpot>(MiningSpot.values());//remove this MiningSpot.values() to use in window builder
 		cbxLocation.addActionListener(new ActionListener() {

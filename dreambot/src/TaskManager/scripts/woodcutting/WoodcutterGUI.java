@@ -79,6 +79,7 @@ public class WoodcutterGUI {
 		frameWoodcutter.setBounds(100, 100, 280, 290);
 		frameWoodcutter.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frameWoodcutter.getContentPane().setLayout(null);
+		frameWoodcutter.setResizable(false);
 		
 		cbxLocation = new JComboBox<WoodcuttingSpot>(WoodcuttingSpot.values());//remove this MiningSpot.values() to use in window builder
 		cbxLocation.addActionListener(new ActionListener() {

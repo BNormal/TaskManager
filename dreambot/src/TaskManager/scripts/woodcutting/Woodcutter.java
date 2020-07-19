@@ -57,8 +57,8 @@ public class Woodcutter extends Script {
 		super.onStart();
 		if (engine == null)
 			engine = this;
-		//location = gui.getWoodcuttingArea();
-		//selectedRockType = gui.getTree();
+		location = gui.getWoodcuttingArea();
+		selectedTreeType = gui.getTree();
 	}
 
 	@Override
@@ -72,6 +72,10 @@ public class Woodcutter extends Script {
 		}
 		if (Instance.getInstance().isMouseInputEnabled())
 			return 0;
+		if (!gui.isFinished()) {
+			location = gui.getWoodcuttingArea();
+			selectedTreeType = gui.getTree();
+		}
 		if (running && gui.isFinished()) {
 			if (engine.getDialogues().inDialogue() && engine.getDialogues().continueDialogue())
 				engine.getDialogues().spaceToContinue();

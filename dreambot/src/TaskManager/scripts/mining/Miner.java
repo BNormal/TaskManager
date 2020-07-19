@@ -10,6 +10,7 @@ import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.container.impl.equipment.EquipmentSlot;
 import org.dreambot.api.methods.filter.Filter;
 import org.dreambot.api.methods.map.Area;
+import org.dreambot.api.methods.map.Tile;
 import org.dreambot.api.methods.skills.Skill;
 import org.dreambot.api.methods.walking.web.node.impl.bank.WebBankArea;
 import org.dreambot.api.script.Category;
@@ -72,6 +73,10 @@ public class Miner extends Script {
 		}
 		if (Instance.getInstance().isMouseInputEnabled())
 			return 0;
+		if (!gui.isFinished()) {
+			location = gui.getMiningArea();
+			selectedRockType = gui.getOreNode();
+		}
 		if (running && gui.isFinished()) {
 			if (engine.getDialogues().inDialogue() && engine.getDialogues().continueDialogue())
 				engine.getDialogues().spaceToContinue();
@@ -208,6 +213,7 @@ public class Miner extends Script {
 		g.drawString("Exp Gained Per Hour: " + engine.getSkillTracker().getGainedExperiencePerHour(Skill.MINING), x1, y1 + 12 * 2);
 		g.drawString("Levels Gained: " + engine.getSkillTracker().getGainedLevels(Skill.MINING), x1, y1 + 12 * 3);
 		g.drawString("Current Level: " + engine.getSkills().getRealLevel(Skill.MINING), x1, y1 + 12 * 4);
+		g.drawString("NODE: " + selectedRockType, x1, y1 + 12 * 5);
 		//g.drawString("Has Target: " + (currentNode != null ? currentNode.exists() : "false"), x1, y1 + 12 * 5);
 		if (currentNode != null) {
 			g.setColor(Color.WHITE);
@@ -226,9 +232,11 @@ public class Miner extends Script {
 	
 	public static enum MiningSpot {
 		VarrockEast(WebBankArea.VARROCK_EAST.getArea(), new Area(3278, 3371, 3291, 3359, 0), OreNode.TIN_NODE, OreNode.COPPER_NODE, OreNode.IRON_NODE),
-		VarrockWest(WebBankArea.VARROCK_WEST.getArea(), new Area(3169, 3380, 3183, 3366, 0), OreNode.CLAY_NODE, OreNode.TIN_NODE, OreNode.IRON_NODE, OreNode.SILVER_NODE);
-		//West Mining area = new Area(new Tile(3181, 3381, 0), new Tile(3176, 3374, 0), new Tile(3171, 3369, 0), new Tile(3171, 3364, 0), new Tile(3177, 3361, 0), new Tile(3185, 3367, 0), new Tile(3186, 3379, 0));
-		
+		VarrockWest(WebBankArea.VARROCK_WEST.getArea(), new Area(new Tile(3181, 3381, 0), new Tile(3176, 3374, 0), new Tile(3171, 3369, 0), new Tile(3171, 3364, 0), new Tile(3177, 3361, 0), new Tile(3185, 3367, 0), new Tile(3186, 3379, 0)), OreNode.CLAY_NODE, OreNode.TIN_NODE, OreNode.IRON_NODE, OreNode.SILVER_NODE),
+		AlKharidNorthHigh(WebBankArea.AL_KHARID.getArea(), new Area(new Tile(3298, 3319, 0), new Tile(3302, 3319, 0), new Tile(3305, 3314, 0), new Tile(3305, 3306, 0), new Tile(3307, 3303, 0), new Tile(3304, 3297, 0), new Tile(3291, 3298, 0), new Tile(3295, 3307, 0), new Tile(3293, 3310, 0), new Tile(3296, 3317, 0)), OreNode.TIN_NODE, OreNode.COPPER_NODE, OreNode.IRON_NODE, OreNode.SILVER_NODE, OreNode.COAL_NODE, OreNode.MITHRIL_NODE, OreNode.ADAMANTITE_NODE),
+		AlKharidNorthLow(WebBankArea.AL_KHARID.getArea(), new Area(3293, 3289, 3304, 3283, 0), OreNode.IRON_NODE, OreNode.GOLD_NODE),
+		LumbridgeEast(WebBankArea.LUMBRIDGE.getArea(), new Area(3222, 3149, 3230, 3144, 0), OreNode.TIN_NODE, OreNode.COPPER_NODE),
+		LumbridgeWest(WebBankArea.LUMBRIDGE.getArea(), new Area(3144, 3154, 3148, 3144, 0), OreNode.COAL_NODE, OreNode.MITHRIL_NODE, OreNode.ADAMANTITE_NODE);
 		
 		private Area bankArea;
 		private Area miningArea;
@@ -238,6 +246,7 @@ public class Miner extends Script {
 			this.bankArea = bankArea;
 			this.miningArea = miningArea;
 			this.rockIds = rockIds;
+			
 		}
 
 		public Area getBankArea() {
