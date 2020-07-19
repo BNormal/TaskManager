@@ -25,7 +25,6 @@ import TaskManager.scripts.quests.CookAssistant;
 import TaskManager.scripts.quests.ErnestTheChicken;
 import TaskManager.scripts.quests.RomeoAndJuliet;
 import TaskManager.scripts.woodcutting.Woodcutter;
-import TaskManager.scripts.woodcutting.WoodcutterData.Axe;
 
 import java.awt.event.ActionListener;
 import java.lang.reflect.Constructor;
