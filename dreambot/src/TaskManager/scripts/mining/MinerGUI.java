@@ -14,6 +14,10 @@ import javax.swing.UIManager;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.awt.event.ActionEvent;
 
 import TaskManager.scripts.mining.Miner.MiningSpot;
@@ -24,6 +28,7 @@ import TaskManager.scripts.mining.MinerData.Pickaxe;
 public class MinerGUI {
 
 	private JFrame frameMiner;
+	private boolean isFinished = false;
 	private String title;
 	private DefaultListModel<Pickaxe> modelDisallowed = new DefaultListModel<Pickaxe>();
 	private DefaultListModel<Pickaxe> modelAllowed = new DefaultListModel<Pickaxe>();
@@ -172,13 +177,14 @@ public class MinerGUI {
 		btnFinished.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				frameMiner.setVisible(false);
+				isFinished = true;
 			}
 		});
 		btnFinished.setBounds(10, 216, 244, 24);
 		frameMiner.getContentPane().add(btnFinished);
 		updateOre();
 	}
-	
+
 	public void updateOre() {
 		if (cbxLocation.getSelectedIndex() < 0)
 			return;
@@ -199,6 +205,40 @@ public class MinerGUI {
 		if (cbxLocation.getSelectedIndex() < 0)
 			return null;
 		return ((OreNode) cbxOreNode.getSelectedItem());
+	}
+
+	class SortByLevel implements Comparator<Pickaxe> 
+	{
+		@Override
+		public int compare(Pickaxe a, Pickaxe b) {
+			return b.getPriority() - a.getPriority();
+		} 
+	}
+	
+	public List<Pickaxe> getDisallowedPickaxes() {
+		List<Pickaxe> pickaxes = new ArrayList<Pickaxe>();
+		for (int i = 0; i < modelDisallowed.size(); i++) {
+			pickaxes.add(modelDisallowed.get(i));
+		}
+		Collections.sort(pickaxes, new SortByLevel());
+		return pickaxes;
+	}
+
+	public List<Pickaxe> getAllowedPickaxes() {
+		List<Pickaxe> pickaxes = new ArrayList<Pickaxe>();
+		for (int i = 0; i < modelAllowed.size(); i++) {
+			pickaxes.add(modelAllowed.get(i));
+		}
+		Collections.sort(pickaxes, new SortByLevel());
+		return pickaxes;
+	}
+
+	public boolean isFinished() {
+		return isFinished;
+	}
+
+	public void setFinished(boolean isFinished) {
+		this.isFinished = isFinished;
 	}
 	
 	public void open() {

@@ -7,22 +7,22 @@ public class MinerData {
 		CLAY_NODE(11363, 11362),
 		TIN_NODE(11360, 11361),
 		COPPER_NODE(11161, 10943),
-		BLURITE_NODE(),
-		LIMESTONE_NODE(),
+		BLURITE_NODE(-1),
+		LIMESTONE_NODE(-1),
 		IRON_NODE(11365, 11364),
 		SILVER_NODE(11368, 11369),
-		VOLCANIC_ASH_NODE(),
+		VOLCANIC_ASH_NODE(-1),
 		COAL_NODE(11366),
-		PURE_ESSENCE_NODE(),
-		SANDSTONE_NODE(),
+		PURE_ESSENCE_NODE(-1),
+		SANDSTONE_NODE(-1),
 		GOLD_NODE(11371, 11370),
-		VULCANIC_SULPHUR_NODE(),
-		GRANITE_NODE(),
+		VULCANIC_SULPHUR_NODE(-1),
+		GRANITE_NODE(-1),
 		MITHRIL_NODE(11372, 11373),
-		LOVAKITE_NODE(),
+		LOVAKITE_NODE(-1),
 		ADAMANTITE_NODE(11375, 11374),
 		RUNITE_NODE(11376, 11377),
-		AMETHYST_NODE();
+		AMETHYST_NODE(-1);
 		
 		private int[] rockIds;
 		
@@ -55,7 +55,8 @@ public class MinerData {
 		@Override
 		public String toString() {
 			String name = name();
-			name = name.substring(0, name.indexOf("_"));
+			if (name.contains("_"))
+				name = name.substring(0, name.indexOf("_"));
 			return name.substring(0, 1) + name.substring(1).replaceAll("_", " ").toLowerCase();
 		}
 	}
@@ -96,24 +97,27 @@ public class MinerData {
 	}
 	
 	public enum Pickaxe {
-		BRONZE_PICKAXE(1265, 1),
-		IRON_PICKAXE(1267, 1),
-		STEEL_PICKAXE(1269, 6),
-		BLACK_PICKAXE(12297, 11),
-		MITHRIL_PICKAXE(1273, 21),
-		ADAMANT_PICKAXE(1271, 31),
-		RUNE_PICKAXE(1275, 41),
-		GILDED_PICKAXE(23276, 41),
-		DRAGON_PICKAXE(11920, 61),
-		THIRD_AGE_PICKAXE(20014, 61),
-		INFERNAL_PICKAXE(13243, 61),
-		CRYSTAL_PICKAXE(23680, 71);
+		BRONZE_PICKAXE(1265, 1, 0),
+		IRON_PICKAXE(1267, 1, 1),
+		STEEL_PICKAXE(1269, 6, 2),
+		BLACK_PICKAXE(12297, 11, 3),
+		MITHRIL_PICKAXE(1273, 21, 4),
+		ADAMANT_PICKAXE(1271, 31, 5),
+		RUNE_PICKAXE(1275, 41, 6),
+		GILDED_PICKAXE(23276, 41, 7),
+		DRAGON_PICKAXE(11920, 61, 8),
+		THIRD_AGE_PICKAXE(20014, 61, 9),
+		INFERNAL_PICKAXE(13243, 61, 10),
+		CRYSTAL_PICKAXE(23680, 71, 11);
 		
 		private int pickaxeId;
 		private int levelReq;
+		private int priority;
 		
-		private Pickaxe(int pickaxeId, int levelReq) {
+		private Pickaxe(int pickaxeId, int levelReq, int priority) {
 			this.pickaxeId = pickaxeId;
+			this.levelReq = levelReq;
+			this.priority = priority;
 		}
 
 		public int getPickaxeId() {
@@ -122,6 +126,10 @@ public class MinerData {
 
 		public int getLevelReq() {
 			return levelReq;
+		}
+		
+		public int getPriority() {
+			return priority;
 		}
 		
 		@Override

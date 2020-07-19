@@ -52,7 +52,8 @@ public class WoodcutterData {
 		@Override
 		public String toString() {
 			String name = name();
-			name = name.substring(0, name.indexOf("_"));
+			if (name.contains("_"))
+				name = name.substring(0, name.indexOf("_"));
 			return name.substring(0, 1) + name.substring(1).replaceAll("_", " ").toLowerCase();
 		}
 	}
@@ -84,24 +85,27 @@ public class WoodcutterData {
 	}
 	
 	public enum Axe {
-		BRONZE_AXE(1351, 1),
-		IRON_AXE(1349, 1),
-		STEEL_AXE(1353, 6),
-		BLACK_AXE(1361, 11),
-		MITHRIL_AXE(1355, 21),
-		ADAMANT_AXE(1357, 31),
-		RUNE_AXE(1359, 41),
-		GILDED_AXE(23279, 41),
-		DRAGON_AXE(6739, 61),
-		THIRD_AGE_AXE(6739, 61),
-		INFERNAL_AXE(6739, 61),
-		CRYSTAL_AXE(23673, 71);
+		BRONZE_AXE(1351, 1, 0),
+		IRON_AXE(1349, 1, 1),
+		STEEL_AXE(1353, 6, 2),
+		BLACK_AXE(1361, 11, 3),
+		MITHRIL_AXE(1355, 21, 4),
+		ADAMANT_AXE(1357, 31, 5),
+		RUNE_AXE(1359, 41, 6),
+		GILDED_AXE(23279, 41, 7),
+		DRAGON_AXE(6739, 61, 8),
+		THIRD_AGE_AXE(6739, 61, 9),
+		INFERNAL_AXE(6739, 61, 10),
+		CRYSTAL_AXE(23673, 71, 11);
 		
 		private int axeId;
 		private int levelReq;
+		private int priority;
 		
-		private Axe(int axeId, int levelReq) {
+		private Axe(int axeId, int levelReq, int priority) {
 			this.axeId = axeId;
+			this.levelReq = levelReq;
+			this.priority = priority;
 		}
 
 		public int getAxeId() {
@@ -110,6 +114,10 @@ public class WoodcutterData {
 
 		public int getLevelReq() {
 			return levelReq;
+		}
+		
+		public int getPriority() {
+			return priority;
 		}
 		
 		@Override

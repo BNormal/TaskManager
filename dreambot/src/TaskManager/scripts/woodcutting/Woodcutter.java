@@ -3,6 +3,8 @@ package TaskManager.scripts.woodcutting;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.util.Date;
+import java.util.List;
 
 import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.container.impl.equipment.EquipmentSlot;
@@ -18,13 +20,14 @@ import org.dreambot.core.Instance;
 
 import TaskManager.Script;
 import TaskManager.scripts.woodcutting.WoodcutterData.Tree;
+import TaskManager.scripts.woodcutting.WoodcutterData.Axe;
 
 @ScriptManifest(author = "NumberZ", category = Category.WOODCUTTING, name = "Woodcutter", version = 1.0, description = "Cuts trees in various areas")
 public class Woodcutter extends Script {
 
-	private String pickaxe = "axe";
+	private String Axe = "axe";
 	private boolean tracking = false;
-	private GameObject currentNode;
+	private GameObject currentTree;
 	private final Color BACKGROUND = new Color(0, 192, 192, 128);
 	private WoodcuttingSpot location;
 	private Tree selectedTreeType;
@@ -33,7 +36,7 @@ public class Woodcutter extends Script {
 	public Woodcutter() {
 		supportedConditions.add(TaskManager.Condition.Time);
 		supportedConditions.add(TaskManager.Condition.Level);
-		supportedSkills.add(Skill.MINING);
+		supportedSkills.add(Skill.WOODCUTTING);
 		gui = new WoodcutterGUI(getManifest().name());
 	}
 	
@@ -49,11 +52,13 @@ public class Woodcutter extends Script {
 	
 	@Override
 	public void onStart() {
+		if (!taskScript)
+			init();
 		super.onStart();
 		if (engine == null)
 			engine = this;
-		//location = gui.getMiningArea();
-		//selectedRockType = gui.getOreNode();
+		//location = gui.getWoodcuttingArea();
+		//selectedRockType = gui.getTree();
 	}
 
 	@Override
@@ -67,7 +72,7 @@ public class Woodcutter extends Script {
 		}
 		if (Instance.getInstance().isMouseInputEnabled())
 			return 0;
-		if (running) {
+		if (running && gui.isFinished()) {
 			if (engine.getDialogues().inDialogue() && engine.getDialogues().continueDialogue())
 				engine.getDialogues().spaceToContinue();
 			if (ableToCut()) {
@@ -90,10 +95,10 @@ public class Woodcutter extends Script {
 	private boolean handleWoodcutting() {
 		boolean result = true;
 		if (!engine.getLocalPlayer().isMoving() && !engine.getLocalPlayer().isAnimating()) {
-			if (currentNode == null || !currentNode.exists())
-				currentNode = engine.getGameObjects().closest(treeFilter());
-			if (currentNode != null) {
-				currentNode.interact("Chop down");
+			if (currentTree == null || !currentTree.exists())
+				currentTree = engine.getGameObjects().closest(treeFilter());
+			if (currentTree != null) {
+				currentTree.interact("Chop down");
 				sleepWhile(() -> engine.getLocalPlayer().isAnimating(), Calculations.random(12000, 15400));
 				sleepWhile(() -> !engine.getLocalPlayer().isAnimating(), Calculations.random(12000, 15400));
 			}
@@ -103,28 +108,11 @@ public class Woodcutter extends Script {
 
 	private String getBestAxe() {
 		int level = engine.getSkills().getRealLevel(Skill.WOODCUTTING);
-		if (level >= 71 && engine.getBank().contains("Crystal axe")) {
-			return "Crystal axe";
-		} else if (level >= 61 && engine.getBank().contains("Infernal axe")) {
-			return "Infernal axe";
-		} else if (level >= 61 && engine.getBank().contains("3rd age axe")) {
-			return "3rd age axe";
-		} else if (level >= 61 && engine.getBank().contains("Dragon axe")) {
-			return "Dragon axe";
-		} else if (level >= 41 && engine.getBank().contains("Gilded axe")) {
-			return "Gilded axe";
-		} else if (level >= 41 && engine.getBank().contains("Rune axe")) {
-			return "Rune axe";
-		} else if (level >= 31 && engine.getBank().contains("Adamant axe")) {
-			return "Adamant axe";
-		} else if (level >= 21 && engine.getBank().contains("Mithril axe")) {
-			return "Mithril axe";
-		} else if (level >= 11 && engine.getBank().contains("Black axe")) {
-			return "Black axe";
-		} else if (level >= 6 && engine.getBank().contains("Steel axe")) {
-			return "Steel axe";
-		} else if (level >= 1 && engine.getBank().contains("Iron axe")) {
-			return "Iron axe";
+		List<Axe> approvedPickaxes = gui.getAllowedAxes();
+		for (Axe axe : approvedPickaxes) {
+			if (level >= axe.getLevelReq() && engine.getBank().contains(axe.toString())) {
+				return axe.toString();
+			}
 		}
 		return "Bronze axe";
 	}
@@ -132,17 +120,22 @@ public class Woodcutter extends Script {
 	private boolean handleBanking() {
 		boolean results = false;
 		if (ableToBank()) {
-			if (engine.getBank().openClosest()) {
-				pickaxe = getBestAxe();
+			if (!engine.getBank().isOpen()) {
+				engine.getBank().openClosest();
+				sleepUntil(() -> engine.getBank().isOpen(), Calculations.random(3000, 5000));
+			} else {
+				Axe = getBestAxe();
 				if (!hasAxe()) {
-					if (engine.getBank().contains(pickaxe))
-						engine.getBank().withdraw(pickaxe);
-					else
-						running = false;
+					if (engine.getBank().contains(Axe)) {
+						engine.getBank().withdraw(Axe);
+						sleepUntil(() -> engine.getInventory().contains(Axe), Calculations.random(3000, 5000));
+					} else if (!engine.getBank().contains(Axe) && !engine.getInventory().contains(Axe)) {
+						onExit();
+					}
 				}
 				if (engine.getInventory().contains(selectedTreeType.getLogFromTree().getLogId())) {
 					increaseRunCount();
-					engine.getBank().depositAllExcept(pickaxe);
+					engine.getBank().depositAllExcept(Axe);
 				}
 				if (readyToCut() && engine.getBank().close()) {
 					results = true;
@@ -155,7 +148,7 @@ public class Woodcutter extends Script {
 	private Filter<GameObject> treeFilter() {
 		return gameObject -> {
 			boolean accepted = false;
-			if (gameObject != null && (currentNode == null || (currentNode.getID() == gameObject.getID() && currentNode.getX() == gameObject.getX() && currentNode.getY() == gameObject.getY()))) {
+			if (gameObject != null && (currentTree == null || (currentTree.getID() == gameObject.getID() && currentTree.getX() == gameObject.getX() && currentTree.getY() == gameObject.getY()))) {
 				if (selectedTreeType.hasMatch(gameObject.getName()))
 					accepted = true;
 			}
@@ -197,30 +190,43 @@ public class Woodcutter extends Script {
 	}
 
 	@Override
-	public void onPaint(Graphics2D graphics) {
+	public void onPaint(Graphics2D g) {
 		int x = 10;
 		int y = 25;
 		int width = 200;
 		int height = 83;
 		int x1 = x + 5;
 		int y1 = y + 15;
-		graphics.setColor(BACKGROUND);
-		graphics.fillRect(x + 1, y + 1, width - 2, height - 2);
-		graphics.setColor(Color.BLACK);
-		graphics.setStroke(new BasicStroke(2));
-		graphics.drawRect(x, y, width, height);
-		graphics.setColor(Color.WHITE);
-		graphics.drawString("Total Time: " + totalTime.formatTime(), x1, y1);
-		graphics.drawString("Exp Gained: " + engine.getSkillTracker().getGainedExperience(Skill.WOODCUTTING), x1, y1 + 12);
-		graphics.drawString("Exp Gained Per Hour: " + engine.getSkillTracker().getGainedExperiencePerHour(Skill.WOODCUTTING), x1, y1 + 12 * 2);
-		graphics.drawString("Levels Gained: " + engine.getSkillTracker().getGainedLevels(Skill.WOODCUTTING), x1, y1 + 12 * 3);
-		graphics.drawString("Current Level: " + engine.getSkills().getRealLevel(Skill.WOODCUTTING), x1, y1 + 12 * 4);
-		graphics.drawString("Has Target: " + (currentNode != null ? currentNode.exists() : "false"), x1, y1 + 12 * 5);
+		g.setColor(BACKGROUND);
+		g.fillRect(x + 1, y + 1, width - 2, height - 2);
+		g.setColor(Color.BLACK);
+		g.setStroke(new BasicStroke(2));
+		g.drawRect(x, y, width, height);
+		g.setColor(Color.WHITE);
+		g.drawString("Total Time: " + totalTime.formatTime(), x1, y1);
+		g.drawString("Exp Gained: " + engine.getSkillTracker().getGainedExperience(Skill.WOODCUTTING), x1, y1 + 12);
+		g.drawString("Exp Gained Per Hour: " + engine.getSkillTracker().getGainedExperiencePerHour(Skill.WOODCUTTING), x1, y1 + 12 * 2);
+		g.drawString("Levels Gained: " + engine.getSkillTracker().getGainedLevels(Skill.WOODCUTTING), x1, y1 + 12 * 3);
+		g.drawString("Current Level: " + engine.getSkills().getRealLevel(Skill.WOODCUTTING), x1, y1 + 12 * 4);
+		//g.drawString("Has Target: " + (currentNode != null ? currentNode.exists() : "false"), x1, y1 + 12 * 5);
+		if (currentTree != null) {
+			g.setColor(Color.WHITE);
+			g.drawPolygon(currentTree.getTile().getPolygon());
+		}
+	}
+	
+	@Override
+	public void onExit() {
+		running = false;
+		time = new Date(totalTime.elapsed());
+		if (!taskScript) {
+			this.stop();
+		}
 	}
 	
 	public static enum WoodcuttingSpot {
-		VarrockWest(WebBankArea.VARROCK_WEST.getArea(), new Area(3278, 3371, 3291, 3359, 0), Tree.TREE);
-		
+		VarrockWest(WebBankArea.VARROCK_WEST.getArea(), new Area(3278, 3371, 3291, 3359, 0), Tree.TREE, Tree.OAK_TREE);
+
 		private Area bankArea;
 		private Area woodcuttingArea;
 		private Tree[] tree;
@@ -239,7 +245,7 @@ public class Woodcutter extends Script {
 			return woodcuttingArea;
 		}
 
-		public Tree[] getRockNodes() {
+		public Tree[] getTrees() {
 			return tree;
 		}
 	}
