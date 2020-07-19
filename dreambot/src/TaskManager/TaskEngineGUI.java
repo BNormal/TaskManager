@@ -15,15 +15,22 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeListener;
 
 import org.dreambot.api.methods.skills.Skill;
+import org.dreambot.api.script.AbstractScript;
 
 import TaskManager.scripts.WoolSpinner;
 import TaskManager.scripts.mining.Miner;
+import TaskManager.scripts.misc.LogOutIn;
 import TaskManager.scripts.misc.TutorialIsle;
 import TaskManager.scripts.quests.ErnestTheChicken;
 import TaskManager.scripts.quests.RomeoAndJuliet;
 
 import javax.swing.event.ChangeEvent;
 import java.awt.event.ActionListener;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +54,7 @@ public class TaskEngineGUI {
 	private JLabel lblAmountDescription;
 	private boolean running = false;
 	private int currentScript = 0;
+	private AbstractScript engine;
 
 	/**
 	 * Launch the application.
@@ -60,7 +68,7 @@ public class TaskEngineGUI {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					TaskEngineGUI window = new TaskEngineGUI();
+					TaskEngineGUI window = new TaskEngineGUI(null);
 					window.frmTaskManager.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -72,7 +80,8 @@ public class TaskEngineGUI {
 	/**
 	 * Create the application.
 	 */
-	public TaskEngineGUI() {
+	public TaskEngineGUI(AbstractScript engine) {
+		this.engine = engine;
 		initialize();
 	}
 
@@ -82,6 +91,7 @@ public class TaskEngineGUI {
 		scripts.add(new Miner());
 		scripts.add(new RomeoAndJuliet());
 		scripts.add(new ErnestTheChicken());
+		scripts.add(new LogOutIn());
 	}
 
 	/**
@@ -133,6 +143,7 @@ public class TaskEngineGUI {
 		frmTaskManager.getContentPane().add(cbxConditon);
 		
 		JButton btnStart = new JButton("Start");
+		btnStart.setFocusable(false);
 		btnStart.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				start();
@@ -179,6 +190,7 @@ public class TaskEngineGUI {
 		scrollTasksPane.setViewportView(listTasks);
 		
 		JButton btnAdd = new JButton("Add");
+		btnAdd.setFocusable(false);
 		btnAdd.setBounds(10, 92, 89, 23);
 		btnAdd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -195,9 +207,12 @@ public class TaskEngineGUI {
 					}
 					Script script = null;
 					try {
-						script = scripts.get(index).clone();
-					} catch (CloneNotSupportedException e) {
-						e.printStackTrace();
+						Class<?> clazz = Class.forName(scripts.get(index).getClass().getName());
+						Constructor<?> ctor = clazz.getConstructor();
+						Object object = ctor.newInstance();
+						script = (Script) object;
+					} catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+						
 					}
 					if (script != null) {
 						script.setTask(task);
@@ -211,6 +226,7 @@ public class TaskEngineGUI {
 		frmTaskManager.getContentPane().add(btnAdd);
 		
 		JButton btnRemove = new JButton("Remove");
+		btnRemove.setFocusable(false);
 		btnRemove.setBounds(185, 92, 89, 23);
 		btnRemove.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -325,5 +341,10 @@ public class TaskEngineGUI {
 
 	public void nextScript() {
 		currentScript++;
+	}
+	
+	public void exit() {
+		frmTaskManager.setVisible(false);
+		frmTaskManager.dispose();
 	}
 }

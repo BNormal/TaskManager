@@ -8,7 +8,6 @@ import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.container.impl.equipment.EquipmentSlot;
 import org.dreambot.api.methods.filter.Filter;
 import org.dreambot.api.methods.map.Area;
-import org.dreambot.api.methods.map.Tile;
 import org.dreambot.api.methods.skills.Skill;
 import org.dreambot.api.methods.walking.web.node.impl.bank.WebBankArea;
 import org.dreambot.api.script.Category;
@@ -30,7 +29,6 @@ public class Miner extends Script {
 	private MiningSpot location;
 	private OreNode selectedRockType;
 	private MinerGUI gui;
-	private Area MINING_AREA = new Area(new Tile(3181, 3381, 0), new Tile(3176, 3374, 0), new Tile(3171, 3369, 0), new Tile(3171, 3364, 0), new Tile(3177, 3361, 0), new Tile(3185, 3367, 0), new Tile(3186, 3379, 0));
 	
 	public Miner() {
 		supportedConditions.add(TaskManager.Condition.Time);

@@ -5,11 +5,16 @@ import java.util.Date;
 import org.dreambot.api.script.Category;
 import org.dreambot.api.script.ScriptManifest;
 
-import TaskManager.Condition;
 import TaskManager.Script;
 
-@ScriptManifest(author = "NumberZ", category = Category.MISC, name = "Log in/out (unf)", version = 1.0, description = "Logs an account in or out")
+@ScriptManifest(author = "NumberZ", category = Category.MISC, name = "Log in/out", version = 1.0, description = "Logs in or out of an account")
 public class LogOutIn extends Script {
+	
+	private LogOutInGUI gui;
+	
+	public LogOutIn() {
+		gui = new LogOutInGUI(getManifest().name());
+	}
 	
 	@Override
 	public void onStart() {
@@ -19,7 +24,19 @@ public class LogOutIn extends Script {
 	}
 	
 	@Override
+	public void init() {
+		gui.open();
+	}
+	
+	@Override
+	public void dispose() {
+		gui.exit();
+	}
+	
+	@Override
 	public int onLoop() {
+		if (!gui.isLoggingOut())
+			engine.getClient().getInstance().getScriptManager().setAccount(gui.getNickname());
 		engine.getTabs().logout();
 		onExit();
 		return 0;
@@ -34,3 +51,5 @@ public class LogOutIn extends Script {
 		}
 	}
 }
+
+

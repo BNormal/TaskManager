@@ -17,7 +17,7 @@ import TaskManager.utilities.Utilities;
 @ScriptManifest(author = "NumberZ", name = "Task Manager", version = 1.0, description = "Allows you to runs a script to do a task then switch to another task or stop completely.", category = Category.MISC)
 public class TaskEngine extends AbstractScript {
 
-	private TaskEngineGUI gui = new TaskEngineGUI();
+	private TaskEngineGUI gui = new TaskEngineGUI(this);
 	private boolean started = false;
 	private Script currentScript = null;
 	private Timer totalTime = new Timer();
@@ -44,6 +44,10 @@ public class TaskEngine extends AbstractScript {
 			return 0;
 		if (currentScript == null) {
 			currentScript = gui.getCurrentScript();
+			if (currentScript == null) {
+				this.stop();
+				return 0;
+			}
 			if (currentScript != null) {
 				if (currentScript.getEngine() == null)
 					currentScript.setEngine(this);
@@ -63,7 +67,7 @@ public class TaskEngine extends AbstractScript {
 	
 	@Override
     public void onExit() {
-		
+		gui.exit();
 	}
 	
 	@SuppressWarnings("deprecation")
