@@ -4,8 +4,6 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 
-import javax.swing.UIManager;
-
 import org.dreambot.api.randoms.RandomEvent;
 import org.dreambot.api.script.AbstractScript;
 import org.dreambot.api.script.Category;
@@ -17,7 +15,7 @@ import TaskManager.utilities.Utilities;
 @ScriptManifest(author = "NumberZ", name = "Task Manager", version = 1.0, description = "Allows you to runs a script to do a task then switch to another task or stop completely.", category = Category.MISC)
 public class TaskEngine extends AbstractScript {
 
-	private TaskEngineGUI gui = new TaskEngineGUI(this);
+	private TaskEngineGUI gui = new TaskEngineGUI();
 	private boolean started = false;
 	private Script currentScript = null;
 	private Timer totalTime = new Timer();
@@ -26,11 +24,6 @@ public class TaskEngine extends AbstractScript {
 	
 	@Override
     public void onStart() {
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Throwable e) {
-			e.printStackTrace();
-		}
 		getRandomManager().disableSolver(RandomEvent.RESIZABLE_DISABLER);
 		if (getRandomManager().getCurrentSolver() != null && getRandomManager().getCurrentSolver().getEventString().equalsIgnoreCase("RESIZABLE_DISABLER"))
 			getRandomManager().getCurrentSolver().disable();

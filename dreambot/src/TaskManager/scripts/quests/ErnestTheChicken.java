@@ -20,7 +20,6 @@ import org.dreambot.api.wrappers.interactive.GameObject;
 import org.dreambot.api.wrappers.items.GroundItem;
 import org.dreambot.api.wrappers.widgets.WidgetChild;
 
-import TaskManager.Condition;
 import TaskManager.Script;
 import TaskManager.utilities.Utilities;
 

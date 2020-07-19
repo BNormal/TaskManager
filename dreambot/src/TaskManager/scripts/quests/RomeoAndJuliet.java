@@ -16,7 +16,6 @@ import org.dreambot.api.wrappers.interactive.GameObject;
 import org.dreambot.api.wrappers.widgets.WidgetChild;
 
 import TaskManager.utilities.Utilities;
-import TaskManager.Condition;
 import TaskManager.Script;
 
 @ScriptManifest(author = "NumberZ", category = Category.QUEST, name = "Romeo and Juliet", version = 1.0, description = "Completes Romeo and Juliet quest")

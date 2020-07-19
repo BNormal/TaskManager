@@ -1,21 +1,21 @@
 package TaskManager;
 
-import java.awt.EventQueue;
-
 import javax.swing.JFrame;
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
-import java.awt.Font;
 import javax.swing.JLabel;
 import javax.swing.UIManager;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeListener;
+import javax.swing.JScrollPane;
+import javax.swing.JList;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ChangeEvent;
 
 import org.dreambot.api.methods.skills.Skill;
-import org.dreambot.api.script.AbstractScript;
 
 import TaskManager.scripts.WoolSpinner;
 import TaskManager.scripts.mining.Miner;
@@ -24,20 +24,15 @@ import TaskManager.scripts.misc.TutorialIsle;
 import TaskManager.scripts.quests.ErnestTheChicken;
 import TaskManager.scripts.quests.RomeoAndJuliet;
 
-import javax.swing.event.ChangeEvent;
 import java.awt.event.ActionListener;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.awt.event.ActionEvent;
+import java.awt.EventQueue;
 import java.util.ArrayList;
 import java.util.List;
+import java.awt.Font;
 
-import javax.swing.JScrollPane;
-import javax.swing.JList;
-import javax.swing.ListSelectionModel;
 
 public class TaskEngineGUI {
 
@@ -54,21 +49,15 @@ public class TaskEngineGUI {
 	private JLabel lblAmountDescription;
 	private boolean running = false;
 	private int currentScript = 0;
-	private AbstractScript engine;
 
 	/**
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Throwable e) {
-			e.printStackTrace();
-		}
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					TaskEngineGUI window = new TaskEngineGUI(null);
+					TaskEngineGUI window = new TaskEngineGUI();
 					window.frmTaskManager.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -80,8 +69,7 @@ public class TaskEngineGUI {
 	/**
 	 * Create the application.
 	 */
-	public TaskEngineGUI(AbstractScript engine) {
-		this.engine = engine;
+	public TaskEngineGUI() {
 		initialize();
 	}
 
@@ -98,6 +86,11 @@ public class TaskEngineGUI {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Throwable e) {
+			e.printStackTrace();
+		}
 		frmTaskManager = new JFrame();
 		frmTaskManager.setTitle("Task Manager");
 		frmTaskManager.setBounds(100, 100, 300, 345);
