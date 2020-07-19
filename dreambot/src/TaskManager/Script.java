@@ -8,7 +8,7 @@ import org.dreambot.api.methods.skills.Skill;
 import org.dreambot.api.script.AbstractScript;
 import org.dreambot.api.utilities.Timer;
 
-public abstract class Script extends AbstractScript implements Cloneable {
+public abstract class Script extends AbstractScript {
 	protected Timer totalTime = null;
 	protected boolean running = false;
 	protected boolean taskScript = false;
@@ -16,11 +16,12 @@ public abstract class Script extends AbstractScript implements Cloneable {
 	protected AbstractScript engine;
 	protected int runCount = 0;
 	protected List<Condition> supportedConditions = new ArrayList<Condition>();
+	protected List<Skill> supportedSkills = new ArrayList<Skill>();
 
 	private Task task = null;
 
 	public Script() {
-		
+		supportedConditions.add(TaskManager.Condition.Continually);
 	}
 	
 	@Override
@@ -33,8 +34,16 @@ public abstract class Script extends AbstractScript implements Cloneable {
 		
 	}
 	
+	public void dispose() {
+		
+	}
+	
 	public List<Condition> supportedCondition() {
 		return supportedConditions;
+	}
+	
+	public List<Skill> supportedSkills() {
+		return supportedSkills;
 	}
 
 	public Timer getTotalTime() {
@@ -97,11 +106,14 @@ public abstract class Script extends AbstractScript implements Cloneable {
 		}
 		return false;
 	}
-
-	public Script clone() throws CloneNotSupportedException {
-		return (Script) super.clone();
+	
+	public boolean isRunning() {
+		return running;
 	}
 
+	public abstract int onLoop();
+
+	@Override
 	public String toString() {
 		if (task != null) {
 			if (task.getCondition() == Condition.Time) {
@@ -109,7 +121,6 @@ public abstract class Script extends AbstractScript implements Cloneable {
 					return getManifest().name() + ": " + task.getCondition().name() + " - " + (task.getAmount() / 60) + " Hour" + (task.getAmount() / 60 > 1 ? "s" : "") + ", " + (task.getAmount() % 60) + " Minute" + (task.getAmount() % 60 > 1 ? "s" : "");
 				else
 					return getManifest().name() + ": " + task.getCondition().name() + " - " + task.getAmount() + " Minute" + (task.getAmount() > 1 ? "s" : "");
-				
 			} else if (task.getCondition() == Condition.Continually) {
 				return getManifest().name() + ": " + task.getCondition().name() + " - Infinitely/Completed.";
 			} else if (task.getCondition() == Condition.Level) {
@@ -124,10 +135,8 @@ public abstract class Script extends AbstractScript implements Cloneable {
 		}
 	}
 	
-	public boolean isRunning() {
-		return running;
+	public String getName() {
+		return this.getClass().getSimpleName();
 	}
-
-	public abstract int onLoop();
 	
 }
