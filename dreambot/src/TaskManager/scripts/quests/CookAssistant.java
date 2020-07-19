@@ -72,7 +72,6 @@ public class CookAssistant extends Script {
 			return State.NOTHING;
 		}
 		return State.NOTHING;
-
 	}
 
 	private int getQuestProgress() {

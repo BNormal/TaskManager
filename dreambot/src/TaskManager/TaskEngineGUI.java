@@ -21,8 +21,10 @@ import TaskManager.scripts.WoolSpinner;
 import TaskManager.scripts.mining.Miner;
 import TaskManager.scripts.misc.LogOutIn;
 import TaskManager.scripts.misc.TutorialIsle;
+import TaskManager.scripts.quests.CookAssistant;
 import TaskManager.scripts.quests.ErnestTheChicken;
 import TaskManager.scripts.quests.RomeoAndJuliet;
+import TaskManager.scripts.woodcutting.WoodcutterData.Axe;
 
 import java.awt.event.ActionListener;
 import java.lang.reflect.Constructor;
@@ -30,13 +32,15 @@ import java.lang.reflect.InvocationTargetException;
 import java.awt.event.ActionEvent;
 import java.awt.EventQueue;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.awt.Font;
 
 
 public class TaskEngineGUI {
 
-	private ArrayList<Script> scripts = new ArrayList<Script>();
+	private List<Script> scripts = new ArrayList<Script>();
 	private DefaultListModel<Script> tasksModel;
 	private JFrame frmTaskManager;
 	private JComboBox<String> cbxScripts;
@@ -73,13 +77,23 @@ public class TaskEngineGUI {
 		initialize();
 	}
 
+	class SortByName implements Comparator<Script> 
+	{
+		@Override
+		public int compare(Script a, Script b) {
+			return a.toString().compareTo(b.toString());
+		} 
+	}
+	
 	public void loadSctipts() {//Add your scripts here for now
 		scripts.add(new TutorialIsle());
 		scripts.add(new WoolSpinner());
 		scripts.add(new Miner());
 		scripts.add(new RomeoAndJuliet());
+		scripts.add(new CookAssistant());
 		scripts.add(new ErnestTheChicken());
 		scripts.add(new LogOutIn());
+		Collections.sort(scripts, new SortByName());
 	}
 
 	/**
@@ -102,7 +116,7 @@ public class TaskEngineGUI {
 		DefaultComboBoxModel<String> scriptModel = new DefaultComboBoxModel<String>();
 		cbxScripts = new JComboBox<String>(scriptModel);
 		for (Script script : scripts) {
-			scriptModel.addElement(script.toString());
+			scriptModel.addElement(script.getDetails());
 		}
 		cbxScripts.setFocusable(false);
 		cbxScripts.setBounds(69, 11, 205, 20);
