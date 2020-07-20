@@ -29,6 +29,10 @@ public class WoolShearer extends Script {
 	private String state;
 	private int bankStatus = -1;
 
+	public WoolShearer() {
+		supportedConditions.add(TaskManager.Condition.Time);
+	}
+	
 	@Override
 	public void onStart() {
 		super.onStart();

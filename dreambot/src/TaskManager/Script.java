@@ -117,10 +117,11 @@ public abstract class Script extends AbstractScript {
 	public String toString() {
 		if (task != null) {
 			if (task.getCondition() == Condition.Time) {
-				if (task.getAmount() / 60 > 0)
-					return getManifest().name() + ": " + task.getCondition().name() + " - " + (task.getAmount() / 60) + " Hour" + (task.getAmount() / 60 > 1 ? "s" : "") + ", " + (task.getAmount() % 60) + " Minute" + (task.getAmount() % 60 > 1 ? "s" : "");
+				int time = (int) (task.getAmount() / 60000);
+				if (time / 60 > 0)
+					return getManifest().name() + ": " + task.getCondition().name() + " - " + (time / 60) + " Hour" + (time / 60 > 1 ? "s" : "") + ", " + (time % 60) + " Minute" + (time % 60 > 1 ? "s" : "");
 				else
-					return getManifest().name() + ": " + task.getCondition().name() + " - " + task.getAmount() + " Minute" + (task.getAmount() > 1 ? "s" : "");
+					return getManifest().name() + ": " + task.getCondition().name() + " - " + time + " Minute" + (time > 1 ? "s" : "");
 			} else if (task.getCondition() == Condition.Continually) {
 				return getManifest().name() + ": " + task.getCondition().name() + " - Infinitely/Completed.";
 			} else if (task.getCondition() == Condition.Level) {
