@@ -11,6 +11,8 @@ import javax.swing.JLabel;
 import javax.swing.UIManager;
 import javax.swing.JSpinner;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.text.DefaultFormatter;
 import javax.swing.JScrollPane;
 import javax.swing.JList;
@@ -51,6 +53,8 @@ public class TaskEngineGUI {
 	private JComboBox<Skill> cbxSkills;
 	private DefaultComboBoxModel<Skill> modelSkills = new DefaultComboBoxModel<Skill>();
 	private JSpinner spinAmount;
+	private JList<Script> listTasks;
+	private JButton btnReplace;
 	private JLabel lblAmountDescription;
 	private boolean running = false;
 	private int currentScript = 0;
@@ -199,49 +203,37 @@ public class TaskEngineGUI {
 		frmTaskManager.getContentPane().add(scrollTasksPane);
 		
 		tasksModel = new DefaultListModel<Script>();
-		JList<Script> listTasks = new JList<Script>(tasksModel);
+		listTasks = new JList<Script>(tasksModel);
 		listTasks.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		listTasks.addListSelectionListener(new ListSelectionListener() {
+
+            @Override
+            public void valueChanged(ListSelectionEvent arg0) {
+                if (!arg0.getValueIsAdjusting()) {
+                	int index = listTasks.getSelectedIndex();
+                	if (index > -1) {
+                    	btnReplace.setVisible(true);
+                	} else {
+                		btnReplace.setVisible(false);
+                	}
+                }
+            }
+        });
 		scrollTasksPane.setViewportView(listTasks);
 		
 		JButton btnAdd = new JButton("Add");
 		btnAdd.setFocusable(false);
-		btnAdd.setBounds(10, 92, 89, 23);
+		btnAdd.setBounds(10, 92, 80, 23);
 		btnAdd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				int index = cbxScripts.getSelectedIndex();
-				if (index >= 0 && index < scripts.size()) {
-					Task task = new Task((Condition) cbxConditon.getSelectedItem(), (int) spinAmount.getValue());
-					if (cbxConditon.getSelectedItem() == Condition.Time) {
-						task.setAmount(Long.valueOf((int) spinAmount.getValue() * 60000));
-					} else if (cbxConditon.getSelectedItem() == Condition.Continually) {
-						task.setAmount(0);
-					} else if (cbxConditon.getSelectedItem() == Condition.Level) {
-						task.setAmount(Long.valueOf((int) spinAmount.getValue()));
-						task.setConditionItem(cbxSkills.getSelectedItem());
-					}
-					Script script = null;
-					try {
-						Class<?> clazz = Class.forName(scripts.get(index).getClass().getName());
-						Constructor<?> ctor = clazz.getConstructor();
-						Object object = ctor.newInstance();
-						script = (Script) object;
-					} catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-						
-					}
-					if (script != null) {
-						script.setTask(task);
-						script.setTaskScript(true);
-						tasksModel.addElement(script);
-						script.init();
-					}
-				}
+				addScript(-1);
 			}
 		});
 		frmTaskManager.getContentPane().add(btnAdd);
 		
 		JButton btnRemove = new JButton("Remove");
 		btnRemove.setFocusable(false);
-		btnRemove.setBounds(185, 92, 89, 23);
+		btnRemove.setBounds(194, 92, 80, 23);
 		btnRemove.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				int index = listTasks.getSelectedIndex();
@@ -251,9 +243,57 @@ public class TaskEngineGUI {
 			}
 		});
 		frmTaskManager.getContentPane().add(btnRemove);
+		
+		btnReplace = new JButton("Replace");
+		btnReplace.setVisible(false);
+		btnReplace.setFocusable(false);
+		btnReplace.setBounds(102, 92, 80, 23);
+		btnReplace.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				int replaceIndex = listTasks.getSelectedIndex();
+				if (replaceIndex < 0)
+					return;
+				addScript(replaceIndex);
+				
+			}
+		});
+		frmTaskManager.getContentPane().add(btnReplace);
 		updateConditions();
 		updateSkills();
 		updateAmountDescription();
+	}
+	
+	public void addScript(int slot) {
+		int index = cbxScripts.getSelectedIndex();
+		if (index >= 0 && index < scripts.size()) {
+			Task task = new Task((Condition) cbxConditon.getSelectedItem(), (int) spinAmount.getValue());
+			if (cbxConditon.getSelectedItem() == Condition.Time) {
+				task.setAmount(Long.valueOf((int) spinAmount.getValue() * 60000));
+			} else if (cbxConditon.getSelectedItem() == Condition.Continually) {
+				task.setAmount(0);
+			} else if (cbxConditon.getSelectedItem() == Condition.Level) {
+				task.setAmount(Long.valueOf((int) spinAmount.getValue()));
+				task.setConditionItem(cbxSkills.getSelectedItem());
+			}
+			Script script = null;
+			try {
+				Class<?> clazz = Class.forName(scripts.get(index).getClass().getName());
+				Constructor<?> ctor = clazz.getConstructor();
+				Object object = ctor.newInstance();
+				script = (Script) object;
+			} catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+				
+			}
+			if (script != null) {
+				script.setTask(task);
+				script.setTaskScript(true);
+				if (slot == -1)
+					tasksModel.addElement(script);
+				else
+					tasksModel.setElementAt(script, slot);
+				script.init();
+			}
+		}
 	}
 	
 	protected void updateConditions() {
