@@ -103,7 +103,7 @@ public class Woodcutter extends Script {
 				currentTree = engine.getGameObjects().closest(treeFilter());
 			if (currentTree != null) {
 				currentTree.interact("Chop down");
-				sleepWhile(() -> engine.getLocalPlayer().isAnimating(), Calculations.random(12000, 15400));
+				sleepWhile(() -> engine.getLocalPlayer().isAnimating() && !engine.getDialogues().inDialogue(), Calculations.random(12000, 15400));
 				sleepWhile(() -> !engine.getLocalPlayer().isAnimating(), Calculations.random(12000, 15400));
 			}
 		}
@@ -133,7 +133,7 @@ public class Woodcutter extends Script {
 					if (engine.getBank().contains(Axe)) {
 						engine.getBank().withdraw(Axe);
 						sleepUntil(() -> engine.getInventory().contains(Axe), Calculations.random(3000, 5000));
-					} else if (!engine.getBank().contains(Axe) && !engine.getInventory().contains(Axe)) {
+					} else if (!engine.getBank().contains(Axe) && !hasAxe()) {
 						onExit();
 					}
 				}
@@ -152,7 +152,7 @@ public class Woodcutter extends Script {
 	private Filter<GameObject> treeFilter() {
 		return gameObject -> {
 			boolean accepted = false;
-			if (gameObject != null && (currentTree == null || (currentTree.getID() == gameObject.getID() && currentTree.getX() == gameObject.getX() && currentTree.getY() == gameObject.getY()))) {
+			if (gameObject != null && location.getWoodCuttingArea().contains(gameObject) && (currentTree == null || (currentTree.getID() == gameObject.getID() && currentTree.getX() == gameObject.getX() && currentTree.getY() == gameObject.getY()))) {
 				if (selectedTreeType.hasMatch(gameObject.getName()))
 					accepted = true;
 			}
@@ -180,11 +180,11 @@ public class Woodcutter extends Script {
 		boolean hasAxe = false;
 		Item weapon = engine.getEquipment().getItemInSlot(EquipmentSlot.WEAPON.getSlot());
 		if (weapon != null && weapon.getName() != null) {
-			hasAxe = weapon.getName().contains("axe");
+			hasAxe = weapon.getName().contains(Axe);
 		}
 		if (!hasAxe) {
 			for (Item item : engine.getInventory().all()) {
-				if (item != null && item.getName().toLowerCase().contains("axe")) {
+				if (item != null && item.getName().toLowerCase().contains(Axe)) {
 					hasAxe = true;
 					break;
 				}

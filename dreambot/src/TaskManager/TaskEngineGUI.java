@@ -2,14 +2,16 @@ package TaskManager;
 
 import javax.swing.JFrame;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JFormattedTextField;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.UIManager;
 import javax.swing.JSpinner;
-import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeListener;
+import javax.swing.text.DefaultFormatter;
 import javax.swing.JScrollPane;
 import javax.swing.JList;
 import javax.swing.ListSelectionModel;
@@ -49,7 +51,6 @@ public class TaskEngineGUI {
 	private JComboBox<Skill> cbxSkills;
 	private DefaultComboBoxModel<Skill> modelSkills = new DefaultComboBoxModel<Skill>();
 	private JSpinner spinAmount;
-	private SpinnerNumberModel snm;
 	private JLabel lblAmountDescription;
 	private boolean running = false;
 	private int currentScript = 0;
@@ -179,13 +180,17 @@ public class TaskEngineGUI {
 		frmTaskManager.getContentPane().add(lblAmountDescription);
 		
 		spinAmount = new JSpinner();
+		JComponent comp = spinAmount.getEditor();
+		JFormattedTextField field = (JFormattedTextField) comp.getComponent(0);
+		DefaultFormatter formatter = (DefaultFormatter) field.getFormatter();
+		formatter.setCommitsOnValidEdit(true);
 		spinAmount.addChangeListener(new ChangeListener() {
-			public void stateChanged(ChangeEvent arg0) {
-				updateAmountDescription();
-			}
-		});
-		snm = new SpinnerNumberModel(1, 1, 100000, 1);
-		spinAmount.setModel(snm);
+
+	        @Override
+	        public void stateChanged(ChangeEvent e) {
+	        	updateAmountDescription();
+	        }
+	    });
 		spinAmount.setBounds(69, 64, 80, 20);
 		frmTaskManager.getContentPane().add(spinAmount);
 		
@@ -285,16 +290,12 @@ public class TaskEngineGUI {
 	
 	private void updateOptions() {
 		if (cbxConditon.getSelectedItem() == Condition.Level) {
-			snm = new SpinnerNumberModel(1, 1, 99, 1);
-			spinAmount.setModel(snm);
 			int amount = (Integer) spinAmount.getValue();
 			if (amount > 99)
 				spinAmount.setValue(99);
 			cbxSkills.setVisible(true);
 		} else {
 			cbxSkills.setVisible(false);
-			snm = new SpinnerNumberModel(1, 1, 100000, 1);
-			spinAmount.setModel(snm);
 		}
 		if (cbxConditon.getSelectedItem() == Condition.Continually)
 			spinAmount.setEnabled(false);
@@ -304,17 +305,28 @@ public class TaskEngineGUI {
 	
 	public void updateAmountDescription() {
 		int amount = (Integer) spinAmount.getValue();
+		if (amount < 1) {
+			spinAmount.setValue(1);
+			amount = 1;
+		} else if (amount > 90000) {
+			spinAmount.setValue(90000);
+			amount = 90000;
+		}
 		if (amount > 0) {
-			if (cbxConditon.getSelectedItem() == Condition.Time)
+			if (cbxConditon.getSelectedItem() == Condition.Time) {
 				if (amount / 60 > 0)
 					lblAmountDescription.setText((amount / 60) + " Hour" + (amount / 60 > 1 ? "s" : "") + ", " + (amount % 60) + " Minute" + (amount % 60 > 1 ? "s" : ""));
 				else
 					lblAmountDescription.setText(amount + " Minute" + (amount > 1 ? "s" : ""));
-			else if (cbxConditon.getSelectedItem() == Condition.Continually)
+			}else if (cbxConditon.getSelectedItem() == Condition.Continually)
 				lblAmountDescription.setText("Infinitely/Completed");
-			else if (cbxConditon.getSelectedItem() == Condition.Level)
+			else if (cbxConditon.getSelectedItem() == Condition.Level) {
+				if (amount > 99) {
+					spinAmount.setValue(99);
+					amount = 99;
+				}
 				lblAmountDescription.setText("Level " + amount);
-			else
+			}else
 				lblAmountDescription.setText(amount + " time(s).");
 		} else if (amount == 0) {
 			lblAmountDescription.setText("Infinitely/Completed.");
