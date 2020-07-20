@@ -1,5 +1,10 @@
 package TaskManager.scripts.mining;
 
+import org.dreambot.api.methods.skills.Skill;
+import org.dreambot.api.methods.skills.Skills;
+
+import TaskManager.utilities.LevelReq;
+
 public class MinerData {
 	
 	public enum OreNode {
@@ -97,35 +102,59 @@ public class MinerData {
 	}
 	
 	public enum Pickaxe {
-		BRONZE_PICKAXE(1265, 1, 0),
-		IRON_PICKAXE(1267, 1, 1),
-		STEEL_PICKAXE(1269, 6, 2),
-		BLACK_PICKAXE(12297, 11, 3),
-		MITHRIL_PICKAXE(1273, 21, 4),
-		ADAMANT_PICKAXE(1271, 31, 5),
-		RUNE_PICKAXE(1275, 41, 6),
-		GILDED_PICKAXE(23276, 41, 7),
-		DRAGON_PICKAXE(11920, 61, 8),
-		THIRD_AGE_PICKAXE(20014, 61, 9),
-		INFERNAL_PICKAXE(13243, 61, 10),
-		CRYSTAL_PICKAXE(23680, 71, 11);
+		BRONZE_PICKAXE(1265, 0, new LevelReq(Skill.MINING, 1), new LevelReq(Skill.ATTACK, 1)),
+		IRON_PICKAXE(1267, 1, new LevelReq(Skill.MINING, 1), new LevelReq(Skill.ATTACK, 1)),
+		STEEL_PICKAXE(1269, 2, new LevelReq(Skill.MINING, 6), new LevelReq(Skill.ATTACK, 5)),
+		BLACK_PICKAXE(12297, 3, new LevelReq(Skill.MINING, 11), new LevelReq(Skill.ATTACK, 10)),
+		MITHRIL_PICKAXE(1273, 4, new LevelReq(Skill.MINING, 21), new LevelReq(Skill.ATTACK, 20)),
+		ADAMANT_PICKAXE(1271, 5, new LevelReq(Skill.MINING, 31), new LevelReq(Skill.ATTACK, 30)),
+		RUNE_PICKAXE(1275, 6, new LevelReq(Skill.MINING, 41), new LevelReq(Skill.ATTACK, 40)),
+		GILDED_PICKAXE(23276, 7, new LevelReq(Skill.MINING, 41), new LevelReq(Skill.ATTACK, 40)),
+		DRAGON_PICKAXE(11920, 8, new LevelReq(Skill.MINING, 61), new LevelReq(Skill.ATTACK, 60)),
+		THIRD_AGE_PICKAXE(20014, 9, new LevelReq(Skill.MINING, 61), new LevelReq(Skill.ATTACK, 65)),
+		INFERNAL_PICKAXE(13243, 10, new LevelReq(Skill.MINING, 61), new LevelReq(Skill.SMITHING, 85), new LevelReq(Skill.ATTACK, 60)),
+		CRYSTAL_PICKAXE(23680, 11, new LevelReq(Skill.MINING, 71), new LevelReq(Skill.AGILITY, 50), new LevelReq(Skill.ATTACK, 70));
 		
 		private int pickaxeId;
-		private int levelReq;
 		private int priority;
+		private LevelReq[] levelReqs;
 		
-		private Pickaxe(int pickaxeId, int levelReq, int priority) {
+		private Pickaxe(int pickaxeId, int priority, LevelReq... levelReqs) {
 			this.pickaxeId = pickaxeId;
-			this.levelReq = levelReq;
 			this.priority = priority;
+			this.levelReqs = levelReqs;
 		}
 
 		public int getPickaxeId() {
 			return pickaxeId;
 		}
-
-		public int getLevelReq() {
-			return levelReq;
+		
+		public boolean meetsAllReqsToUse(Skills skills) {
+			for (int i = 0; i < levelReqs.length - 1; i++) {
+				if (skills.getBoostedLevels(levelReqs[i].getSkill()) < levelReqs[i].getLevelReq())
+					return false;
+			}
+			return true;
+		}
+		
+		public boolean meetsAllReqsToWield(Skills skills) {
+			for (int i = 0; i < levelReqs.length; i++) {
+				if (skills.getBoostedLevels(levelReqs[i].getSkill()) < levelReqs[i].getLevelReq())
+					return false;
+			}
+			return true;
+		}
+		
+		public int getLevelReqBySkill(Skill skill) {
+			for (int i = 0; i < levelReqs.length; i++) {
+				if (levelReqs[i].getSkill() == skill)
+					return levelReqs[i].getLevelReq();
+			}
+			return 1;
+		}
+		
+		public LevelReq[] getLevelRequirements() {
+			return levelReqs;
 		}
 		
 		public int getPriority() {

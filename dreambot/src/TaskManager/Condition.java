@@ -1,5 +1,5 @@
 package TaskManager;
 
 public enum Condition {
-	Time, Continually, Level//, Collect, Trips, Inventory, Drop
+	Time, Continually, Level, Gather, Collect, Trips
 }

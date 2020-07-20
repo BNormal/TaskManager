@@ -19,6 +19,7 @@ import org.dreambot.api.wrappers.items.Item;
 import org.dreambot.core.Instance;
 
 import TaskManager.Script;
+import TaskManager.utilities.Utilities;
 import TaskManager.scripts.woodcutting.WoodcutterData.Tree;
 import TaskManager.scripts.woodcutting.WoodcutterData.Axe;
 
@@ -32,6 +33,7 @@ public class Woodcutter extends Script {
 	private WoodcuttingSpot location;
 	private Tree selectedTreeType;
 	private WoodcutterGUI gui;
+	private boolean dropping = false;
 	
 	public Woodcutter() {
 		supportedConditions.add(TaskManager.Condition.Time);
@@ -79,18 +81,31 @@ public class Woodcutter extends Script {
 		if (running && gui.isFinished()) {
 			if (engine.getDialogues().inDialogue() && engine.getDialogues().continueDialogue())
 				engine.getDialogues().spaceToContinue();
-			if (ableToCut()) {
+			if (dropping) {
+				if (engine.getInventory().contains(selectedTreeType.getLogFromTree().getLogId()))
+					engine.getInventory().dropAll(selectedTreeType.getLogFromTree().getLogId());
+				else if (!engine.getInventory().contains(selectedTreeType.getLogFromTree().getLogId()))
+					dropping = false;
+			} else if (ableToCut()) {
 				handleWoodcutting();
 			} else if (ableToBank()) {
 				handleBanking();
 			} else if (needsToBank()) {
-				engine.getWalking().walk(location.getBankArea().getCenter());
+				if (gui.isPowerCutting())
+					dropping = true;
+				else
+					engine.getWalking().walk(location.getBankArea().getCenter());
 				if (Calculations.random(0, 20) > 1)
 					sleepUntil(() -> engine.getWalking().getDestinationDistance() < Calculations.random(6, 9), 6000);
 			} else if (readyToCut()) {
-				engine.getWalking().walk(location.getWoodCuttingArea().getCenter());
-				if (Calculations.random(0, 20) > 1)
-					sleepUntil(() -> engine.getWalking().getDestinationDistance() < Calculations.random(6, 9), 6000);
+				if (engine.getBank().isOpen()) {
+					engine.getBank().close();
+					sleepUntil(() -> !engine.getBank().isOpen(), Calculations.random(3000, 5000));
+				} else {
+					engine.getWalking().walk(location.getWoodCuttingArea().getCenter());
+					if (Calculations.random(0, 20) > 1)
+						sleepUntil(() -> engine.getWalking().getDestinationDistance() < Calculations.random(6, 9), 6000);
+				}
 			}
 		}
 		return 1;
@@ -103,20 +118,18 @@ public class Woodcutter extends Script {
 				currentTree = engine.getGameObjects().closest(treeFilter());
 			if (currentTree != null) {
 				currentTree.interact("Chop down");
-				sleepWhile(() -> engine.getLocalPlayer().isAnimating() && !engine.getDialogues().inDialogue(), Calculations.random(12000, 15400));
-				sleepWhile(() -> !engine.getLocalPlayer().isAnimating(), Calculations.random(12000, 15400));
+				sleepUntil(() -> engine.getLocalPlayer().isAnimating() && !engine.getDialogues().inDialogue(), Calculations.random(12000, 15400));
+				sleepUntil(() -> !engine.getLocalPlayer().isAnimating(), Calculations.random(12000, 15400));
 			}
 		}
 		return result;
 	}
 
 	private String getBestAxe() {
-		int level = engine.getSkills().getRealLevel(Skill.WOODCUTTING);
 		List<Axe> approvedPickaxes = gui.getAllowedAxes();
 		for (Axe axe : approvedPickaxes) {
-			if (level >= axe.getLevelReq() && engine.getBank().contains(axe.toString())) {
+			if (axe.meetsAllReqsToUse(engine.getSkills()) && engine.getBank().contains(axe.toString()))
 				return axe.toString();
-			}
 		}
 		return "Bronze axe";
 	}
@@ -180,11 +193,11 @@ public class Woodcutter extends Script {
 		boolean hasAxe = false;
 		Item weapon = engine.getEquipment().getItemInSlot(EquipmentSlot.WEAPON.getSlot());
 		if (weapon != null && weapon.getName() != null) {
-			hasAxe = weapon.getName().contains(Axe);
+			hasAxe = weapon.getName().contains("axe");
 		}
 		if (!hasAxe) {
 			for (Item item : engine.getInventory().all()) {
-				if (item != null && item.getName().toLowerCase().contains(Axe)) {
+				if (item != null && item.getName().toLowerCase().contains("axe")) {
 					hasAxe = true;
 					break;
 				}
@@ -229,10 +242,15 @@ public class Woodcutter extends Script {
 	}
 	
 	public static enum WoodcuttingSpot {
-		VarrockWest(WebBankArea.VARROCK_WEST.getArea(), new Area(3160, 3423, 3170, 3411, 0), Tree.TREE, Tree.OAK_TREE),
-		GrandExchangeSouth(WebBankArea.VARROCK_WEST.getArea(), new Area(3150, 3462, 3160, 3450, 0), Tree.TREE),
-		VarrockCastleNorth(WebBankArea.GRAND_EXCHANGE.getArea(), new Area(3203, 3505, 3223, 3499, 0), Tree.YEW_TREE),
-		Draynor(WebBankArea.DRAYNOR_MARKET.getArea(), new Area(3082, 3239, 3090, 3226, 0), Tree.WILLOW_TREE);
+		Varrock_West(WebBankArea.VARROCK_WEST.getArea(), new Area(3160, 3423, 3170, 3411, 0), Tree.TREE, Tree.OAK_TREE),
+		Grand_Exchange_South(WebBankArea.VARROCK_WEST.getArea(), new Area(3150, 3462, 3160, 3450, 0), Tree.TREE),
+		Varrock_Castle_North(WebBankArea.GRAND_EXCHANGE.getArea(), new Area(3203, 3505, 3223, 3499, 0), Tree.YEW_TREE),
+		Edgeville(WebBankArea.EDGEVILLE.getArea(), new Area(3085, 3481, 3088, 3468, 0), Tree.YEW_TREE),
+		Draynor(WebBankArea.DRAYNOR_MARKET.getArea(), new Area(3082, 3239, 3090, 3226, 0), Tree.WILLOW_TREE),
+		Port_Sarim(WebBankArea.DRAYNOR_MARKET.getArea(), new Area(3056, 3356, 3064, 3250, 0), Tree.WILLOW_TREE),
+		Lumbridge_General_Store(Utilities.getLumbridgeBank(), new Area(3193, 3249, 3205, 3238, 0), Tree.TREE, Tree.OAK_TREE),
+		Lumbridge_Pond(Utilities.getLumbridgeBank(), new Area(3162, 3274, 3167, 3264, 0), Tree.WILLOW_TREE),
+		Lumbridge_River(Utilities.getLumbridgeBank(), new Area(3232, 3246, 3238, 3237, 0), Tree.WILLOW_TREE);
 		
 		private Area bankArea;
 		private Area woodcuttingArea;

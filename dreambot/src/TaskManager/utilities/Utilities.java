@@ -4,8 +4,17 @@ package TaskManager.utilities;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
-public class Utilities {
+import org.dreambot.api.methods.map.Area;
+import org.dreambot.api.methods.walking.web.node.impl.bank.WebBankArea;
 
+public class Utilities {
+	
+	public static Area getLumbridgeBank() {
+		Area lumbridgeBank = WebBankArea.LUMBRIDGE.getArea();
+		lumbridgeBank.setZ(2);
+		return lumbridgeBank;
+	}
+	
 	public static void drawShadowString(Graphics2D g, String s, int x, int y) {
 		drawShadowString(g, s, x, y, Color.WHITE, Color.BLACK);
 	}

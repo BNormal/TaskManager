@@ -1,5 +1,9 @@
 package TaskManager.scripts.woodcutting;
 
+import TaskManager.utilities.LevelReq;
+import org.dreambot.api.methods.skills.Skill;
+import org.dreambot.api.methods.skills.Skills;
+
 public class WoodcutterData {
 	public enum Tree {
 		TREE("Tree"),
@@ -83,34 +87,58 @@ public class WoodcutterData {
 	}
 	
 	public enum Axe {
-		BRONZE_AXE(1351, 1, 0),
-		IRON_AXE(1349, 1, 1),
-		STEEL_AXE(1353, 6, 2),
-		BLACK_AXE(1361, 11, 3),
-		MITHRIL_AXE(1355, 21, 4),
-		ADAMANT_AXE(1357, 31, 5),
-		RUNE_AXE(1359, 41, 6),
-		GILDED_AXE(23279, 41, 7),
-		DRAGON_AXE(6739, 61, 8),
-		THIRD_AGE_AXE(6739, 61, 9),
-		INFERNAL_AXE(6739, 61, 10),
-		CRYSTAL_AXE(23673, 71, 11);
+		BRONZE_AXE(1351, 0, new LevelReq(Skill.WOODCUTTING, 1), new LevelReq(Skill.ATTACK, 1)),
+		IRON_AXE(1349, 1, new LevelReq(Skill.WOODCUTTING, 1), new LevelReq(Skill.ATTACK, 1)),
+		STEEL_AXE(1353, 2, new LevelReq(Skill.WOODCUTTING, 6), new LevelReq(Skill.ATTACK, 5)),
+		BLACK_AXE(1361, 3, new LevelReq(Skill.WOODCUTTING, 11), new LevelReq(Skill.ATTACK, 10)),
+		MITHRIL_AXE(1355, 4, new LevelReq(Skill.WOODCUTTING, 21), new LevelReq(Skill.ATTACK, 20)),
+		ADAMANT_AXE(1357, 5, new LevelReq(Skill.WOODCUTTING, 31), new LevelReq(Skill.ATTACK, 30)),
+		RUNE_AXE(1359, 6, new LevelReq(Skill.WOODCUTTING, 41), new LevelReq(Skill.ATTACK, 40)),
+		GILDED_AXE(23279, 7, new LevelReq(Skill.WOODCUTTING, 41), new LevelReq(Skill.ATTACK, 40)),
+		DRAGON_AXE(6739, 8, new LevelReq(Skill.WOODCUTTING, 61), new LevelReq(Skill.ATTACK, 60)),
+		THIRD_AGE_AXE(6739, 9, new LevelReq(Skill.WOODCUTTING, 61), new LevelReq(Skill.ATTACK, 65)),
+		INFERNAL_AXE(6739, 10, new LevelReq(Skill.WOODCUTTING, 61), new LevelReq(Skill.FIREMAKING, 85), new LevelReq(Skill.ATTACK, 60)),
+		CRYSTAL_AXE(23673, 11, new LevelReq(Skill.WOODCUTTING, 71), new LevelReq(Skill.AGILITY, 50), new LevelReq(Skill.ATTACK, 70));
 		
 		private int axeId;
-		private int levelReq;
 		private int priority;
+		private LevelReq[] levelReq;
 		
-		private Axe(int axeId, int levelReq, int priority) {
+		private Axe(int axeId, int priority, LevelReq... levelReq) {
 			this.axeId = axeId;
-			this.levelReq = levelReq;
 			this.priority = priority;
+			this.levelReq = levelReq;
 		}
 
 		public int getAxeId() {
 			return axeId;
 		}
 
-		public int getLevelReq() {
+		public boolean meetsAllReqsToUse(Skills skills) {
+			for (int i = 0; i < levelReq.length - 1; i++) {
+				if (skills.getBoostedLevels(levelReq[i].getSkill()) < levelReq[i].getLevelReq())
+					return false;
+			}
+			return true;
+		}
+		
+		public boolean meetsAllReqsToWield(Skills skills) {
+			for (int i = 0; i < levelReq.length; i++) {
+				if (skills.getBoostedLevels(levelReq[i].getSkill()) < levelReq[i].getLevelReq())
+					return false;
+			}
+			return true;
+		}
+		
+		public int getLevelReqBySkill(Skill skill) {
+			for (int i = 0; i < levelReq.length; i++) {
+				if (levelReq[i].getSkill() == skill)
+					return levelReq[i].getLevelReq();
+			}
+			return 1;
+		}
+		
+		public LevelReq[] getLevelRequirements() {
 			return levelReq;
 		}
 		

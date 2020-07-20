@@ -22,6 +22,7 @@ import javax.swing.SwingConstants;
 import TaskManager.scripts.woodcutting.Woodcutter.WoodcuttingSpot;
 import TaskManager.scripts.woodcutting.WoodcutterData.Axe;
 import TaskManager.scripts.woodcutting.WoodcutterData.Tree;
+import javax.swing.JCheckBox;
 
 public class WoodcutterGUI {
 
@@ -33,6 +34,7 @@ public class WoodcutterGUI {
 	private JComboBox<WoodcuttingSpot> cbxLocation;
 	private JComboBox<Tree> cbxTree;
 	private DefaultComboBoxModel<Tree> modelTree = new DefaultComboBoxModel<Tree>();
+	private JCheckBox chckbxPowercut;
 
 	/**
 	 * Launch the application.
@@ -81,7 +83,7 @@ public class WoodcutterGUI {
 		frameWoodcutter.getContentPane().setLayout(null);
 		frameWoodcutter.setResizable(false);
 		
-		cbxLocation = new JComboBox<WoodcuttingSpot>(WoodcuttingSpot.values());//remove this MiningSpot.values() to use in window builder
+		cbxLocation = new JComboBox<WoodcuttingSpot>(WoodcuttingSpot.values());//remove this WoodcuttingSpot.values() to use in window builder
 		cbxLocation.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				updateLog();
@@ -101,7 +103,7 @@ public class WoodcutterGUI {
 		
 		cbxTree = new JComboBox<Tree>();
 		cbxTree.setFocusable(false);
-		cbxTree.setBounds(61, 42, 193, 20);
+		cbxTree.setBounds(61, 42, 115, 20);
 		cbxTree.setModel(modelTree);
 		frameWoodcutter.getContentPane().add(cbxTree);
 		
@@ -175,6 +177,11 @@ public class WoodcutterGUI {
 		});
 		btnFinished.setBounds(10, 216, 244, 24);
 		frameWoodcutter.getContentPane().add(btnFinished);
+		
+		chckbxPowercut = new JCheckBox("Powercut");
+		chckbxPowercut.setFocusable(false);
+		chckbxPowercut.setBounds(182, 42, 80, 20);
+		frameWoodcutter.getContentPane().add(chckbxPowercut);
 		updateLog();
 	}
 
@@ -224,6 +231,10 @@ public class WoodcutterGUI {
 		}
 		Collections.sort(Axes, new SortByLevel());
 		return Axes;
+	}
+	
+	public boolean isPowerCutting() {
+		return chckbxPowercut.isSelected();
 	}
 
 	public boolean isFinished() {

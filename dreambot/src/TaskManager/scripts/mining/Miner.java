@@ -22,6 +22,7 @@ import org.dreambot.core.Instance;
 import TaskManager.Script;
 import TaskManager.scripts.mining.MinerData.OreNode;
 import TaskManager.scripts.mining.MinerData.Pickaxe;
+import TaskManager.utilities.Utilities;
 
 @ScriptManifest(author = "NumberZ", category = Category.MINING, name = "Miner", version = 1.0, description = "Mines ores in various areas")
 public class Miner extends Script {
@@ -89,9 +90,14 @@ public class Miner extends Script {
 				if (Calculations.random(0, 20) > 1)
 					sleepUntil(() -> engine.getWalking().getDestinationDistance() < Calculations.random(6, 9), 6000);
 			} else if (readyToMine()) {
-				engine.getWalking().walk(location.getMiningArea().getCenter());
-				if (Calculations.random(0, 20) > 1)
-					sleepUntil(() -> engine.getWalking().getDestinationDistance() < Calculations.random(6, 9), 6000);
+				if (engine.getBank().isOpen()) {
+					engine.getBank().close();
+					sleepUntil(() -> !engine.getBank().isOpen(), Calculations.random(3000, 5000));
+				} else {
+					engine.getWalking().walk(location.getMiningArea().getCenter());
+					if (Calculations.random(0, 20) > 1)
+						sleepUntil(() -> engine.getWalking().getDestinationDistance() < Calculations.random(6, 9), 6000);
+				}
 			}
 		}
 		return 1;
@@ -112,10 +118,9 @@ public class Miner extends Script {
 	}
 	
 	private String getBestPickaxe() {
-		int level = engine.getSkills().getRealLevel(Skill.MINING);
 		List<Pickaxe> approvedPickaxes = gui.getAllowedPickaxes();
 		for (Pickaxe pickaxe : approvedPickaxes) {
-			if (level >= pickaxe.getLevelReq() && engine.getBank().contains(pickaxe.toString())) {
+			if (pickaxe.meetsAllReqsToUse(engine.getSkills()) && engine.getBank().contains(pickaxe.toString())) {
 				return pickaxe.toString();
 			}
 		}
@@ -232,12 +237,12 @@ public class Miner extends Script {
 	}
 	
 	public static enum MiningSpot {
-		VarrockEast(WebBankArea.VARROCK_EAST.getArea(), new Area(3278, 3371, 3291, 3359, 0), OreNode.TIN_NODE, OreNode.COPPER_NODE, OreNode.IRON_NODE),
-		VarrockWest(WebBankArea.VARROCK_WEST.getArea(), new Area(new Tile(3181, 3381, 0), new Tile(3176, 3374, 0), new Tile(3171, 3369, 0), new Tile(3171, 3364, 0), new Tile(3177, 3361, 0), new Tile(3185, 3367, 0), new Tile(3186, 3379, 0)), OreNode.CLAY_NODE, OreNode.TIN_NODE, OreNode.IRON_NODE, OreNode.SILVER_NODE),
-		AlKharidNorthHigh(WebBankArea.AL_KHARID.getArea(), new Area(new Tile(3298, 3319, 0), new Tile(3302, 3319, 0), new Tile(3305, 3314, 0), new Tile(3305, 3306, 0), new Tile(3307, 3303, 0), new Tile(3304, 3297, 0), new Tile(3291, 3298, 0), new Tile(3295, 3307, 0), new Tile(3293, 3310, 0), new Tile(3296, 3317, 0)), OreNode.TIN_NODE, OreNode.COPPER_NODE, OreNode.IRON_NODE, OreNode.SILVER_NODE, OreNode.COAL_NODE, OreNode.MITHRIL_NODE, OreNode.ADAMANTITE_NODE),
-		AlKharidNorthLow(WebBankArea.AL_KHARID.getArea(), new Area(3293, 3289, 3304, 3283, 0), OreNode.IRON_NODE, OreNode.GOLD_NODE),
-		LumbridgeEast(WebBankArea.LUMBRIDGE.getArea(), new Area(3222, 3149, 3230, 3144, 0), OreNode.TIN_NODE, OreNode.COPPER_NODE),
-		LumbridgeWest(WebBankArea.LUMBRIDGE.getArea(), new Area(3144, 3154, 3148, 3144, 0), OreNode.COAL_NODE, OreNode.MITHRIL_NODE, OreNode.ADAMANTITE_NODE);
+		Varrock_East(WebBankArea.VARROCK_EAST.getArea(), new Area(3278, 3371, 3291, 3359, 0), OreNode.TIN_NODE, OreNode.COPPER_NODE, OreNode.IRON_NODE),
+		Varrock_West(WebBankArea.VARROCK_WEST.getArea(), new Area(new Tile(3181, 3381, 0), new Tile(3176, 3374, 0), new Tile(3171, 3369, 0), new Tile(3171, 3364, 0), new Tile(3177, 3361, 0), new Tile(3185, 3367, 0), new Tile(3186, 3379, 0)), OreNode.CLAY_NODE, OreNode.TIN_NODE, OreNode.IRON_NODE, OreNode.SILVER_NODE),
+		Al_Kharid_North_High(WebBankArea.AL_KHARID.getArea(), new Area(new Tile(3298, 3319, 0), new Tile(3302, 3319, 0), new Tile(3305, 3314, 0), new Tile(3305, 3306, 0), new Tile(3307, 3303, 0), new Tile(3304, 3297, 0), new Tile(3291, 3298, 0), new Tile(3295, 3307, 0), new Tile(3293, 3310, 0), new Tile(3296, 3317, 0)), OreNode.TIN_NODE, OreNode.COPPER_NODE, OreNode.IRON_NODE, OreNode.SILVER_NODE, OreNode.COAL_NODE, OreNode.MITHRIL_NODE, OreNode.ADAMANTITE_NODE),
+		A_lKharid_North_Low(WebBankArea.AL_KHARID.getArea(), new Area(3293, 3289, 3304, 3283, 0), OreNode.IRON_NODE, OreNode.GOLD_NODE),
+		Lumbridge_East(Utilities.getLumbridgeBank(), new Area(3222, 3149, 3230, 3144, 0), OreNode.TIN_NODE, OreNode.COPPER_NODE),
+		Lumbridge_West(Utilities.getLumbridgeBank(), new Area(3144, 3154, 3148, 3144, 0), OreNode.COAL_NODE, OreNode.MITHRIL_NODE, OreNode.ADAMANTITE_NODE);
 		
 		private Area bankArea;
 		private Area miningArea;
@@ -247,7 +252,6 @@ public class Miner extends Script {
 			this.bankArea = bankArea;
 			this.miningArea = miningArea;
 			this.rockIds = rockIds;
-			
 		}
 
 		public Area getBankArea() {
