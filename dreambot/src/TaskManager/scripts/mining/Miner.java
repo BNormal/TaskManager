@@ -138,9 +138,11 @@ public class Miner extends Script {
 						onExit();
 					}
 				}
-				if (engine.getInventory().contains(selectedRockType.getOreFromNode().getOreId())) {
-					increaseRunCount();
+				if (!engine.getInventory().onlyContains(pickaxe)) {
+					if (engine.getInventory().contains(selectedRockType.getOreFromNode().getOreId()))
+						increaseRunCount();
 					engine.getBank().depositAllExcept(pickaxe);
+					sleepUntil(() -> engine.getInventory().onlyContains(pickaxe), Calculations.random(3000, 5000));
 				}
 				if (readyToMine() && engine.getBank().close()) {
 					results = true;
@@ -213,7 +215,6 @@ public class Miner extends Script {
 		g.drawString("Exp Gained Per Hour: " + engine.getSkillTracker().getGainedExperiencePerHour(Skill.MINING), x1, y1 + 12 * 2);
 		g.drawString("Levels Gained: " + engine.getSkillTracker().getGainedLevels(Skill.MINING), x1, y1 + 12 * 3);
 		g.drawString("Current Level: " + engine.getSkills().getRealLevel(Skill.MINING), x1, y1 + 12 * 4);
-		g.drawString("NODE: " + selectedRockType, x1, y1 + 12 * 5);
 		//g.drawString("Has Target: " + (currentNode != null ? currentNode.exists() : "false"), x1, y1 + 12 * 5);
 		if (currentNode != null) {
 			g.setColor(Color.WHITE);

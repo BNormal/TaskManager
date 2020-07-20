@@ -229,8 +229,11 @@ public class Woodcutter extends Script {
 	}
 	
 	public static enum WoodcuttingSpot {
-		VarrockWest(WebBankArea.VARROCK_WEST.getArea(), new Area(3278, 3371, 3291, 3359, 0), Tree.TREE, Tree.OAK_TREE);
-
+		VarrockWest(WebBankArea.VARROCK_WEST.getArea(), new Area(3160, 3423, 3170, 3411, 0), Tree.TREE, Tree.OAK_TREE),
+		GrandExchangeSouth(WebBankArea.VARROCK_WEST.getArea(), new Area(3150, 3462, 3160, 3450, 0), Tree.TREE),
+		VarrockCastleNorth(WebBankArea.GRAND_EXCHANGE.getArea(), new Area(3203, 3505, 3223, 3499, 0), Tree.YEW_TREE),
+		Draynor(WebBankArea.DRAYNOR_MARKET.getArea(), new Area(3082, 3239, 3090, 3226, 0), Tree.WILLOW_TREE);
+		
 		private Area bankArea;
 		private Area woodcuttingArea;
 		private Tree[] tree;
