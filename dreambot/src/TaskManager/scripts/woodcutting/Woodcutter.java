@@ -114,8 +114,11 @@ public class Woodcutter extends Script {
 	private boolean handleWoodcutting() {
 		boolean result = true;
 		if (!engine.getLocalPlayer().isMoving() && !engine.getLocalPlayer().isAnimating()) {
-			if (currentTree == null || !currentTree.exists())
+			if (currentTree == null || !currentTree.exists()) {
 				currentTree = engine.getGameObjects().closest(treeFilter());
+				if (currentTree != null && !currentTree.isOnScreen() && engine.getLocalPlayer().distance(currentTree) < 5)
+					currentTree = null;
+			}
 			if (currentTree != null) {
 				currentTree.interact("Chop down");
 				sleepUntil(() -> engine.getLocalPlayer().isAnimating() && !engine.getDialogues().inDialogue(), Calculations.random(12000, 15400));
@@ -166,15 +169,17 @@ public class Woodcutter extends Script {
 		return gameObject -> {
 			boolean accepted = false;
 			if (gameObject != null && location.getWoodCuttingArea().contains(gameObject) && (currentTree == null || (currentTree.getID() == gameObject.getID() && currentTree.getX() == gameObject.getX() && currentTree.getY() == gameObject.getY()))) {
-				if (selectedTreeType.hasMatch(gameObject.getName()))
-					accepted = true;
+				if (selectedTreeType.hasMatch(gameObject.getName())) {
+					if (currentTree == null || currentTree != null && currentTree.distance(gameObject) < 5)
+						accepted = true;	
+				}
 			}
 			return accepted;
 		};
 	}
 
 	private boolean ableToCut() {
-		return readyToCut() && location.getWoodCuttingArea().contains(engine.getLocalPlayer());
+		return readyToCut() && (location.getWoodCuttingArea().contains(engine.getLocalPlayer()) || currentTree != null && currentTree.distance(engine.getLocalPlayer()) < 5);
 	}
 
 	private boolean readyToCut() {
