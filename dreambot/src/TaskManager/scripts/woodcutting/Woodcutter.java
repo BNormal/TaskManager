@@ -121,7 +121,7 @@ public class Woodcutter extends Script {
 			}
 			if (currentTree != null) {
 				currentTree.interact("Chop down");
-				sleepUntil(() -> engine.getLocalPlayer().isAnimating() && !engine.getDialogues().inDialogue(), Calculations.random(12000, 15400));
+				sleepUntil(() -> engine.getLocalPlayer().isAnimating() || engine.getDialogues().inDialogue(), Calculations.random(12000, 15400));
 				sleepUntil(() -> !engine.getLocalPlayer().isAnimating(), Calculations.random(12000, 15400));
 			}
 		}
