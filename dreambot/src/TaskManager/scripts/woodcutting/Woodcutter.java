@@ -121,7 +121,7 @@ public class Woodcutter extends Script {
 			}
 			if (currentTree != null) {
 				currentTree.interact("Chop down");
-				sleepUntil(() -> engine.getLocalPlayer().isAnimating() || engine.getDialogues().inDialogue(), Calculations.random(12000, 15400));
+				sleepUntil(() -> engine.getLocalPlayer().isAnimating() || engine.getDialogues().inDialogue() || currentTree == null, Calculations.random(12000, 15400));
 				sleepUntil(() -> !engine.getLocalPlayer().isAnimating(), Calculations.random(12000, 15400));
 			}
 		}
@@ -131,7 +131,7 @@ public class Woodcutter extends Script {
 	private String getBestAxe() {
 		List<Axe> approvedPickaxes = gui.getAllowedAxes();
 		for (Axe axe : approvedPickaxes) {
-			if (axe.meetsAllReqsToUse(engine.getSkills()) && engine.getBank().contains(axe.toString()))
+			if (axe.meetsAllReqsToUse(engine.getSkills()) && (engine.getBank().contains(axe.toString()) || engine.getInventory().contains(axe.toString())))
 				return axe.toString();
 		}
 		return "Bronze axe";
@@ -248,7 +248,7 @@ public class Woodcutter extends Script {
 	
 	public static enum WoodcuttingSpot {
 		Varrock_West(WebBankArea.VARROCK_WEST.getArea(), new Area(3160, 3423, 3170, 3411, 0), Tree.TREE, Tree.OAK_TREE),
-		Grand_Exchange_South(WebBankArea.VARROCK_WEST.getArea(), new Area(3150, 3462, 3160, 3450, 0), Tree.TREE),
+		Grand_Exchange_South(WebBankArea.GRAND_EXCHANGE.getArea(), new Area(3150, 3462, 3160, 3450, 0), Tree.TREE),
 		Varrock_Castle_North(WebBankArea.GRAND_EXCHANGE.getArea(), new Area(3203, 3505, 3223, 3499, 0), Tree.YEW_TREE),
 		Edgeville(WebBankArea.EDGEVILLE.getArea(), new Area(3085, 3481, 3088, 3468, 0), Tree.YEW_TREE),
 		Draynor(WebBankArea.DRAYNOR_MARKET.getArea(), new Area(3082, 3239, 3090, 3226, 0), Tree.WILLOW_TREE),

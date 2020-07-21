@@ -110,7 +110,7 @@ public class Miner extends Script {
 				currentNode = engine.getGameObjects().closest(rockFilter());
 			if (currentNode != null) {
 				currentNode.interact("Mine");
-				sleepUntil(() -> engine.getLocalPlayer().isAnimating() || engine.getDialogues().inDialogue(), Calculations.random(12000, 15400));
+				sleepUntil(() -> engine.getLocalPlayer().isAnimating() || engine.getDialogues().inDialogue() || currentNode == null, Calculations.random(12000, 15400));
 				sleepUntil(() -> !engine.getLocalPlayer().isAnimating(), Calculations.random(12000, 15400));
 			}
 		}
@@ -120,7 +120,7 @@ public class Miner extends Script {
 	private String getBestPickaxe() {
 		List<Pickaxe> approvedPickaxes = gui.getAllowedPickaxes();
 		for (Pickaxe pickaxe : approvedPickaxes) {
-			if (pickaxe.meetsAllReqsToUse(engine.getSkills()) && engine.getBank().contains(pickaxe.toString())) {
+			if (pickaxe.meetsAllReqsToUse(engine.getSkills()) && (engine.getBank().contains(pickaxe.toString()) || engine.getInventory().contains(pickaxe.toString()))) {
 				return pickaxe.toString();
 			}
 		}

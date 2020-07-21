@@ -40,6 +40,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.awt.Font;
+import java.awt.Insets;
 
 
 public class TaskEngineGUI {
@@ -55,6 +56,8 @@ public class TaskEngineGUI {
 	private JSpinner spinAmount;
 	private JList<Script> listTasks;
 	private JButton btnReplace;
+	private JButton btnMoveUp;
+	private JButton btnMoveDown;
 	private JLabel lblAmountDescription;
 	private boolean running = false;
 	private int currentScript = 0;
@@ -113,7 +116,7 @@ public class TaskEngineGUI {
 		}
 		frmTaskManager = new JFrame();
 		frmTaskManager.setTitle("Task Manager");
-		frmTaskManager.setBounds(100, 100, 300, 345);
+		frmTaskManager.setBounds(100, 100, 320, 345);
 		frmTaskManager.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frmTaskManager.getContentPane().setLayout(null);
 		frmTaskManager.setResizable(false);
@@ -126,7 +129,7 @@ public class TaskEngineGUI {
 			scriptModel.addElement(script.toString());
 		}
 		cbxScripts.setFocusable(false);
-		cbxScripts.setBounds(69, 11, 205, 20);
+		cbxScripts.setBounds(69, 11, 235, 20);
 		
 		conditionModel = new DefaultComboBoxModel<Condition>();
 		cbxScripts.addActionListener(new ActionListener() {
@@ -139,7 +142,7 @@ public class TaskEngineGUI {
 
 		cbxSkills = new JComboBox<Skill>(modelSkills);
 		cbxSkills.setFocusable(false);
-		cbxSkills.setBounds(159, 39, 115, 20);
+		cbxSkills.setBounds(189, 39, 115, 20);
 		cbxSkills.setVisible(false);
 		frmTaskManager.getContentPane().add(cbxSkills);
 		
@@ -152,7 +155,7 @@ public class TaskEngineGUI {
 				updateAmountDescription();
 			}
 		});
-		cbxConditon.setBounds(69, 39, 80, 20);
+		cbxConditon.setBounds(69, 39, 110, 20);
 		cbxConditon.setFocusable(false);
 		frmTaskManager.getContentPane().add(cbxConditon);
 		
@@ -164,7 +167,7 @@ public class TaskEngineGUI {
 			}
 		});
 		btnStart.setFont(new Font("Tahoma", Font.BOLD, 20));
-		btnStart.setBounds(10, 252, 264, 43);
+		btnStart.setBounds(10, 252, 294, 43);
 		frmTaskManager.getContentPane().add(btnStart);
 		
 		JLabel lblCondition = new JLabel("Condition:");
@@ -180,7 +183,7 @@ public class TaskEngineGUI {
 		frmTaskManager.getContentPane().add(lblAmount);
 
 		lblAmountDescription = new JLabel("");
-		lblAmountDescription.setBounds(159, 67, 115, 14);
+		lblAmountDescription.setBounds(139, 67, 165, 14);
 		frmTaskManager.getContentPane().add(lblAmountDescription);
 		
 		spinAmount = new JSpinner();
@@ -195,7 +198,7 @@ public class TaskEngineGUI {
 	        	updateAmountDescription();
 	        }
 	    });
-		spinAmount.setBounds(69, 64, 80, 20);
+		spinAmount.setBounds(69, 64, 60, 20);
 		frmTaskManager.getContentPane().add(spinAmount);
 		
 		JScrollPane scrollTasksPane = new JScrollPane();
@@ -233,7 +236,7 @@ public class TaskEngineGUI {
 		
 		JButton btnRemove = new JButton("Remove");
 		btnRemove.setFocusable(false);
-		btnRemove.setBounds(194, 92, 80, 23);
+		btnRemove.setBounds(224, 92, 80, 23);
 		btnRemove.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				int index = listTasks.getSelectedIndex();
@@ -247,7 +250,7 @@ public class TaskEngineGUI {
 		btnReplace = new JButton("Replace");
 		btnReplace.setVisible(false);
 		btnReplace.setFocusable(false);
-		btnReplace.setBounds(102, 92, 80, 23);
+		btnReplace.setBounds(119, 92, 80, 23);
 		btnReplace.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				int replaceIndex = listTasks.getSelectedIndex();
@@ -258,6 +261,40 @@ public class TaskEngineGUI {
 			}
 		});
 		frmTaskManager.getContentPane().add(btnReplace);
+		btnMoveUp = new JButton("\u2191");
+		btnMoveUp.setMargin(new Insets(0, 0, 0, 0));
+		btnMoveUp.setBounds(284, 124, 20, 40);
+		btnMoveUp.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				int replaceIndex = listTasks.getSelectedIndex();
+				if (replaceIndex < 0 || replaceIndex - 1 < 0)
+					return;
+				Script script = tasksModel.getElementAt(replaceIndex);
+				Script script2 = tasksModel.getElementAt(replaceIndex - 1);
+				tasksModel.setElementAt(script2, replaceIndex);
+				tasksModel.setElementAt(script, replaceIndex - 1);
+				listTasks.setSelectedIndex(replaceIndex - 1);
+			}
+		});
+		frmTaskManager.getContentPane().add(btnMoveUp);
+		
+		btnMoveDown = new JButton("\u2193");
+		btnMoveDown.setMargin(new Insets(0, 0, 0, 0));
+		btnMoveDown.setBounds(284, 204, 20, 40);
+		btnMoveDown.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				int replaceIndex = listTasks.getSelectedIndex();
+				if (replaceIndex < 0 || replaceIndex + 1 >= tasksModel.size())
+					return;
+				Script script = tasksModel.getElementAt(replaceIndex);
+				Script script2 = tasksModel.getElementAt(replaceIndex + 1);
+				tasksModel.setElementAt(script2, replaceIndex);
+				tasksModel.setElementAt(script, replaceIndex + 1);
+				listTasks.setSelectedIndex(replaceIndex + 1);
+			}
+		});
+		frmTaskManager.getContentPane().add(btnMoveDown);
+		
 		updateConditions();
 		updateSkills();
 		updateAmountDescription();
@@ -354,9 +391,14 @@ public class TaskEngineGUI {
 		}
 		if (amount > 0) {
 			if (cbxConditon.getSelectedItem() == Condition.Time) {
-				if (amount / 60 > 0)
+				/*int days = (amount / 60) / 24;
+				int hours = (amount / 60) % 24;
+				int minutes = amount % 60;
+				String time = (days > 0 ? days + " Days, " : "") + (hours > 0 ? hours + " Hours, " : "") + (minutes > 0 ? minutes + " Minutes" : "");
+				lblAmountDescription.setText(time);*/
+				if (amount / 60 > 0) {
 					lblAmountDescription.setText((amount / 60) + " Hour" + (amount / 60 > 1 ? "s" : "") + ", " + (amount % 60) + " Minute" + (amount % 60 > 1 ? "s" : ""));
-				else
+				} else
 					lblAmountDescription.setText(amount + " Minute" + (amount > 1 ? "s" : ""));
 			}else if (cbxConditon.getSelectedItem() == Condition.Continually)
 				lblAmountDescription.setText("Infinitely/Completed");
