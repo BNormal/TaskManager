@@ -19,6 +19,7 @@ import javax.swing.JList;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ChangeEvent;
 
+import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.skills.Skill;
 
 import TaskManager.scripts.WoolSpinner;
@@ -31,14 +32,22 @@ import TaskManager.scripts.quests.RomeoAndJuliet;
 import TaskManager.scripts.woodcutting.Woodcutter;
 
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.awt.event.ActionEvent;
 import java.awt.EventQueue;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.awt.Font;
 import java.awt.Insets;
 
@@ -85,6 +94,46 @@ public class TaskEngineGUI {
 		initialize();
 	}
 
+	public static File[] getJars() {
+		File[] jarFiles = (new File(System.getProperty("user.home") + "\\DreamBot\\Scripts\\")).listFiles(new FileFilter() {
+			public boolean accept(File file) {
+				return file.isFile() && file.getName().toLowerCase().endsWith(".jar");
+			}
+		});
+		return jarFiles;
+	}
+	
+	@SuppressWarnings("resource")
+	public void addScriptsFromJar(String pathToJar) {
+		try {
+			JarFile jarFile;
+			jarFile = new JarFile(pathToJar);
+			Enumeration<JarEntry> e = jarFile.entries();
+			while (e.hasMoreElements()) {
+				JarEntry je = e.nextElement();
+				if (je.isDirectory() || !je.getName().endsWith(".class")) {
+					continue;
+				}
+				String className = je.getName().substring(0, je.getName().length() - 6);
+				className = className.replace('/', '.');
+				try {
+					Class<?> clazz = Class.forName(className);
+					if (!Script.class.isAssignableFrom(clazz))
+						continue;
+					Constructor<?> ctor = clazz.getConstructor();
+					Object object = ctor.newInstance();
+					if (object instanceof Script) {
+						Script script = (Script) object;
+						scripts.add(script);
+						System.out.println("Loaded script: " + script);
+					}
+				} catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e2) {
+				}
+			}
+		} catch (IOException | ClassNotFoundException | SecurityException | IllegalArgumentException e1) {
+		}
+	}
+	
 	class SortByName implements Comparator<Script> 
 	{
 		@Override
@@ -93,15 +142,15 @@ public class TaskEngineGUI {
 		} 
 	}
 	
-	public void loadSctipts() {//Add your scripts here for now
-		scripts.add(new TutorialIsle());
-		scripts.add(new WoolSpinner());
-		scripts.add(new Miner());
-		scripts.add(new RomeoAndJuliet());
-		scripts.add(new CookAssistant());
-		scripts.add(new ErnestTheChicken());
-		scripts.add(new LogOutIn());
-		scripts.add(new Woodcutter());
+	public void loadSctipts() {
+		File[] jars = getJars();
+		for (int i = 0; i < jars.length; i++) {
+			try {
+				addScriptsFromJar(jars[i].getCanonicalPath());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 		Collections.sort(scripts, new SortByName());
 	}
 
@@ -305,7 +354,7 @@ public class TaskEngineGUI {
 		if (index >= 0 && index < scripts.size()) {
 			Task task = new Task((Condition) cbxConditon.getSelectedItem(), (int) spinAmount.getValue());
 			if (cbxConditon.getSelectedItem() == Condition.Time) {
-				task.setAmount(Long.valueOf((int) spinAmount.getValue() * 60000));
+				task.setAmount(Long.valueOf((int) spinAmount.getValue() * 60000 + Calculations.random(0, 60000)));
 			} else if (cbxConditon.getSelectedItem() == Condition.Continually) {
 				task.setAmount(0);
 			} else if (cbxConditon.getSelectedItem() == Condition.Level) {
