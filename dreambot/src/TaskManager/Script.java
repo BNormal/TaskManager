@@ -1,12 +1,13 @@
 package TaskManager;
 
+import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.dreambot.api.methods.MethodProvider;
 import org.dreambot.api.methods.skills.Skill;
 import org.dreambot.api.script.AbstractScript;
 import org.dreambot.api.utilities.Timer;
@@ -141,6 +142,18 @@ public abstract class Script extends AbstractScript implements MouseListener {
 	
 	public String getName() {
 		return this.getClass().getSimpleName();
+	}
+	
+	public int getCenterX() {
+		Point clientLocation = getClient().getInstance().getApplet().getLocationOnScreen();
+		Dimension clientDimension = getClient().getInstance().getApplet().getSize();
+		return (int) (clientLocation.getX() + clientDimension.getWidth() / 2.0);
+	}
+	
+	public int getCenterY() {
+		Point clientLocation = getClient().getInstance().getApplet().getLocationOnScreen();
+		Dimension clientDimension = getClient().getInstance().getApplet().getSize();
+		return (int) (clientLocation.getY() + clientDimension.getHeight() / 2.0);
 	}
 	
 	@Override

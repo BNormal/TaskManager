@@ -156,7 +156,7 @@ public class TaskEngineGUI {
 		}
 		frmTaskManager = new JFrame();
 		frmTaskManager.setTitle("Task Manager");
-		frmTaskManager.setBounds(x, y, 320, 345);
+		frmTaskManager.setBounds(x - 320 / 2, y - 345 / 2, 320, 345);
 		frmTaskManager.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frmTaskManager.getContentPane().setLayout(null);
 		frmTaskManager.setResizable(false);

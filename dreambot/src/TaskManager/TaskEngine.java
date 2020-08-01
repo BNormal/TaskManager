@@ -1,9 +1,11 @@
 package TaskManager;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
@@ -27,13 +29,17 @@ public class TaskEngine extends AbstractScript implements MouseListener {
 	
 	@Override
     public void onStart() {
+		Point clientLocation = getClient().getInstance().getApplet().getLocationOnScreen();
+		Dimension clientDimension = getClient().getInstance().getApplet().getSize();
+		int x = (int) (clientLocation.getX() + clientDimension.getWidth() / 2.0);
+		int y = (int) (clientLocation.getY() + clientDimension.getHeight() / 2.0);
 		getRandomManager().disableSolver(RandomEvent.RESIZABLE_DISABLER);
 		if (getRandomManager().getCurrentSolver() != null && getRandomManager().getCurrentSolver().getEventString().equalsIgnoreCase("RESIZABLE_DISABLER"))
 			getRandomManager().getCurrentSolver().disable();
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					gui = new TaskEngineGUI(1, 1);
+					gui = new TaskEngineGUI(x, y);
 					gui.open();
 					started = true;
 				} catch (Exception e) {
