@@ -86,7 +86,7 @@ public class Miner extends Script {
 			} else if (ableToBank()) {
 				handleBanking();
 			} else if (needsToBank()) {
-				engine.getWalking().walk(location.getBankArea().getCenter());
+				engine.getWalking().walk(location.getBankArea().getRandomTile());
 				if (Calculations.random(0, 20) > 1)
 					sleepUntil(() -> engine.getWalking().getDestinationDistance() < Calculations.random(6, 9), 6000);
 			} else if (readyToMine()) {

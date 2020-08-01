@@ -86,6 +86,8 @@ public class Woodcutter extends Script {
 					engine.getInventory().dropAll(selectedTreeType.getLogFromTree().getLogId());
 				else if (!engine.getInventory().contains(selectedTreeType.getLogFromTree().getLogId()))
 					dropping = false;
+			} else if (engine.getLocalPlayer().isAnimating()) {
+				
 			} else if (ableToCut()) {
 				handleWoodcutting();
 			} else if (ableToBank()) {
@@ -94,7 +96,7 @@ public class Woodcutter extends Script {
 				if (gui.isPowerCutting())
 					dropping = true;
 				else
-					engine.getWalking().walk(location.getBankArea().getCenter());
+					engine.getWalking().walk(location.getBankArea().getRandomTile());
 				if (Calculations.random(0, 20) > 1)
 					sleepUntil(() -> engine.getWalking().getDestinationDistance() < Calculations.random(6, 9), 6000);
 			} else if (readyToCut()) {
@@ -122,7 +124,7 @@ public class Woodcutter extends Script {
 			if (currentTree != null) {
 				currentTree.interact("Chop down");
 				sleepUntil(() -> engine.getLocalPlayer().isAnimating() || engine.getDialogues().inDialogue() || currentTree == null, Calculations.random(12000, 15400));
-				sleepUntil(() -> !engine.getLocalPlayer().isAnimating(), Calculations.random(12000, 15400));
+				//sleepUntil(() -> !engine.getLocalPlayer().isAnimating(), Calculations.random(12000, 15400));
 			}
 		}
 		return result;
@@ -191,7 +193,7 @@ public class Woodcutter extends Script {
 	}
 
 	private boolean ableToBank() {
-		return needsToBank() && location.getBankArea().contains(engine.getLocalPlayer());
+		return needsToBank() && (location.getBankArea().contains(engine.getLocalPlayer()) || location.getBankArea().getCenter().distance(engine.getLocalPlayer()) < 7);
 	}
 
 	private boolean hasAxe() {

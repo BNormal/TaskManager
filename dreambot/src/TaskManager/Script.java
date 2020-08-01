@@ -1,14 +1,17 @@
 package TaskManager;
 
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.dreambot.api.methods.MethodProvider;
 import org.dreambot.api.methods.skills.Skill;
 import org.dreambot.api.script.AbstractScript;
 import org.dreambot.api.utilities.Timer;
 
-public abstract class Script extends AbstractScript {
+public abstract class Script extends AbstractScript implements MouseListener {
 	protected Timer totalTime = null;
 	protected boolean running = false;
 	protected boolean taskScript = false;
@@ -19,7 +22,7 @@ public abstract class Script extends AbstractScript {
 	protected List<Skill> supportedSkills = new ArrayList<Skill>();
 
 	private Task task = null;
-
+	
 	public Script() {
 		supportedConditions.add(TaskManager.Condition.Continually);
 	}
@@ -138,6 +141,31 @@ public abstract class Script extends AbstractScript {
 	
 	public String getName() {
 		return this.getClass().getSimpleName();
+	}
+	
+	@Override
+	public void mouseClicked(MouseEvent arg0) {
+		
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent arg0) {
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent arg0) {
+		
+	}
+
+	@Override
+	public void mousePressed(MouseEvent arg0) {
+		
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent arg0) {
+		
 	}
 	
 }

@@ -1,8 +1,11 @@
 package TaskManager;
 
 import java.awt.Color;
+import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 import org.dreambot.api.randoms.RandomEvent;
 import org.dreambot.api.script.AbstractScript;
@@ -13,9 +16,9 @@ import org.dreambot.api.utilities.Timer;
 import TaskManager.utilities.Utilities;
 
 @ScriptManifest(author = "NumberZ", name = "Task Manager", version = 1.0, description = "Allows you to runs a script to do a task then switch to another task or stop completely.", category = Category.MISC)
-public class TaskEngine extends AbstractScript {
+public class TaskEngine extends AbstractScript implements MouseListener {
 
-	private TaskEngineGUI gui = new TaskEngineGUI();
+	private TaskEngineGUI gui;
 	private boolean started = false;
 	private Script currentScript = null;
 	private Timer totalTime = new Timer();
@@ -27,8 +30,17 @@ public class TaskEngine extends AbstractScript {
 		getRandomManager().disableSolver(RandomEvent.RESIZABLE_DISABLER);
 		if (getRandomManager().getCurrentSolver() != null && getRandomManager().getCurrentSolver().getEventString().equalsIgnoreCase("RESIZABLE_DISABLER"))
 			getRandomManager().getCurrentSolver().disable();
-		gui.open();
-		started = true;
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					gui = new TaskEngineGUI(1, 1);
+					gui.open();
+					started = true;
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
 	}
 	
 	@Override
@@ -91,6 +103,46 @@ public class TaskEngine extends AbstractScript {
 		}
 		if (currentScript != null)
 			currentScript.onPaint(g);
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		if (!started || !gui.isRunning())
+			return;
+		if (currentScript != null)
+			currentScript.mouseClicked(e);
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		if (!started || !gui.isRunning())
+			return;
+		if (currentScript != null)
+			currentScript.mouseEntered(e);
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		if (!started || !gui.isRunning())
+			return;
+		if (currentScript != null)
+			currentScript.mouseExited(e);
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+		if (!started || !gui.isRunning())
+			return;
+		if (currentScript != null)
+			currentScript.mousePressed(e);
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		if (!started || !gui.isRunning())
+			return;
+		if (currentScript != null)
+			currentScript.mouseReleased(e);
 	}
 	
 }

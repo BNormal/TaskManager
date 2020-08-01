@@ -22,23 +22,14 @@ import javax.swing.event.ChangeEvent;
 import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.skills.Skill;
 
-import TaskManager.scripts.WoolSpinner;
-import TaskManager.scripts.mining.Miner;
-import TaskManager.scripts.misc.LogOutIn;
-import TaskManager.scripts.misc.TutorialIsle;
-import TaskManager.scripts.quests.CookAssistant;
-import TaskManager.scripts.quests.ErnestTheChicken;
-import TaskManager.scripts.quests.RomeoAndJuliet;
-import TaskManager.scripts.woodcutting.Woodcutter;
-
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.awt.event.ActionEvent;
 import java.awt.EventQueue;
 import java.util.ArrayList;
@@ -78,7 +69,7 @@ public class TaskEngineGUI {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					TaskEngineGUI window = new TaskEngineGUI();
+					TaskEngineGUI window = new TaskEngineGUI(100, 100);
 					window.frmTaskManager.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -90,8 +81,8 @@ public class TaskEngineGUI {
 	/**
 	 * Create the application.
 	 */
-	public TaskEngineGUI() {
-		initialize();
+	public TaskEngineGUI(int x, int y) {
+		initialize(x, y);
 	}
 
 	public static File[] getJars() {
@@ -157,7 +148,7 @@ public class TaskEngineGUI {
 	/**
 	 * Initialize the contents of the frame.
 	 */
-	private void initialize() {
+	private void initialize(int x, int y) {
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Throwable e) {
@@ -165,10 +156,16 @@ public class TaskEngineGUI {
 		}
 		frmTaskManager = new JFrame();
 		frmTaskManager.setTitle("Task Manager");
-		frmTaskManager.setBounds(100, 100, 320, 345);
+		frmTaskManager.setBounds(x, y, 320, 345);
 		frmTaskManager.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frmTaskManager.getContentPane().setLayout(null);
 		frmTaskManager.setResizable(false);
+		frmTaskManager.addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent we) {
+				currentScript = -1;
+				running = true;
+			}
+		});
 		
 		loadSctipts();
 		
