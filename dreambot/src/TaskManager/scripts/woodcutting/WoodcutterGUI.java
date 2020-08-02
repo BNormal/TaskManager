@@ -28,7 +28,6 @@ public class WoodcutterGUI {
 
 	private JFrame frameWoodcutter;
 	private boolean isFinished = false;
-	private String title;
 	private DefaultListModel<Axe> modelDisallowed = new DefaultListModel<Axe>();
 	private DefaultListModel<Axe> modelAllowed = new DefaultListModel<Axe>();
 	private JComboBox<WoodcuttingSpot> cbxLocation;
@@ -56,7 +55,6 @@ public class WoodcutterGUI {
 	 * Create the application.
 	 */
 	public WoodcutterGUI(String title) {
-		this.title = title;
 		modelAllowed.add(0, Axe.BRONZE_AXE);
 		modelAllowed.add(0, Axe.IRON_AXE);
 		modelAllowed.add(0, Axe.STEEL_AXE);
@@ -69,13 +67,13 @@ public class WoodcutterGUI {
 		modelDisallowed.add(0, Axe.THIRD_AGE_AXE);
 		modelDisallowed.add(0, Axe.INFERNAL_AXE);
 		modelDisallowed.add(0, Axe.CRYSTAL_AXE);
-		initialize();
+		initialize(title);
 	}
 
 	/**
 	 * Initialize the contents of the frame.
 	 */
-	private void initialize() {
+	private void initialize(String title) {
 		frameWoodcutter = new JFrame();
 		frameWoodcutter.setTitle(title);
 		frameWoodcutter.setBounds(100, 100, 280, 290);

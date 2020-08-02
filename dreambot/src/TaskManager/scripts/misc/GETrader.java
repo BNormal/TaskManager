@@ -9,7 +9,16 @@ import TaskManager.Script;
 
 @ScriptManifest(author = "NumberZ", category = Category.MISC, name = "GE Trader (unf)", version = 1.0, description = "Buy and sell items at the Grand Exchange")
 public class GETrader extends Script {
+	private State state = null;
 
+	private enum State {
+		BUYING, SELLING, NOTHING
+	}
+	
+	private State getState() {
+		return State.NOTHING;
+	}
+	
 	@Override
 	public void onStart() {
 		if (!taskScript)
@@ -21,6 +30,12 @@ public class GETrader extends Script {
 	
 	@Override
 	public int onLoop() {
+		state = getState();
+		switch (state) {
+		default:
+			break;
+			
+		}
 		return 0;
 	}
 
