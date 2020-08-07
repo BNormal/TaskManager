@@ -1,19 +1,5 @@
 package TaskManager.scripts.misc;
 
-import java.awt.Component;
-import java.awt.EventQueue;
-import java.awt.Font;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.lang.reflect.Type;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import javax.swing.JFrame;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonIOException;
@@ -21,27 +7,51 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
+import javax.swing.JFrame;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
-
 import javax.swing.border.EtchedBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.JList;
 import javax.swing.JCheckBox;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Component;
+import java.awt.EventQueue;
+import java.awt.Font;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.reflect.Type;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Scanner;
+
+import TaskManager.utilities.Utilities;
 
 public class GETradeGUI {
 
@@ -52,6 +62,8 @@ public class GETradeGUI {
 	private DefaultListModel<DisplayItem> modelItems;
 	private int itemId = -1;
 	private JPanel itemImage;
+	private JLabel lblItemName;
+	private JTextArea lblItemInfo;
 	private JCheckBox chckbxF2P;
 	private ImageIcon f2pIcon;
 	private ImageIcon membersIcon;
@@ -88,14 +100,17 @@ public class GETradeGUI {
 
 	public void loadSprites() {
 		String text = txtItemName.getText();
-		int loads = 0;
 		for (int i = 0; i < modelItems.size(); i++) {
 			DisplayItem item = modelItems.get(i);
 			if (item.getSprite() == null) {
-				loads++;
 				try {
 					ImageIcon icon = new ImageIcon(new URL("https://www.osrsbox.com/osrsbox-db/items-icons/" + item.getID() + ".png"));
 					item.setSprite(icon);
+					SwingUtilities.invokeLater(new Runnable() {
+						public void run() {
+							listItems.updateUI();
+						}
+					});
 				} catch (MalformedURLException e) {
 					e.printStackTrace();
 				}
@@ -103,12 +118,20 @@ public class GETradeGUI {
 			if (!txtItemName.getText().equals(text))
 				break;
 		}
-		if (loads > 0)
-			listItems.updateUI();
+		//System.out.println(listItems.getFirstVisibleIndex() + ":" + listItems.getLastVisibleIndex());
 	}
 	
-	public void parseJson() {
+	public void getItemListData() {
 		try {
+			Gson gson = new Gson();
+			BufferedReader br = new BufferedReader(new FileReader("GEItems.json"));
+			Type type = new TypeToken<Map<Integer, DisplayItem>>() {}.getType();
+			Map<Integer, DisplayItem> items = gson.fromJson(br, type);
+			itemList = items;
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		/*try {
 			Gson gson = new Gson();
 			Type type = new TypeToken<HashMap<String, JsonElement>>() {}.getType();
 			Map<String, JsonElement> map = gson.fromJson(readUrl("https://rsbuddy.com/exchange/summary.json"), type);
@@ -119,6 +142,38 @@ public class GETradeGUI {
 				DisplayItem item = new DisplayItem(new Integer(value.get("id").toString()), name, value.get("members").toString().equals("true"));
 				itemList.put(item.getID(), item);
 			}
+			File file = new File("GEItems.json");
+			try {
+				FileWriter fw = new FileWriter(file);
+				gson.toJson(itemList, fw);
+				fw.close();
+				//System.out.println("done");
+			} catch (JsonIOException e1) {
+				e1.printStackTrace();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		} catch (JsonSyntaxException e) {
+			e.printStackTrace();
+		} catch (JsonIOException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}*/
+	}
+	
+	public void getItemInfo(int id) {
+		try {
+			Gson gson = new Gson();
+			JsonElement json = gson.fromJson(readUrl("https://www.osrsbox.com/osrsbox-db/items-json/" + id + ".json"), JsonElement.class);
+			JsonObject value = (JsonObject) json;
+			DisplayItem item = itemList.get(id);
+			String desc = value.get("examine").toString();
+			desc = desc.substring(1, desc.length() - 1);
+			item.setDescription(desc);
+			String buyLimit = value.get("buy_limit").toString();
+			item.setLimit(buyLimit.equals("null") ? 0 : Integer.parseInt(buyLimit));
+			itemList.put(item.getID(), item);
 		} catch (JsonSyntaxException e) {
 			e.printStackTrace();
 		} catch (JsonIOException e) {
@@ -126,6 +181,29 @@ public class GETradeGUI {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public int getItemPrice(String pageName) {
+		try {
+			URLConnection spoof;
+			URL url = new URL(pageName);
+			spoof = url.openConnection();
+			spoof.setRequestProperty( "User-Agent", "Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 5.0;    H010818)" );
+			BufferedReader in = new BufferedReader(new InputStreamReader(spoof.getInputStream()));
+			String line = "";
+			while ((line = in.readLine()) != null){
+				if (line != null && line.length() > 3 && line.contains("<h3>Current Guide Price")){
+					String price = line.substring(line.indexOf("title=") + 7, line.indexOf("\'>"));
+					price = price.replace(",", "");
+					//System.out.println(price);
+					return Integer.parseInt(price);
+				}
+			}
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return 0;
 	}
 	
 	/**
@@ -141,7 +219,7 @@ public class GETradeGUI {
 		txtItemName = new JTextField();
 		txtItemName.setEnabled(false);
 		txtItemName.setColumns(10);
-		txtItemName.setBounds(274, 16, 160, 20);
+		txtItemName.setBounds(314, 16, 160, 20);
 		txtItemName.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyReleased(KeyEvent arg0) {
@@ -157,9 +235,15 @@ public class GETradeGUI {
 		});
 		frame.getContentPane().add(txtItemName);
 		
-		JLabel lblItemName = new JLabel("Item Name:");
-		lblItemName.setBounds(206, 19, 62, 14);
+		lblItemName = new JLabel("");
+		lblItemName.setOpaque(false);
+		lblItemName.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblItemName.setBounds(10, 11, 172, 20);
 		frame.getContentPane().add(lblItemName);
+		
+		JLabel lblName = new JLabel("Item Name:");
+		lblName.setBounds(242, 19, 62, 14);
+		frame.getContentPane().add(lblName);
 		
 		JScrollPane scrollPane = new JScrollPane();
 		
@@ -171,16 +255,48 @@ public class GETradeGUI {
 			public void valueChanged(ListSelectionEvent arg0) {
 				if (listItems.getSelectedIndex() < 0) {
 					itemId = -1;
+					lblItemName.setText("");
+					lblItemInfo.setText("");
 					return;
 				}
-				itemId = listItems.getSelectedValue().getID();
-				itemImage.repaint();
-				
+				int id = listItems.getSelectedValue().getID();
+				if (itemId != id) {
+					itemId = id;
+					getItemInfo(itemId);
+					DisplayItem item = itemList.get(itemId);
+					lblItemName.setText(item.getName());
+					lblItemInfo.setText("");
+					lblItemInfo.append(
+						"------------------------------------------" +
+						"\nGE Price:   fetching price..." +
+						"\nBuy Limit:  " + Utilities.insertCommas(item.getLimit()) + 
+						"\nItem ID:    " + item.getID() +
+						"\n" + item.getDescription()
+					);
+					Thread thread = new Thread() {
+						public void run() {
+							int price = getItemPrice("https://secure.runescape.com/m=itemdb_oldschool/" + item.getName().replaceAll(" ", "+") + "/viewitem?obj=" + itemId);
+							if (itemId == id) {
+								item.setPrice(price);
+								lblItemInfo.setText("");
+								lblItemInfo.append(
+									"------------------------------------------" + 
+									"\nGE Price:   " + Utilities.insertCommas(item.getPrice()) + 
+									" gp\nBuy Limit:  " + Utilities.insertCommas(item.getLimit()) + 
+									"\nItem ID:    " + item.getID() +
+									"\n" + item.getDescription()
+								);
+							}
+						}
+					};
+					thread.start();
+					itemImage.repaint();
+				}
 			}
 		});
 		
 		scrollPane.setViewportView(listItems);
-		scrollPane.setBounds(206, 70, 268, 161);
+		scrollPane.setBounds(242, 70, 232, 161);
 		frame.getContentPane().add(scrollPane);
 		
 		itemImage = new JPanel() {
@@ -206,7 +322,7 @@ public class GETradeGUI {
 			}
 		};
 		itemImage.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
-		itemImage.setBounds(438, 11, 40, 36);
+		itemImage.setBounds(192, 7, 40, 36);
 		frame.getContentPane().add(itemImage);
 		
 		chckbxF2P = new JCheckBox("Display F2P items only");
@@ -222,12 +338,20 @@ public class GETradeGUI {
 			}
 		});
 		chckbxF2P.setFocusable(false);
-		chckbxF2P.setBounds(206, 40, 138, 23);
+		chckbxF2P.setBounds(238, 40, 138, 23);
 		frame.getContentPane().add(chckbxF2P);
 		
 		JLabel lblLoading = new JLabel("Loading data...");
-		lblLoading.setBounds(10, 11, 127, 14);
+		lblLoading.setBounds(10, 242, 464, 14);
 		frame.getContentPane().add(lblLoading);
+		
+		lblItemInfo = new JTextArea("");
+		lblItemInfo.setLineWrap(true);
+		lblItemInfo.setOpaque(false);
+		lblItemInfo.setEditable(false);
+		lblItemInfo.setBounds(10, 32, 222, 102);
+		lblItemInfo.setFont(new Font("Tahoma", Font.PLAIN, 11));
+		frame.getContentPane().add(lblItemInfo);
 		Thread thread = new Thread() {
 			public void run() {
 				try {
@@ -236,7 +360,7 @@ public class GETradeGUI {
 				} catch (MalformedURLException e) {
 					e.printStackTrace();
 				}
-				parseJson();
+				getItemListData();
 				chckbxF2P.setEnabled(true);
 				txtItemName.setEnabled(true);
 				lblLoading.setVisible(false);
@@ -265,15 +389,16 @@ public class GETradeGUI {
 	}
 	
 	private static String readUrl(String urlString) throws Exception {
+		URL url = new URL(urlString);
 	    BufferedReader reader = null;
 	    try {
-	        URL url = new URL(urlString);
 	        reader = new BufferedReader(new InputStreamReader(url.openStream()));
 	        StringBuffer buffer = new StringBuffer();
 	        int read;
 	        char[] chars = new char[1024];
-	        while ((read = reader.read(chars)) != -1)
-	            buffer.append(chars, 0, read); 
+	        while ((read = reader.read(chars)) != -1) {
+	        	buffer.append(chars, 0, read);
+	        }
 	        return buffer.toString();
 	    } finally {
 	        if (reader != null)
@@ -318,6 +443,9 @@ public class GETradeGUI {
 		private int id;
 		private String name;
 		private boolean members;
+		private int price;
+		private String description;
+		private int limit;
 		private ImageIcon sprite;
 	    
 		public DisplayItem(int id, String name, boolean members) {
@@ -350,6 +478,30 @@ public class GETradeGUI {
 		public void setMembers(boolean members) {
 			this.members = members;
 		}
+
+		public int getPrice() {
+			return price;
+		}
+
+		public void setPrice(int price) {
+			this.price = price;
+		}
+		
+		public String getDescription() {
+			return description;
+		}
+
+		public void setDescription(String description) {
+			this.description = description;
+		}
+		
+		public int getLimit() {
+			return limit;
+		}
+
+		public void setLimit(int limit) {
+			this.limit = limit;
+		}
 		
 		public ImageIcon getSprite() {
 			return sprite;
@@ -361,7 +513,7 @@ public class GETradeGUI {
 		
 		@Override
 		public String toString() {
-			return name + " - " + id;
+			return name;
 		}
 	}
 }
