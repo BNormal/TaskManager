@@ -29,11 +29,6 @@ public class LogOutIn extends Script {
 	}
 	
 	@Override
-	public void dispose() {
-		gui.exit();
-	}
-	
-	@Override
 	public int onLoop() {
 		if (!engine.getLocalPlayer().isOnScreen())
 			return 0;
@@ -48,6 +43,7 @@ public class LogOutIn extends Script {
 	public void onExit() {
 		running = false;
 		time = new Date(totalTime.elapsed());
+		gui.exit();
 		if (!taskScript) {
 			this.stop();
 		}

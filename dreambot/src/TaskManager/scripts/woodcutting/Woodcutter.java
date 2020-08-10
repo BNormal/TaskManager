@@ -48,11 +48,6 @@ public class Woodcutter extends Script {
 	}
 	
 	@Override
-	public void dispose() {
-		gui.exit();
-	}
-	
-	@Override
 	public void onStart() {
 		if (!taskScript)
 			init();
@@ -243,6 +238,7 @@ public class Woodcutter extends Script {
 	public void onExit() {
 		running = false;
 		time = new Date(totalTime.elapsed());
+		gui.exit();
 		if (!taskScript) {
 			this.stop();
 		}

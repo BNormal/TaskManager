@@ -38,10 +38,6 @@ public abstract class Script extends AbstractScript implements MouseListener {
 		
 	}
 	
-	public void dispose() {
-		
-	}
-	
 	public List<Condition> supportedCondition() {
 		return supportedConditions;
 	}

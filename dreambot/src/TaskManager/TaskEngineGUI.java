@@ -237,6 +237,7 @@ public class TaskEngineGUI {
 		JFormattedTextField field = (JFormattedTextField) comp.getComponent(0);
 		DefaultFormatter formatter = (DefaultFormatter) field.getFormatter();
 		formatter.setCommitsOnValidEdit(true);
+		formatter.setAllowsInvalid(false);
 		spinAmount.addChangeListener(new ChangeListener() {
 
 	        @Override

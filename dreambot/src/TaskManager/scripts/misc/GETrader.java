@@ -10,6 +10,7 @@ import TaskManager.Script;
 @ScriptManifest(author = "NumberZ", category = Category.MISC, name = "GE Trader (unf)", version = 1.0, description = "Buy and sell items at the Grand Exchange")
 public class GETrader extends Script {
 	private State state = null;
+	private GETraderGUI gui;
 
 	private enum State {
 		BUYING, SELLING, NOTHING
@@ -17,6 +18,12 @@ public class GETrader extends Script {
 	
 	private State getState() {
 		return State.NOTHING;
+	}
+	
+	@Override
+	public void init() {
+		gui = new GETraderGUI(getManifest().name());
+		gui.open();
 	}
 	
 	@Override
@@ -43,6 +50,7 @@ public class GETrader extends Script {
 	public void onExit() {
 		running = false;
 		time = new Date(totalTime.elapsed());
+		gui.exit();
 		if (!taskScript) {
 			this.stop();
 		}
