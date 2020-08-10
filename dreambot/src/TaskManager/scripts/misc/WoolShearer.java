@@ -3,7 +3,6 @@ package TaskManager.scripts.misc;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
-import java.util.Date;
 
 import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.filter.Filter;
@@ -189,10 +188,6 @@ public class WoolShearer extends Script {
 
 	@Override
 	public void onExit() {
-		running = false;
-		time = new Date(totalTime.elapsed());
-		if (!taskScript) {
-			this.stop();
-		}
+		super.onExit();
 	}
 }

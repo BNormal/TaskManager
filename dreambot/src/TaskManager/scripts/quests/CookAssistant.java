@@ -268,7 +268,7 @@ public class CookAssistant extends Script {
 
 	@Override
 	public void onExit() {
-		running = false;
+		super.onExit();
 	}
 
 	@Override

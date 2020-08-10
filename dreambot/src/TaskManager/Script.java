@@ -34,6 +34,14 @@ public abstract class Script extends AbstractScript implements MouseListener {
 		running = true;
 	}
 	
+	@Override
+	public void onExit() {
+		running = false;
+		time = new Date(totalTime.elapsed());
+		if (!taskScript)
+			this.stop();
+	}
+	
 	public void init() {
 		
 	}

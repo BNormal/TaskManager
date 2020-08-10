@@ -3,7 +3,6 @@ package TaskManager.scripts.mining;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.util.Date;
 import java.util.List;
 
 import org.dreambot.api.methods.Calculations;
@@ -224,12 +223,8 @@ public class Miner extends Script {
 	
 	@Override
 	public void onExit() {
-		running = false;
-		time = new Date(totalTime.elapsed());
 		gui.exit();
-		if (!taskScript) {
-			this.stop();
-		}
+		super.onExit();
 	}
 	
 	public static enum MiningSpot {

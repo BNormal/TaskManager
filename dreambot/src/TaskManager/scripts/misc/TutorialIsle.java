@@ -491,7 +491,7 @@ public class TutorialIsle extends Script {
 	
 	@Override
     public void onExit() {
-		running = false;
+		super.onExit();
 	}
 
 }

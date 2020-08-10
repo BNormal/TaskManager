@@ -296,7 +296,7 @@ public class RomeoAndJuliet extends Script {
 	
 	@Override
     public void onExit() {
-		running = false;
+		super.onExit();
 	}
 	
 	@Override

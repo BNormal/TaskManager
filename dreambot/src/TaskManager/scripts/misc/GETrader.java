@@ -1,7 +1,5 @@
 package TaskManager.scripts.misc;
 
-import java.util.Date;
-
 import org.dreambot.api.script.Category;
 import org.dreambot.api.script.ScriptManifest;
 
@@ -48,12 +46,8 @@ public class GETrader extends Script {
 
 	@Override
 	public void onExit() {
-		running = false;
-		time = new Date(totalTime.elapsed());
 		gui.exit();
-		if (!taskScript) {
-			this.stop();
-		}
+		super.onExit();
 	}
 	
 }
