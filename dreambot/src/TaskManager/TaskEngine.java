@@ -2,7 +2,6 @@ package TaskManager;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -34,25 +33,26 @@ public class TaskEngine extends AbstractScript implements MouseListener {
 		int x = (int) (clientLocation.getX() + clientDimension.getWidth() / 2.0);
 		int y = (int) (clientLocation.getY() + clientDimension.getHeight() / 2.0);
 		getRandomManager().disableSolver(RandomEvent.RESIZABLE_DISABLER);
-		if (getRandomManager().getCurrentSolver() != null && getRandomManager().getCurrentSolver().getEventString().equalsIgnoreCase("RESIZABLE_DISABLER"))
-			getRandomManager().getCurrentSolver().disable();
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					gui = new TaskEngineGUI(x, y);
-					gui.open();
-					started = true;
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
+		getRandomManager().disableSolver(RandomEvent.LOGIN);
+		if (getRandomManager().getCurrentSolver() != null)
+			if (getRandomManager().getCurrentSolver().getEventString().equalsIgnoreCase(RandomEvent.RESIZABLE_DISABLER.name()) || getRandomManager().getCurrentSolver().getEventString().equalsIgnoreCase(RandomEvent.LOGIN.name()))
+				getRandomManager().getCurrentSolver().disable();
+		gui = new TaskEngineGUI(x, y);
+		gui.open();
 	}
 	
 	@Override
 	public int onLoop() {
-		if (!started || !gui.isRunning())
+		if (gui == null || !gui.isFinished())
 			return 0;
+		if (!started) {
+			started = true;
+			getRandomManager().enableSolver(RandomEvent.RESIZABLE_DISABLER);
+			getRandomManager().enableSolver(RandomEvent.LOGIN);
+			if (getRandomManager().getCurrentSolver() != null)
+				if (getRandomManager().getCurrentSolver().getEventString().equalsIgnoreCase(RandomEvent.RESIZABLE_DISABLER.name()) || getRandomManager().getCurrentSolver().getEventString().equalsIgnoreCase(RandomEvent.LOGIN.name()))
+				getRandomManager().getCurrentSolver().enable();
+		}
 		if (currentScript == null) {
 			currentScript = gui.getCurrentScript();
 			if (currentScript == null) {
@@ -113,7 +113,7 @@ public class TaskEngine extends AbstractScript implements MouseListener {
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		if (!started || !gui.isRunning())
+		if (!started || !gui.isFinished())
 			return;
 		if (currentScript != null)
 			currentScript.mouseClicked(e);
@@ -121,7 +121,7 @@ public class TaskEngine extends AbstractScript implements MouseListener {
 
 	@Override
 	public void mouseEntered(MouseEvent e) {
-		if (!started || !gui.isRunning())
+		if (!started || !gui.isFinished())
 			return;
 		if (currentScript != null)
 			currentScript.mouseEntered(e);
@@ -129,7 +129,7 @@ public class TaskEngine extends AbstractScript implements MouseListener {
 
 	@Override
 	public void mouseExited(MouseEvent e) {
-		if (!started || !gui.isRunning())
+		if (!started || !gui.isFinished())
 			return;
 		if (currentScript != null)
 			currentScript.mouseExited(e);
@@ -137,7 +137,7 @@ public class TaskEngine extends AbstractScript implements MouseListener {
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		if (!started || !gui.isRunning())
+		if (!started || !gui.isFinished())
 			return;
 		if (currentScript != null)
 			currentScript.mousePressed(e);
@@ -145,7 +145,7 @@ public class TaskEngine extends AbstractScript implements MouseListener {
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		if (!started || !gui.isRunning())
+		if (!started || !gui.isFinished())
 			return;
 		if (currentScript != null)
 			currentScript.mouseReleased(e);

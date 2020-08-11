@@ -491,6 +491,7 @@ public class TutorialIsle extends Script {
 	
 	@Override
     public void onExit() {
+		engine.getRandomManager().enableSolver(RandomEvent.RESIZABLE_DISABLER);
 		super.onExit();
 	}
 

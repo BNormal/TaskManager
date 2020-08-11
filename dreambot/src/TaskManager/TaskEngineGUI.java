@@ -19,9 +19,6 @@ import javax.swing.JList;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ChangeEvent;
 
-import org.dreambot.api.methods.Calculations;
-import org.dreambot.api.methods.skills.Skill;
-
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -42,6 +39,10 @@ import java.util.jar.JarFile;
 import java.awt.Font;
 import java.awt.Insets;
 
+import org.dreambot.api.methods.Calculations;
+import org.dreambot.api.methods.MethodProvider;
+import org.dreambot.api.methods.skills.Skill;
+
 
 public class TaskEngineGUI {
 
@@ -59,7 +60,7 @@ public class TaskEngineGUI {
 	private JButton btnMoveUp;
 	private JButton btnMoveDown;
 	private JLabel lblAmountDescription;
-	private boolean running = false;
+	private boolean isFinished = false;
 	private int currentScript = 0;
 
 	/**
@@ -69,7 +70,7 @@ public class TaskEngineGUI {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					TaskEngineGUI window = new TaskEngineGUI(100, 100);
+					TaskEngineGUI window = new TaskEngineGUI(500, 500);
 					window.frmTaskManager.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -113,6 +114,8 @@ public class TaskEngineGUI {
 						continue;
 					Constructor<?> ctor = clazz.getConstructor();
 					Object object = ctor.newInstance();
+					if (object == null)
+						continue;
 					if (object instanceof Script) {
 						Script script = (Script) object;
 						scripts.add(script);
@@ -163,7 +166,7 @@ public class TaskEngineGUI {
 		frmTaskManager.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent we) {
 				currentScript = -1;
-				running = true;
+				isFinished = true;
 			}
 		});
 		
@@ -471,11 +474,11 @@ public class TaskEngineGUI {
 	
 	public void start() {
 		frmTaskManager.setVisible(false);
-		running = true;
+		isFinished = true;
 	}
 	
-	public boolean isRunning() {
-		return running;
+	public boolean isFinished() {
+		return isFinished;
 	}
 
 	public int getCurrentScriptId() {
