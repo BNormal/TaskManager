@@ -55,6 +55,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -93,6 +94,10 @@ public class GETraderGUI {
 	private JButton btnMoveDown;
 	private JButton btnMoveUp;
 	private JButton btnStart;
+	private JCheckBox chckbxWaitForInstant;
+	private JCheckBox chckbxWUC;
+	private JSpinner spinnerMaxIncrements;
+	private boolean isFinished;
 
 	/**
 	 * Launch the application.
@@ -127,10 +132,11 @@ public class GETraderGUI {
 	 */
 	@SuppressWarnings("serial")
 	private void initialize(String title) {
+		isFinished = false;
 		frame = new JFrame();
 		frame.setResizable(false);
 		frame.setTitle(title);
-		frame.setBounds(100, 100, 500, 346);
+		frame.setBounds(100, 100, 500, 415);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 		
@@ -176,7 +182,7 @@ public class GETraderGUI {
 		});
 		
 		scrollItems.setViewportView(listItems);
-		scrollItems.setBounds(10, 66, 232, 240);
+		scrollItems.setBounds(10, 66, 232, 185);
 		frame.getContentPane().add(scrollItems);
 		
 		itemImage = new JPanel() {
@@ -335,7 +341,7 @@ public class GETraderGUI {
 		frame.getContentPane().add(btnIncreasePrice);
 		
 		JScrollPane scrollOffers = new JScrollPane();
-		scrollOffers.setBounds(256, 214, 222, 64);
+		scrollOffers.setBounds(10, 262, 468, 83);
 		frame.getContentPane().add(scrollOffers);
 		
 		modelOffers = new DefaultListModel<OfferItem>();
@@ -353,7 +359,9 @@ public class GETraderGUI {
 			public void actionPerformed(ActionEvent arg0) {
 				if (itemId < 0)
 					return;
-				OfferItem offer = new OfferItem(itemList.get(itemId), Integer.parseInt(spinnerCurrentPrice.getValue().toString()), Integer.parseInt(spinnerQuantity.getValue().toString()), true, priceIncrements);
+				OfferItem offer = new OfferItem(itemList.get(itemId), Integer.parseInt(spinnerCurrentPrice.getValue().toString()), 
+						Integer.parseInt(spinnerQuantity.getValue().toString()), true, priceIncrements, chckbxWUC.isSelected(), 
+						chckbxWaitForInstant.isSelected() ? Integer.parseInt(spinnerMaxIncrements.getValue().toString()) : -1);
 				priceIncrements.clear();
 				modelOffers.addElement(offer);
 				listOffers.ensureIndexIsVisible(modelOffers.size() - 1);
@@ -361,7 +369,7 @@ public class GETraderGUI {
 			}
 		});
 		btnBuy.setMargin(new Insets(0, 0, 0, 0));
-		btnBuy.setBounds(430, 181, 48, 22);
+		btnBuy.setBounds(428, 181, 48, 22);
 		frame.getContentPane().add(btnBuy);
 		
 		btnSell = new JButton("Sell");
@@ -370,7 +378,9 @@ public class GETraderGUI {
 			public void actionPerformed(ActionEvent arg0) {
 				if (itemId < 0)
 					return;
-				OfferItem offer = new OfferItem(itemList.get(itemId), Integer.parseInt(spinnerCurrentPrice.getValue().toString()), Integer.parseInt(spinnerQuantity.getValue().toString()), false, priceIncrements);
+				OfferItem offer = new OfferItem(itemList.get(itemId), Integer.parseInt(spinnerCurrentPrice.getValue().toString()), 
+						Integer.parseInt(spinnerQuantity.getValue().toString()), false, priceIncrements, chckbxWUC.isSelected(), 
+						chckbxWaitForInstant.isSelected() ? Integer.parseInt(spinnerMaxIncrements.getValue().toString()) : -1);
 				priceIncrements.clear();
 				modelOffers.addElement(offer);
 				listOffers.ensureIndexIsVisible(modelOffers.size() - 1);
@@ -378,14 +388,14 @@ public class GETraderGUI {
 			}
 		});
 		btnSell.setMargin(new Insets(0, 0, 0, 0));
-		btnSell.setBounds(372, 181, 48, 22);
+		btnSell.setBounds(375, 181, 48, 22);
 		frame.getContentPane().add(btnSell);
 		
 		btnMoveDown = new JButton("\u2193");
-		btnMoveDown.setToolTipText("Decrease price");
+		btnMoveDown.setToolTipText("Move offer down the list");
 		btnMoveDown.setMargin(new Insets(0, 0, 0, 0));
 		btnMoveDown.setEnabled(false);
-		btnMoveDown.setBounds(256, 284, 26, 22);
+		btnMoveDown.setBounds(14, 356, 26, 22);
 		btnMoveDown.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				int index = listOffers.getSelectedIndex();
@@ -402,10 +412,10 @@ public class GETraderGUI {
 		frame.getContentPane().add(btnMoveDown);
 		
 		btnMoveUp = new JButton("\u2191");
-		btnMoveUp.setToolTipText("Increase price");
+		btnMoveUp.setToolTipText("Move offer up the list");
 		btnMoveUp.setMargin(new Insets(0, 0, 0, 0));
 		btnMoveUp.setEnabled(false);
-		btnMoveUp.setBounds(286, 284, 26, 22);
+		btnMoveUp.setBounds(50, 356, 26, 22);
 		btnMoveUp.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				int index = listOffers.getSelectedIndex();
@@ -422,9 +432,10 @@ public class GETraderGUI {
 		frame.getContentPane().add(btnMoveUp);
 		
 		btnRemove = new JButton("Remove");
+		btnRemove.setToolTipText("Remove offer from list");
 		btnRemove.setMargin(new Insets(0, 0, 0, 0));
 		btnRemove.setEnabled(false);
-		btnRemove.setBounds(316, 284, 60, 22);
+		btnRemove.setBounds(86, 356, 60, 22);
 		btnRemove.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				int index = listOffers.getSelectedIndex();
@@ -445,15 +456,59 @@ public class GETraderGUI {
 		});
 		frame.getContentPane().add(btnRemove);
 		
+		chckbxWUC = new JCheckBox("Wait until completed");
+		chckbxWUC.setEnabled(false);
+		chckbxWUC.setToolTipText("<html>Wait until this offer has been sold/bought<br>before preceding to the next offer</html>");
+		chckbxWUC.setSelected(true);
+		chckbxWUC.setBounds(252, 208, 123, 23);
+		frame.getContentPane().add(chckbxWUC);
+		
+		spinnerMaxIncrements = new JSpinner();
+		spinnerMaxIncrements.setModel(new SpinnerNumberModel(1, null, null, 1));
+		spinnerMaxIncrements.setToolTipText("Max increments to increase/decrease the price offer by 5%");
+		spinnerMaxIncrements.setEnabled(false);
+		spinnerMaxIncrements.setBounds(428, 235, 50, 20);
+		JFormattedTextField field3 = (JFormattedTextField) spinnerMaxIncrements.getEditor().getComponent(0);
+		DefaultFormatter formatter3 = (DefaultFormatter) field3.getFormatter();
+		formatter3.setCommitsOnValidEdit(true);
+		formatter3.setAllowsInvalid(false);
+		spinnerMaxIncrements.addChangeListener(new ChangeListener() {
+	        @Override
+	        public void stateChanged(ChangeEvent e) {
+	        	long amount = Integer.parseInt(spinnerMaxIncrements.getValue().toString());
+	        	if (amount < 1)
+	        		spinnerMaxIncrements.setValue(1);
+	        	else if (amount > 10)
+	        		spinnerMaxIncrements.setValue(10);
+	        }
+	    });
+		frame.getContentPane().add(spinnerMaxIncrements);
+		
+		chckbxWaitForInstant = new JCheckBox("Modify price for instant offer");
+		chckbxWaitForInstant.setEnabled(false);
+		chckbxWaitForInstant.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if (chckbxWaitForInstant.isSelected())
+					spinnerMaxIncrements.setEnabled(true);
+				else
+					spinnerMaxIncrements.setEnabled(false);
+			}
+		});
+		chckbxWaitForInstant.setToolTipText("<html>Wait a few seconds, if offer hasn't instantly sold/bought<br>increase/decrease the price offer</html>");
+		chckbxWaitForInstant.setBounds(252, 234, 171, 23);
+		frame.getContentPane().add(chckbxWaitForInstant);
+		
 		btnStart = new JButton("Start");
+		btnStart.setToolTipText("Start the script");
 		btnStart.setHorizontalTextPosition(SwingConstants.CENTER);
 		btnStart.setFont(new Font("Tahoma", Font.BOLD, 11));
 		btnStart.setMargin(new Insets(0, 0, 0, 0));
 		btnStart.setEnabled(false);
-		btnStart.setBounds(418, 284, 60, 22);
+		btnStart.setBounds(418, 356, 60, 22);
 		btnStart.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				
+				close();
+				isFinished = true;
 			}
 		});
 		frame.getContentPane().add(btnStart);
@@ -605,6 +660,8 @@ public class GETraderGUI {
 			btnResetPrice.setEnabled(false);
 			btnBuy.setEnabled(false);
 			btnSell.setEnabled(false);
+			chckbxWaitForInstant.setEnabled(false);
+			chckbxWUC.setEnabled(false);
 			return;
 		}
 		int id = listItems.getSelectedValue().getID();
@@ -620,6 +677,8 @@ public class GETraderGUI {
 			btnResetPrice.setEnabled(true);
 			btnBuy.setEnabled(true);
 			btnSell.setEnabled(true);
+			chckbxWaitForInstant.setEnabled(true);
+			chckbxWUC.setEnabled(true);
 			lblItemName.setText(item.getName());
 			lblItemInfo.setText("");
 			List<String> lines = new ArrayList<String>();
@@ -735,6 +794,14 @@ public class GETraderGUI {
 		frame.dispose();
 	}
 	
+	public boolean isFinished() {
+		return isFinished;
+	}
+	
+	public ArrayList<OfferItem> getOfferItems() {
+		return Collections.list(modelOffers.elements());
+	}
+
 	public class ItemImageRenderer extends DefaultListCellRenderer {
 		private static final long serialVersionUID = 1L;
 		Font font = new Font("helvitica", Font.BOLD, 12);
@@ -766,13 +833,17 @@ public class GETraderGUI {
 		private long quantity;
 		private boolean isBuying;
 		private List<Integer> increments = new ArrayList<Integer>();
+		private boolean wuc;
+		private int priceChanges;
 		
-		public OfferItem(DisplayItem item, long price, long quantity, boolean isBuying, List<Integer> increments) {
+		public OfferItem(DisplayItem item, long price, long quantity, boolean isBuying, List<Integer> increments, boolean wuc, int priceChanges) {
 			this.setItem(item);
 			this.setPrice(price);
 			this.setQuantity(quantity);
 			this.setBuying(isBuying);
 			this.setIncrements(increments);
+			this.setWaitUntilCompleted(wuc);
+			this.setPriceChanges(priceChanges);
 		}
 
 		public DisplayItem getItem() {
@@ -814,12 +885,30 @@ public class GETraderGUI {
 		public void setIncrements(List<Integer> increments) {
 			this.increments = increments;
 		}
+
+		public boolean isWaitUntilCompleted() {
+			return wuc;
+		}
+
+		public void setWaitUntilCompleted(boolean wuc) {
+			this.wuc = wuc;
+		}
+
+		public int getPriceChanges() {
+			return priceChanges;
+		}
+
+		public void setPriceChanges(int priceChanges) {
+			this.priceChanges = priceChanges;
+		}
 		
 		@Override
 		public String toString() {
 			return (isBuying ? "Buying " : "Selling ") + Utilities.insertCommas(quantity) + " " + 
-					item.getName() + (quantity > 1 ? "'s" : "") + " for " + Utilities.insertCommas(price) + 
-					" gp each for a total of " + Utilities.insertCommas(quantity * price) + " gp";
+					item.getName() + (quantity > 1 ? "'s" : "") + " | " + Utilities.insertCommas(price) + 
+					" gp each | " + Utilities.insertCommas(quantity * price) + " gp total | wait to " + 
+					(isBuying ? "buy" : "sell") + ": " + (wuc ? "yes" : "no") + 
+					(priceChanges > -1 ? " | " + priceChanges + " extra attempt" + (priceChanges > 1 ? "s" : "") + " for offer" : "");
 		}
 	}
 	

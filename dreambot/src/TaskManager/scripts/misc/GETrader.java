@@ -1,7 +1,10 @@
 package TaskManager.scripts.misc;
 
+import org.dreambot.api.methods.Calculations;
+import org.dreambot.api.methods.walking.web.node.impl.bank.WebBankArea;
 import org.dreambot.api.script.Category;
 import org.dreambot.api.script.ScriptManifest;
+import org.dreambot.core.Instance;
 
 import TaskManager.Script;
 
@@ -11,10 +14,12 @@ public class GETrader extends Script {
 	private GETraderGUI gui;
 
 	private enum State {
-		BUYING, SELLING, NOTHING
+		WALKING, BUYING, SELLING, NOTHING
 	}
 	
 	private State getState() {
+		if (!WebBankArea.GRAND_EXCHANGE.getArea().contains(getLocalPlayer()))
+			return State.WALKING;
 		return State.NOTHING;
 	}
 	
@@ -35,8 +40,15 @@ public class GETrader extends Script {
 	
 	@Override
 	public int onLoop() {
+		if (!running || !gui.isFinished() || !engine.getLocalPlayer().isOnScreen() || Instance.getInstance().isMouseInputEnabled())
+			return 0;
 		state = getState();
 		switch (state) {
+		case WALKING:
+			engine.getWalking().walk(WebBankArea.GRAND_EXCHANGE.getArea().getRandomTile());
+			if (Calculations.random(0, 20) > 2)
+				sleepUntil(() -> engine.getWalking().getDestinationDistance() < Calculations.random(6, 9), 6000);
+			break;
 		default:
 			break;
 			
