@@ -370,7 +370,6 @@ public class TaskEngineGUI {
 			}
 			if (script != null) {
 				script.setTask(task);
-				script.setTaskScript(true);
 				if (slot == -1)
 					tasksModel.addElement(script);
 				else

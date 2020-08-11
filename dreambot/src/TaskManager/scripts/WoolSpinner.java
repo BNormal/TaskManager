@@ -43,6 +43,8 @@ public class WoolSpinner extends Script {
 	
 	@Override
 	public void onStart() {
+		if (!taskScript)
+			init();
 		super.onStart();
 		if (engine == null)
 			engine = this;
@@ -282,6 +284,11 @@ public class WoolSpinner extends Script {
 			break;
 		}
 		return Calculations.random(200, 400);
+	}
+	
+	@Override
+	public void onExit() {
+		super.onExit();
 	}
 	
 	public void antiBan(boolean isSpinning) {
