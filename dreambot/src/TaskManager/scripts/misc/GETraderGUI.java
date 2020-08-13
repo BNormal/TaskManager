@@ -37,6 +37,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.awt.Graphics;
 import java.awt.Insets;
@@ -137,7 +138,7 @@ public class GETraderGUI {
 		frame.setResizable(false);
 		frame.setTitle(title);
 		frame.setBounds(100, 100, 500, 415);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 		
 		txtItemName = new JTextField();
@@ -247,6 +248,7 @@ public class GETraderGUI {
 		frame.getContentPane().add(lblBar);
 	    
 		spinnerCurrentPrice = new JSpinner();
+		spinnerCurrentPrice.setFocusable(false);
 		spinnerCurrentPrice.setToolTipText("Desired price for selected item");
 		spinnerCurrentPrice.setEnabled(false);
 		spinnerCurrentPrice.setModel(new SpinnerNumberModel(new Long(1), null, null, new Long(1)));
@@ -265,13 +267,30 @@ public class GETraderGUI {
 	        	else if (amount > Integer.MAX_VALUE)
 	        		amount = Integer.MAX_VALUE;
 	        	spinnerCurrentPrice.setValue(amount);
-	        	priceIncrements.clear();
-	        	priceIncrements.add((int) amount);
 	        }
 	    });
+		((JSpinner.DefaultEditor) spinnerCurrentPrice.getEditor()).getTextField().addKeyListener(new KeyListener() {
+			
+			@Override
+			public void keyTyped(KeyEvent e) {
+			}
+			
+			@Override
+			public void keyReleased(KeyEvent e) {
+	        	priceIncrements.clear();
+	        	priceIncrements.add(Integer.parseInt(spinnerCurrentPrice.getValue().toString()));
+				
+			}
+			
+			@Override
+			public void keyPressed(KeyEvent e) {
+				
+			}
+		});
 		frame.getContentPane().add(spinnerCurrentPrice);
 		
 		spinnerQuantity = new JSpinner();
+		spinnerQuantity.setFocusable(false);
 		spinnerQuantity.setToolTipText("Desired quantity for selected item");
 		spinnerQuantity.setEnabled(false);
 		spinnerQuantity.setModel(new SpinnerNumberModel(new Long(1), null, null, new Long(1)));
@@ -293,6 +312,7 @@ public class GETraderGUI {
 		frame.getContentPane().add(spinnerQuantity);
 		
 		btnDecreasePrice = new JButton("\u2193");
+		btnDecreasePrice.setFocusable(false);
 		btnDecreasePrice.setToolTipText("Decrease price");
 		btnDecreasePrice.setEnabled(false);
 		btnDecreasePrice.setMargin(new Insets(0, 0, 0, 0));
@@ -309,6 +329,7 @@ public class GETraderGUI {
 		frame.getContentPane().add(btnDecreasePrice);
 		
 		btnResetPrice = new JButton("\u21BB");
+		btnResetPrice.setFocusable(false);
 		btnResetPrice.setToolTipText("Reset price");
 		btnResetPrice.setEnabled(false);
 		btnResetPrice.setMargin(new Insets(0, 0, 0, 0));
@@ -320,11 +341,13 @@ public class GETraderGUI {
 				DisplayItem item = itemList.get(itemId);
 				spinnerCurrentPrice.setValue(item.getPrice());
 				priceIncrements.clear();
+				priceIncrements.add(-3);
 			}
 		});
 		frame.getContentPane().add(btnResetPrice);
 		
 		btnIncreasePrice = new JButton("\u2191");
+		btnIncreasePrice.setFocusable(false);
 		btnIncreasePrice.setToolTipText("Increase price");
 		btnIncreasePrice.setEnabled(false);
 		btnIncreasePrice.setMargin(new Insets(0, 0, 0, 0));
@@ -354,6 +377,7 @@ public class GETraderGUI {
 		scrollOffers.setViewportView(listOffers);
 		
 		btnBuy = new JButton("Buy");
+		btnBuy.setFocusable(false);
 		btnBuy.setEnabled(false);
 		btnBuy.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -373,6 +397,7 @@ public class GETraderGUI {
 		frame.getContentPane().add(btnBuy);
 		
 		btnSell = new JButton("Sell");
+		btnSell.setFocusable(false);
 		btnSell.setEnabled(false);
 		btnSell.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -381,9 +406,9 @@ public class GETraderGUI {
 				OfferItem offer = new OfferItem(itemList.get(itemId), Integer.parseInt(spinnerCurrentPrice.getValue().toString()), 
 						Integer.parseInt(spinnerQuantity.getValue().toString()), false, priceIncrements, chckbxWUC.isSelected(), 
 						chckbxWaitForInstant.isSelected() ? Integer.parseInt(spinnerMaxIncrements.getValue().toString()) : -1);
-				priceIncrements.clear();
 				modelOffers.addElement(offer);
 				listOffers.ensureIndexIsVisible(modelOffers.size() - 1);
+				priceIncrements.clear();
 				updateOfferList();
 			}
 		});
@@ -392,6 +417,7 @@ public class GETraderGUI {
 		frame.getContentPane().add(btnSell);
 		
 		btnMoveDown = new JButton("\u2193");
+		btnMoveDown.setFocusable(false);
 		btnMoveDown.setToolTipText("Move offer down the list");
 		btnMoveDown.setMargin(new Insets(0, 0, 0, 0));
 		btnMoveDown.setEnabled(false);
@@ -412,6 +438,7 @@ public class GETraderGUI {
 		frame.getContentPane().add(btnMoveDown);
 		
 		btnMoveUp = new JButton("\u2191");
+		btnMoveUp.setFocusable(false);
 		btnMoveUp.setToolTipText("Move offer up the list");
 		btnMoveUp.setMargin(new Insets(0, 0, 0, 0));
 		btnMoveUp.setEnabled(false);
@@ -432,6 +459,7 @@ public class GETraderGUI {
 		frame.getContentPane().add(btnMoveUp);
 		
 		btnRemove = new JButton("Remove");
+		btnRemove.setFocusable(false);
 		btnRemove.setToolTipText("Remove offer from list");
 		btnRemove.setMargin(new Insets(0, 0, 0, 0));
 		btnRemove.setEnabled(false);
@@ -457,6 +485,7 @@ public class GETraderGUI {
 		frame.getContentPane().add(btnRemove);
 		
 		chckbxWUC = new JCheckBox("Wait until completed");
+		chckbxWUC.setFocusable(false);
 		chckbxWUC.setEnabled(false);
 		chckbxWUC.setToolTipText("<html>Wait until this offer has been sold/bought<br>before preceding to the next offer</html>");
 		chckbxWUC.setSelected(true);
@@ -464,6 +493,7 @@ public class GETraderGUI {
 		frame.getContentPane().add(chckbxWUC);
 		
 		spinnerMaxIncrements = new JSpinner();
+		spinnerMaxIncrements.setFocusable(false);
 		spinnerMaxIncrements.setModel(new SpinnerNumberModel(1, null, null, 1));
 		spinnerMaxIncrements.setToolTipText("Max increments to increase/decrease the price offer by 5%");
 		spinnerMaxIncrements.setEnabled(false);
@@ -485,6 +515,7 @@ public class GETraderGUI {
 		frame.getContentPane().add(spinnerMaxIncrements);
 		
 		chckbxWaitForInstant = new JCheckBox("Modify price for instant offer");
+		chckbxWaitForInstant.setFocusable(false);
 		chckbxWaitForInstant.setEnabled(false);
 		chckbxWaitForInstant.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -499,6 +530,7 @@ public class GETraderGUI {
 		frame.getContentPane().add(chckbxWaitForInstant);
 		
 		btnStart = new JButton("Start");
+		btnStart.setFocusable(false);
 		btnStart.setToolTipText("Start the script");
 		btnStart.setHorizontalTextPosition(SwingConstants.CENTER);
 		btnStart.setFont(new Font("Tahoma", Font.BOLD, 11));
@@ -532,7 +564,12 @@ public class GETraderGUI {
 	private void loadSprites() {
 		String text = txtItemName.getText();
 		lblLoading.setText("Loading listed item images...");
-		for (int i = 0; i < modelItems.size(); i++) {
+		int size = modelItems.size();
+		for (int i = 0; i < size; i++) {
+			if (modelItems.size() != size) {
+				size = modelItems.size();
+				i = 0;
+			}
 			DisplayItem item = modelItems.get(i);
 			if (item.getSprite() == null) {
 				try {
@@ -883,7 +920,13 @@ public class GETraderGUI {
 		}
 
 		public void setIncrements(List<Integer> increments) {
-			this.increments = increments;
+			for (int increment : increments) {
+				this.increments.add(increment);
+			}
+			// -1 increase
+			// -2 decrease
+			// -3 reset
+			// above 0 set price
 		}
 
 		public boolean isWaitUntilCompleted() {

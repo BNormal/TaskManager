@@ -40,7 +40,6 @@ import java.awt.Font;
 import java.awt.Insets;
 
 import org.dreambot.api.methods.Calculations;
-import org.dreambot.api.methods.MethodProvider;
 import org.dreambot.api.methods.skills.Skill;
 
 
@@ -119,7 +118,7 @@ public class TaskEngineGUI {
 					if (object instanceof Script) {
 						Script script = (Script) object;
 						scripts.add(script);
-						System.out.println("Loaded script: " + script);
+						//System.out.println("Loaded script: " + script);
 					}
 				} catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e2) {
 				}

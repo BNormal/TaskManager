@@ -291,7 +291,7 @@ public class TutorialIsle extends Script {
 						engine.getInventory().get("Bronze dagger").interact();
 						sleepUntil(() -> engine.getEquipment().contains("Bronze dagger"), Calculations.random(3000, 5000));
 					}
-					interfaceItem = engine.getWidgets().getWidgetChild(84, 4);
+					interfaceItem = engine.getWidgets().getWidgetChild(84, 3, 11);
 					if (interfaceItem != null && interfaceItem.isVisible()) {
 						interfaceItem.interact();
 					}
