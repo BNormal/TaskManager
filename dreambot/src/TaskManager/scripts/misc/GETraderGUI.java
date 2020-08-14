@@ -529,7 +529,7 @@ public class GETraderGUI {
 		chckbxWaitForInstant.setBounds(252, 234, 171, 23);
 		frame.getContentPane().add(chckbxWaitForInstant);
 		
-		btnStart = new JButton("Start");
+		btnStart = new JButton("Finish");
 		btnStart.setFocusable(false);
 		btnStart.setToolTipText("Start the script");
 		btnStart.setHorizontalTextPosition(SwingConstants.CENTER);

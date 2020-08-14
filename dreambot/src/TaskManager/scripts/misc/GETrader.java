@@ -43,7 +43,7 @@ public class GETrader extends Script {
 	}
 	
 	private State getState() {
-		if (!WebBankArea.GRAND_EXCHANGE.getArea().contains(getLocalPlayer()))
+		if (!WebBankArea.GRAND_EXCHANGE.getArea().contains(engine.getLocalPlayer()))
 			return State.WALKING;
 		if (item == null)
 			return State.SETUP;
@@ -89,11 +89,14 @@ public class GETrader extends Script {
 				if (engine.getGrandExchange().isOpen()) {
 					engine.getGrandExchange().close();
 					sleepUntil(() -> !engine.getGrandExchange().isOpen(), 6000);
+				} else if (!engine.getBank().isOpen()) {
+					engine.getBank().openClosest();
+					sleepUntil(() -> engine.getBank().isOpen(), 6000);
 				} else if (engine.getBank().isOpen()) {
-					engine.getBank().close();
-					sleepUntil(() -> !engine.getBank().isOpen(), 6000);
+					engine.getBank().depositAllItems();
+					sleepUntil(() -> engine.getInventory().emptySlotCount() == 28, 6000);
+					onExit();
 				}
-				onExit();
 			}
 			else {
 				item = offers.get(0);
@@ -240,7 +243,7 @@ public class GETrader extends Script {
 							reset();
 						}
 					}
-					if (!item.isWaitUntilCompleted()) {//skip to next purchase
+					if (item != null && !item.isWaitUntilCompleted()) {//skip to next purchase
 						status = OfferStatus.MAKING_OFFER;
 						offers.remove(0);
 						reset();
@@ -329,7 +332,7 @@ public class GETrader extends Script {
 			} else if (!engine.getGrandExchange().isOpen()) {
 				engine.getGrandExchange().open();
 				sleepUntil(() -> engine.getGrandExchange().isOpen(), 6000);
-			} else if (engine.getInventory().count(item.getItem().getID()) >= item.getQuantity() || engine.getGrandExchange().slotContainsItem(slot)) {
+			} else if (engine.getInventory().count(item.getItem().getID()) >= item.getQuantity() || slot > -1 && engine.getGrandExchange().slotContainsItem(slot)) {
 				if (status == OfferStatus.MAKING_OFFER) {
 					if (engine.getGrandExchange().isGeneralOpen()) {
 						slot = engine.getGrandExchange().getFirstOpenSlot();
