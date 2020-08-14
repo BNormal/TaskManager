@@ -13,6 +13,7 @@ import org.dreambot.api.script.AbstractScript;
 import org.dreambot.api.script.Category;
 import org.dreambot.api.script.ScriptManifest;
 import org.dreambot.api.utilities.Timer;
+import org.dreambot.core.Instance;
 
 import TaskManager.utilities.Utilities;
 
@@ -28,8 +29,8 @@ public class TaskEngine extends AbstractScript implements MouseListener {
 	
 	@Override
     public void onStart() {
-		Point clientLocation = getClient().getInstance().getApplet().getLocationOnScreen();
-		Dimension clientDimension = getClient().getInstance().getApplet().getSize();
+		Point clientLocation = Instance.getInstance().getApplet().getLocationOnScreen();
+		Dimension clientDimension = Instance.getInstance().getApplet().getSize();
 		int x = (int) (clientLocation.getX() + clientDimension.getWidth() / 2.0);
 		int y = (int) (clientLocation.getY() + clientDimension.getHeight() / 2.0);
 		getRandomManager().disableSolver(RandomEvent.RESIZABLE_DISABLER);
@@ -78,7 +79,8 @@ public class TaskEngine extends AbstractScript implements MouseListener {
 	
 	@Override
     public void onExit() {
-		gui.exit();
+		if (gui != null)
+			gui.exit();
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -95,16 +97,18 @@ public class TaskEngine extends AbstractScript implements MouseListener {
 		Utilities.drawShadowString(g, "    Total Time Running: " + totalTime.formatTime(), x + 5, y + 13);
 		Utilities.drawShadowString(g, "------------------------------------------------", x + 5, y + 23);
 		Color gray = Color.GRAY;
-		for (int i = 0; i < 4; i++) {
-			if (i + gui.getCurrentScriptId() >= gui.getScripts().size())
-				break;
-			Script script = gui.getScripts().get(i + gui.getCurrentScriptId());
-			String scriptTitle = script.getManifest().name() + (script.getTotalTime() != null ? " - " + script.getTotalTime().formatTime() : "");
-			if (i + gui.getCurrentScriptId() == gui.getCurrentScriptId())
-				Utilities.drawShadowString(g, "> " + scriptTitle, x + 5, y + 33 + i * 10, Color.GREEN, Color.BLACK);
-			else {
-				Utilities.drawShadowString(g, "   " + scriptTitle, x + 5, y + 33 + i * 10, gray, Color.BLACK);
-				gray = gray.darker();
+		if (gui != null) {
+			for (int i = 0; i < 4; i++) {
+				if (i + gui.getCurrentScriptId() >= gui.getScripts().size())
+					break;
+				Script script = gui.getScripts().get(i + gui.getCurrentScriptId());
+				String scriptTitle = script.getManifest().name() + (script.getTotalTime() != null ? " - " + script.getTotalTime().formatTime() : "");
+				if (i + gui.getCurrentScriptId() == gui.getCurrentScriptId())
+					Utilities.drawShadowString(g, "> " + scriptTitle, x + 5, y + 33 + i * 10, Color.GREEN, Color.BLACK);
+				else {
+					Utilities.drawShadowString(g, "   " + scriptTitle, x + 5, y + 33 + i * 10, gray, Color.BLACK);
+					gray = gray.darker();
+				}
 			}
 		}
 		if (currentScript != null)

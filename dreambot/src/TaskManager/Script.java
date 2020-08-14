@@ -164,6 +164,25 @@ public abstract class Script extends AbstractScript implements MouseListener {
 	}
 	
 	/**
+	 * A boolean representing if the script is ran by the
+	 * task manager.
+	 * @return a <code> boolean </code>
+	 */
+	public boolean isTaskScript() {
+		return taskScript;
+	}
+
+	/**
+	 * Set a new value for it to be a task.
+	 * 
+	 * @param taskScript represents the whether the script
+	 * is being used by the task manager.
+	 */
+	public void setTaskScript(boolean taskScript) {
+		this.taskScript = taskScript;
+	}
+	
+	/**
 	 * A boolean representing if the task assigned to
 	 * the script has been completed.
 	 * @return a <code> boolean </code>

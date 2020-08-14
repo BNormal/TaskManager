@@ -6,7 +6,6 @@ import java.awt.Graphics2D;
 import java.util.ArrayList;
 
 import org.dreambot.api.methods.Calculations;
-import org.dreambot.api.methods.MethodProvider;
 import org.dreambot.api.methods.container.impl.equipment.EquipmentSlot;
 import org.dreambot.api.methods.tabs.Tab;
 import org.dreambot.api.methods.walking.web.node.impl.bank.WebBankArea;
@@ -100,6 +99,9 @@ public class GETrader extends Script {
 				item = offers.get(0);
 			}
 			break;
+			
+		/********************************************BUYING****************************************************/	
+			
 		case BUYING:
 			if (engine.getInventory().count(COINS) < item.getPrice() && !engine.getGrandExchange().isBuyOpen())  {
 				if (bankGP == -1) {
@@ -164,21 +166,21 @@ public class GETrader extends Script {
 							for (int increment : item.getIncrements()) {
 								switch (increment) {
 								case -1://increase
-									WidgetChild plusFive = getWidgets().getWidgetChild(465, 24, 13);
+									WidgetChild plusFive = engine.getWidgets().getWidgetChild(465, 24, 13);
 									if (plusFive != null) {
 										plusFive.interact();
 										sleep(50, 150);
 									}
 									break;
 								case -2://decrease
-									WidgetChild minusFive = getWidgets().getWidgetChild(465, 24, 10);
+									WidgetChild minusFive = engine.getWidgets().getWidgetChild(465, 24, 10);
 									if (minusFive != null) {
 										minusFive.interact();
 										sleep(50, 150);
 									}
 									break;
 								case -3://reset
-									WidgetChild resetPrice = getWidgets().getWidgetChild(465, 24, 11);
+									WidgetChild resetPrice = engine.getWidgets().getWidgetChild(465, 24, 11);
 									if (resetPrice != null) {
 										resetPrice.interact();
 										sleep(50, 150);
@@ -193,7 +195,21 @@ public class GETrader extends Script {
 						}
 						if (item.getPriceChanges() > -1 && increments <= item.getPriceChanges() && increments != 0) {
 							//handle price increases here
-							WidgetChild plusFive = getWidgets().getWidgetChild(465, 24, 13);
+							long price = item.getPrice();
+							for (int i = 0; i < increments; i++) {
+								price += price * Calculations.random(0.03, 0.05);
+							}
+							if (price < 1)
+								price = 1;
+							else if (price > Integer.MAX_VALUE)
+								price = Integer.MAX_VALUE;
+							engine.getGrandExchange().setPrice((int) price);
+							final long finalPrice = price;
+							sleepUntil(() -> engine.getGrandExchange().getCurrentPrice() == finalPrice, 6000);
+							
+							
+							
+							WidgetChild plusFive = engine.getWidgets().getWidgetChild(465, 24, 13);
 							for (int i = 0; i < increments; i++) {
 								if (plusFive != null) {
 									plusFive.interact();
@@ -228,7 +244,7 @@ public class GETrader extends Script {
 						status = OfferStatus.MAKING_OFFER;
 						offers.remove(0);
 						reset();
-					} else if (increments < item.getPriceChanges()) {
+					} else if (increments <= item.getPriceChanges()) {
 						if (waitTime <= 0)
 							waitTime = Calculations.random(3000, 6000);
 						if (waitTimer.elapsed() > waitTime) {
@@ -236,19 +252,19 @@ public class GETrader extends Script {
 							waitTime = -1;
 							engine.getGrandExchange().cancelOffer(slot);
 							hasCancelled = true;
-							sleepUntil(() -> getWidgets().getWidgetChild(465, 23, 2) != null && getWidgets().getWidgetChild(465, 23, 2).getItemStack() > 0, 6000);
+							sleepUntil(() -> engine.getWidgets().getWidgetChild(465, 23, 2) != null && engine.getWidgets().getWidgetChild(465, 23, 2).getItemStack() > 0, 6000);
 						}
 					} else {//just waiting for item to buy
 						if (waitTimer.elapsed() > 60000) {//cancel this order and move on
 							waitTime = -1;
 							engine.getGrandExchange().cancelOffer(slot);
 							hasCancelled = true;
-							sleepUntil(() -> getWidgets().getWidgetChild(465, 23, 2) != null && getWidgets().getWidgetChild(465, 23, 2).getItemStack() > 0, 6000);
+							sleepUntil(() -> engine.getWidgets().getWidgetChild(465, 23, 2) != null && engine.getWidgets().getWidgetChild(465, 23, 2).getItemStack() > 0, 6000);
 						}
 					}
 				} else {
-					WidgetChild collectItem = getWidgets().getWidgetChild(465, 23, 2);
-					WidgetChild back = getWidgets().getWidgetChild(465, 4);
+					WidgetChild collectItem = engine.getWidgets().getWidgetChild(465, 23, 2);
+					WidgetChild back = engine.getWidgets().getWidgetChild(465, 4);
 					if (collectItem != null && collectItem.isVisible()) {
 						if (collectItem.getItemStack() > 0) {
 							sleep(1000, 1500);
@@ -257,13 +273,12 @@ public class GETrader extends Script {
 							if (!engine.getGrandExchange().isBuyOpen()) {
 								hasCancelled = false;
 								status = OfferStatus.MAKING_OFFER;
-								if (increments >= item.getPriceChanges()) {
+								if (increments > item.getPriceChanges()) {
 									offers.remove(0);
 									reset();
 								}
 							} else {
 								hasCancelled = false;
-								status = OfferStatus.MAKING_OFFER;
 								back.interact();
 								sleepUntil(() -> !engine.getGrandExchange().isBuyOpen(), 2000);
 							}
@@ -272,6 +287,9 @@ public class GETrader extends Script {
 				}
 			}
 			break;
+			
+		/********************************************SELLING****************************************************/	
+			
 		case SELLING:
 			if (engine.getEquipment().contains(item.getItem().getID()) && !engine.getGrandExchange().isOpen()) {//remove equipment
 				engine.getTabs().open(Tab.EQUIPMENT);
@@ -311,7 +329,7 @@ public class GETrader extends Script {
 			} else if (!engine.getGrandExchange().isOpen()) {
 				engine.getGrandExchange().open();
 				sleepUntil(() -> engine.getGrandExchange().isOpen(), 6000);
-			} else if (engine.getInventory().count(item.getItem().getID()) >= item.getQuantity()) {
+			} else if (engine.getInventory().count(item.getItem().getID()) >= item.getQuantity() || engine.getGrandExchange().slotContainsItem(slot)) {
 				if (status == OfferStatus.MAKING_OFFER) {
 					if (engine.getGrandExchange().isGeneralOpen()) {
 						slot = engine.getGrandExchange().getFirstOpenSlot();
@@ -333,7 +351,7 @@ public class GETrader extends Script {
 								engine.getGrandExchange().setQuantity((int) item.getQuantity());
 								sleepUntil(() -> engine.getGrandExchange().getCurrentAmount() == (int) item.getQuantity(), 6000);
 							}
-							if (item.getIncrements().size() > 0) {
+							if (item.getIncrements().size() > 0 && increments == 0) {
 								for (int increment : item.getIncrements()) {
 									switch (increment) {
 									case -1://increase
@@ -366,13 +384,17 @@ public class GETrader extends Script {
 							}
 							if (item.getPriceChanges() > -1 && increments <= item.getPriceChanges() && increments != 0) {
 								//handle price decreases here
-								WidgetChild minusFive = engine.getWidgets().getWidgetChild(465, 24, 10);
+								long price = item.getPrice();
 								for (int i = 0; i < increments; i++) {
-									if (minusFive != null) {
-										minusFive.interact();
-										sleep(50, 150);
-									}
+									price -= price * Calculations.random(0.03, 0.05);
 								}
+								if (price < 1)
+									price = 1;
+								else if (price > Integer.MAX_VALUE)
+									price = Integer.MAX_VALUE;
+								engine.getGrandExchange().setPrice((int) price);
+								final long finalPrice = price;
+								sleepUntil(() -> engine.getGrandExchange().getCurrentPrice() == finalPrice, 6000);
 							}
 							if (engine.getGrandExchange().getCurrentPrice() != (int) item.getPrice() && increments == 0) {
 								engine.getGrandExchange().setPrice((int) item.getPrice());
@@ -400,7 +422,7 @@ public class GETrader extends Script {
 							status = OfferStatus.MAKING_OFFER;
 							offers.remove(0);
 							reset();
-						} else if (increments < item.getPriceChanges()) {
+						} else if (increments <= item.getPriceChanges()) {
 							if (waitTime <= 0)
 								waitTime = Calculations.random(3000, 6000);
 							if (waitTimer.elapsed() > waitTime) {
@@ -426,18 +448,20 @@ public class GETrader extends Script {
 						if (collectItem != null && collectItem.isVisible()) {
 							if (collectItem.getItemStack() > 0) {
 								sleep(1000, 1500);
-								collectItem.interact("Collect");
+								if (collectItem.getItemStack() > 1)
+									collectItem.interact("Collect-note");
+								else
+									collectItem.interact("Collect-item");
 								sleepUntil(() -> !engine.getGrandExchange().isSellOpen(), 2000);
 								if (!engine.getGrandExchange().isSellOpen()) {
 									hasCancelled = false;
 									status = OfferStatus.MAKING_OFFER;
-									if (increments >= item.getPriceChanges()) {
+									if (increments > item.getPriceChanges()) {
 										offers.remove(0);
 										reset();
 									}
 								} else {
 									hasCancelled = false;
-									status = OfferStatus.MAKING_OFFER;
 									back.interact();
 									sleepUntil(() -> !engine.getGrandExchange().isSellOpen(), 2000);
 								}
