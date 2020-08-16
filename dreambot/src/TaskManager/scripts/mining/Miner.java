@@ -80,17 +80,17 @@ public class Miner extends Script {
 			} else if (ableToBank()) {
 				handleBanking();
 			} else if (needsToBank()) {
-				engine.getWalking().walk(location.getBankArea().getRandomTile());
+				engine.getWalking().walk(location.getBankArea().getCenter().getRandomizedTile(2));
 				if (Calculations.random(0, 20) > 1)
-					sleepUntil(() -> engine.getWalking().getDestinationDistance() < Calculations.random(6, 9), 6000);
+					sleepUntil(() -> engine.getWalking().getDestinationDistance() < 6, 6000);
 			} else if (readyToMine()) {
 				if (engine.getBank().isOpen()) {
 					engine.getBank().close();
 					sleepUntil(() -> !engine.getBank().isOpen(), Calculations.random(3000, 5000));
 				} else {
-					engine.getWalking().walk(location.getMiningArea().getCenter());
+					engine.getWalking().walk(location.getMiningArea().getCenter().getRandomizedTile(2));
 					if (Calculations.random(0, 20) > 1)
-						sleepUntil(() -> engine.getWalking().getDestinationDistance() < Calculations.random(6, 9), 6000);
+						sleepUntil(() -> engine.getWalking().getDestinationDistance() < 6, 6000);
 				}
 			}
 		}

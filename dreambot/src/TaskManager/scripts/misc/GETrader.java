@@ -80,7 +80,7 @@ public class GETrader extends Script {
 		state = getState();
 		switch (state) {
 		case WALKING:
-			engine.getWalking().walk(WebBankArea.GRAND_EXCHANGE.getArea().getCenter());
+			engine.getWalking().walk(WebBankArea.GRAND_EXCHANGE.getArea().getCenter().getRandomizedTile(2));
 			if (Calculations.random(0, 20) > 2)
 				sleepUntil(() -> engine.getWalking().getDestinationDistance() < Calculations.random(6, 9), 6000);
 			break;
