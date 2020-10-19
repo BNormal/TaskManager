@@ -5,12 +5,21 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.List;
 
+import org.dreambot.api.data.GameState;
 import org.dreambot.api.methods.Calculations;
+import org.dreambot.api.methods.container.impl.Inventory;
+import org.dreambot.api.methods.container.impl.bank.Bank;
+import org.dreambot.api.methods.container.impl.equipment.Equipment;
 import org.dreambot.api.methods.container.impl.equipment.EquipmentSlot;
+import org.dreambot.api.methods.dialogues.Dialogues;
 import org.dreambot.api.methods.filter.Filter;
+import org.dreambot.api.methods.interactive.GameObjects;
 import org.dreambot.api.methods.map.Area;
 import org.dreambot.api.methods.map.Tile;
 import org.dreambot.api.methods.skills.Skill;
+import org.dreambot.api.methods.skills.SkillTracker;
+import org.dreambot.api.methods.skills.Skills;
+import org.dreambot.api.methods.walking.impl.Walking;
 import org.dreambot.api.methods.walking.web.node.impl.bank.WebBankArea;
 import org.dreambot.api.script.Category;
 import org.dreambot.api.script.ScriptManifest;
@@ -25,7 +34,6 @@ import TaskManager.utilities.Utilities;
 
 @ScriptManifest(author = "NumberZ", category = Category.MINING, name = "Miner", version = 1.0, description = "Mines ores in various areas")
 public class Miner extends Script {
-
 	private String pickaxe = "pickaxe";
 	private boolean tracking = false;
 	private GameObject currentNode;
@@ -51,46 +59,44 @@ public class Miner extends Script {
 		if (!taskScript)
 			init();
 		super.onStart();
-		if (engine == null)
-			engine = this;
 		location = gui.getMiningArea();
 		selectedRockType = gui.getOreNode();
 	}
 
 	@Override
 	public int onLoop() {
-		if (!engine.getLocalPlayer().isOnScreen()) {
+		if (!GameState.values().equals(GameState.LOGGED_IN)) {
 			return 0;
-		} else if (!tracking && engine.getLocalPlayer().isOnScreen()) {
+		} else if (!tracking && getLocalPlayer().isOnScreen()) {
 			tracking = true;
-			engine.getSkillTracker().reset(Skill.MINING);
-			engine.getSkillTracker().start(Skill.MINING);
+			SkillTracker.reset(Skill.MINING);
+			SkillTracker.start(Skill.MINING);
 		}
-		if (Instance.getInstance().isMouseInputEnabled())
+		if (Instance.isMouseInputEnabled())
 			return 0;
 		if (!gui.isFinished()) {
 			location = gui.getMiningArea();
 			selectedRockType = gui.getOreNode();
 		}
 		if (running && gui.isFinished()) {
-			if (engine.getDialogues().inDialogue() && engine.getDialogues().continueDialogue())
-				engine.getDialogues().spaceToContinue();
+			if (Dialogues.inDialogue() && Dialogues.continueDialogue())
+				Dialogues.spaceToContinue();
 			if (ableToMine()) {
 				handleMining();
 			} else if (ableToBank()) {
 				handleBanking();
 			} else if (needsToBank()) {
-				engine.getWalking().walk(location.getBankArea().getCenter().getRandomizedTile(2));
+				Walking.walk(location.getBankArea().getCenter().getRandomizedTile(2));
 				if (Calculations.random(0, 20) > 1)
-					sleepUntil(() -> engine.getWalking().getDestinationDistance() < 6, 6000);
+					sleepUntil(() -> Walking.getDestinationDistance() < 6, 6000);
 			} else if (readyToMine()) {
-				if (engine.getBank().isOpen()) {
-					engine.getBank().close();
-					sleepUntil(() -> !engine.getBank().isOpen(), Calculations.random(3000, 5000));
+				if (Bank.isOpen()) {
+					Bank.close();
+					sleepUntil(() -> !Bank.isOpen(), Calculations.random(3000, 5000));
 				} else {
-					engine.getWalking().walk(location.getMiningArea().getCenter().getRandomizedTile(2));
+					Walking.walk(location.getMiningArea().getCenter().getRandomizedTile(2));
 					if (Calculations.random(0, 20) > 1)
-						sleepUntil(() -> engine.getWalking().getDestinationDistance() < 6, 6000);
+						sleepUntil(() -> Walking.getDestinationDistance() < 6, 6000);
 				}
 			}
 		}
@@ -99,13 +105,13 @@ public class Miner extends Script {
 
 	private boolean handleMining() {
 		boolean result = true;
-		if (!engine.getLocalPlayer().isMoving() && !engine.getLocalPlayer().isAnimating()) {
+		if (!getLocalPlayer().isMoving() && !getLocalPlayer().isAnimating()) {
 			if (currentNode == null || !currentNode.exists())
-				currentNode = engine.getGameObjects().closest(rockFilter());
+				currentNode = GameObjects.closest(rockFilter());
 			if (currentNode != null) {
 				currentNode.interact("Mine");
-				sleepUntil(() -> engine.getLocalPlayer().isAnimating() || engine.getDialogues().inDialogue() || currentNode == null, Calculations.random(12000, 15400));
-				sleepUntil(() -> !engine.getLocalPlayer().isAnimating(), Calculations.random(12000, 15400));
+				sleepUntil(() -> getLocalPlayer().isAnimating() || Dialogues.inDialogue() || currentNode == null, Calculations.random(12000, 15400));
+				sleepUntil(() -> !getLocalPlayer().isAnimating(), Calculations.random(12000, 15400));
 			}
 		}
 		return result;
@@ -114,7 +120,7 @@ public class Miner extends Script {
 	private String getBestPickaxe() {
 		List<Pickaxe> approvedPickaxes = gui.getAllowedPickaxes();
 		for (Pickaxe pickaxe : approvedPickaxes) {
-			if (pickaxe.meetsAllReqsToUse(engine.getSkills()) && (engine.getBank().contains(pickaxe.toString()) || engine.getInventory().contains(pickaxe.toString()))) {
+			if (pickaxe.meetsAllReqsToUse() && (Bank.contains(pickaxe.toString()) || Inventory.contains(pickaxe.toString()))) {
 				return pickaxe.toString();
 			}
 		}
@@ -124,26 +130,26 @@ public class Miner extends Script {
 	private boolean handleBanking() {
 		boolean results = false;
 		if (ableToBank()) {
-			if (!engine.getBank().isOpen()) {
-				engine.getBank().openClosest();
-				sleepUntil(() -> engine.getBank().isOpen(), Calculations.random(3000, 5000));
+			if (!Bank.isOpen()) {
+				Bank.openClosest();
+				sleepUntil(() -> Bank.isOpen(), Calculations.random(3000, 5000));
 			} else {
 				pickaxe = getBestPickaxe();
 				if (!hasPickaxe()) {
-					if (engine.getBank().contains(pickaxe)) {
-						engine.getBank().withdraw(pickaxe);
-						sleepUntil(() -> engine.getInventory().contains(pickaxe), Calculations.random(3000, 5000));
-					} else if (!engine.getBank().contains(pickaxe) && !engine.getInventory().contains(pickaxe)) {
+					if (Bank.contains(pickaxe)) {
+						Bank.withdraw(pickaxe);
+						sleepUntil(() -> Inventory.contains(pickaxe), Calculations.random(3000, 5000));
+					} else if (!Bank.contains(pickaxe) && !Inventory.contains(pickaxe)) {
 						onExit();
 					}
 				}
-				if (!engine.getInventory().onlyContains(pickaxe)) {
-					if (engine.getInventory().contains(selectedRockType.getOreFromNode().getOreId()))
+				if (!Inventory.onlyContains(pickaxe)) {
+					if (Inventory.contains(selectedRockType.getOreFromNode().getOreId()))
 						increaseRunCount();
-					engine.getBank().depositAllExcept(pickaxe);
-					sleepUntil(() -> engine.getInventory().onlyContains(pickaxe), Calculations.random(3000, 5000));
+					Bank.depositAllExcept(pickaxe);
+					sleepUntil(() -> Inventory.onlyContains(pickaxe), Calculations.random(3000, 5000));
 				}
-				if (readyToMine() && engine.getBank().close()) {
+				if (readyToMine() && Bank.close()) {
 					results = true;
 				}
 			}
@@ -163,29 +169,29 @@ public class Miner extends Script {
 	}
 
 	private boolean ableToMine() {
-		return readyToMine() && location.getMiningArea().contains(engine.getLocalPlayer());
+		return readyToMine() && location.getMiningArea().contains(getLocalPlayer());
 	}
 
 	private boolean readyToMine() {
-		return !engine.getInventory().isFull() && hasPickaxe();
+		return !Inventory.isFull() && hasPickaxe();
 	}
 
 	private boolean needsToBank() {
-		return engine.getInventory().isFull() || !hasPickaxe();
+		return Inventory.isFull() || !hasPickaxe();
 	}
 
 	private boolean ableToBank() {
-		return needsToBank() && location.getBankArea().contains(engine.getLocalPlayer());
+		return needsToBank() && location.getBankArea().contains(getLocalPlayer());
 	}
 
 	private boolean hasPickaxe() {
 		boolean hasPickaxe = false;
-		Item weapon = engine.getEquipment().getItemInSlot(EquipmentSlot.WEAPON.getSlot());
+		Item weapon = Equipment.getItemInSlot(EquipmentSlot.WEAPON.getSlot());
 		if (weapon != null && weapon.getName() != null) {
 			hasPickaxe = weapon.getName().contains("pickaxe");
 		}
 		if (!hasPickaxe) {
-			for (Item item : engine.getInventory().all()) {
+			for (Item item : Inventory.all()) {
 				if (item != null && item.getName().toLowerCase().contains("pickaxe")) {
 					hasPickaxe = true;
 					break;
@@ -210,10 +216,10 @@ public class Miner extends Script {
 		g.drawRect(x, y, width, height);
 		g.setColor(Color.WHITE);
 		g.drawString("Total Time: " + totalTime.formatTime(), x1, y1);
-		g.drawString("Exp Gained: " + engine.getSkillTracker().getGainedExperience(Skill.MINING), x1, y1 + 12);
-		g.drawString("Exp Gained Per Hour: " + engine.getSkillTracker().getGainedExperiencePerHour(Skill.MINING), x1, y1 + 12 * 2);
-		g.drawString("Levels Gained: " + engine.getSkillTracker().getGainedLevels(Skill.MINING), x1, y1 + 12 * 3);
-		g.drawString("Current Level: " + engine.getSkills().getRealLevel(Skill.MINING), x1, y1 + 12 * 4);
+		g.drawString("Exp Gained: " + SkillTracker.getGainedExperience(Skill.MINING), x1, y1 + 12);
+		g.drawString("Exp Gained Per Hour: " + SkillTracker.getGainedExperiencePerHour(Skill.MINING), x1, y1 + 12 * 2);
+		g.drawString("Levels Gained: " + SkillTracker.getGainedLevels(Skill.MINING), x1, y1 + 12 * 3);
+		g.drawString("Current Level: " + Skills.getRealLevel(Skill.MINING), x1, y1 + 12 * 4);
 		//g.drawString("Has Target: " + (currentNode != null ? currentNode.exists() : "false"), x1, y1 + 12 * 5);
 		if (currentNode != null) {
 			g.setColor(Color.WHITE);

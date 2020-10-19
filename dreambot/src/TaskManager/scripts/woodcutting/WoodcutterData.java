@@ -114,17 +114,17 @@ public class WoodcutterData {
 			return axeId;
 		}
 
-		public boolean meetsAllReqsToUse(Skills skills) {
+		public boolean meetsAllReqsToUse() {
 			for (int i = 0; i < levelReq.length - 1; i++) {
-				if (skills.getBoostedLevels(levelReq[i].getSkill()) < levelReq[i].getLevelReq())
+				if (Skills.getBoostedLevels(levelReq[i].getSkill()) < levelReq[i].getLevelReq())
 					return false;
 			}
 			return true;
 		}
 		
-		public boolean meetsAllReqsToWield(Skills skills) {
+		public boolean meetsAllReqsToWield() {
 			for (int i = 0; i < levelReq.length; i++) {
-				if (skills.getBoostedLevels(levelReq[i].getSkill()) < levelReq[i].getLevelReq())
+				if (Skills.getBoostedLevels(levelReq[i].getSkill()) < levelReq[i].getLevelReq())
 					return false;
 			}
 			return true;

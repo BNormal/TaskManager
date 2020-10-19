@@ -1,7 +1,7 @@
 package TaskManager;
 
 public class Task {
-	
+
 	private Condition condition;
 	private long amount;
 	private Object conditionItem = null;

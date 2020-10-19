@@ -5,11 +5,21 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.List;
 
+import org.dreambot.api.data.GameState;
 import org.dreambot.api.methods.Calculations;
+import org.dreambot.api.methods.MethodProvider;
+import org.dreambot.api.methods.container.impl.Inventory;
+import org.dreambot.api.methods.container.impl.bank.Bank;
+import org.dreambot.api.methods.container.impl.equipment.Equipment;
 import org.dreambot.api.methods.container.impl.equipment.EquipmentSlot;
+import org.dreambot.api.methods.dialogues.Dialogues;
 import org.dreambot.api.methods.filter.Filter;
+import org.dreambot.api.methods.interactive.GameObjects;
 import org.dreambot.api.methods.map.Area;
 import org.dreambot.api.methods.skills.Skill;
+import org.dreambot.api.methods.skills.SkillTracker;
+import org.dreambot.api.methods.skills.Skills;
+import org.dreambot.api.methods.walking.impl.Walking;
 import org.dreambot.api.methods.walking.web.node.impl.bank.WebBankArea;
 import org.dreambot.api.script.Category;
 import org.dreambot.api.script.ScriptManifest;
@@ -24,7 +34,6 @@ import TaskManager.scripts.woodcutting.WoodcutterData.Axe;
 
 @ScriptManifest(author = "NumberZ", category = Category.WOODCUTTING, name = "Woodcutter", version = 1.0, description = "Cuts trees in various areas")
 public class Woodcutter extends Script {
-
 	private String Axe = "axe";
 	private boolean tracking = false;
 	private GameObject currentTree;
@@ -38,49 +47,56 @@ public class Woodcutter extends Script {
 		supportedConditions.add(TaskManager.Condition.Time);
 		supportedConditions.add(TaskManager.Condition.Level);
 		supportedSkills.add(Skill.WOODCUTTING);
-		gui = new WoodcutterGUI(getManifest().name());
 	}
 	
 	@Override
 	public void init() {
-		gui.open();
+		try {
+			gui = new WoodcutterGUI(getManifest().name());
+			gui.open();
+		} catch (Exception e) {
+			MethodProvider.log(e.toString());
+		}
 	}
 	
 	@Override
 	public void onStart() {
-		if (!taskScript)
+		if (!taskScript) {
+			MethodProvider.log("Not a task Script");
 			init();
+		}
 		super.onStart();
-		if (engine == null)
-			engine = this;
 		location = gui.getWoodcuttingArea();
 		selectedTreeType = gui.getTree();
 	}
 
 	@Override
 	public int onLoop() {
-		if (!engine.getLocalPlayer().isOnScreen()) {
+		if (!GameState.values().equals(GameState.LOGGED_IN)) {
 			return 0;
-		} else if (!tracking && engine.getLocalPlayer().isOnScreen()) {
+		} else if (!tracking && getLocalPlayer().isOnScreen()) {
 			tracking = true;
-			engine.getSkillTracker().reset(Skill.WOODCUTTING);
-			engine.getSkillTracker().start(Skill.WOODCUTTING);
+			SkillTracker.reset(Skill.WOODCUTTING);
+			SkillTracker.start(Skill.WOODCUTTING);
 		}
-		if (Instance.getInstance().isMouseInputEnabled())
+		if (Instance.isMouseInputEnabled())
 			return 0;
 		if (!gui.isFinished()) {
 			location = gui.getWoodcuttingArea();
 			selectedTreeType = gui.getTree();
 		}
 		if (running && gui.isFinished()) {
-			if (engine.getDialogues().inDialogue() && engine.getDialogues().continueDialogue())
-				engine.getDialogues().spaceToContinue();
+			if (Dialogues.inDialogue() && Dialogues.continueDialogue()) {
+				Dialogues.spaceToContinue();
+			}
 			if (dropping) {
-				if (engine.getInventory().contains(selectedTreeType.getLogFromTree().getLogId()))
-					engine.getInventory().dropAll(selectedTreeType.getLogFromTree().getLogId());
-				else if (!engine.getInventory().contains(selectedTreeType.getLogFromTree().getLogId()))
-					dropping = false;
-			} else if (engine.getLocalPlayer().isAnimating()) {
+				if (Inventory.contains(selectedTreeType.getLogFromTree().getLogId())) {
+					Inventory.dropAll(selectedTreeType.getLogFromTree().getLogId());
+				} else {
+					if (!Inventory.contains(selectedTreeType.getLogFromTree().getLogId()))
+						dropping = false;
+				}
+			} else if (getLocalPlayer().isAnimating()) {
 				
 			} else if (ableToCut()) {
 				handleWoodcutting();
@@ -89,18 +105,21 @@ public class Woodcutter extends Script {
 			} else if (needsToBank()) {
 				if (gui.isPowerCutting())
 					dropping = true;
-				else
-					engine.getWalking().walk(location.getBankArea().getCenter().getRandomizedTile(2));
-				if (Calculations.random(0, 20) > 1)
-					sleepUntil(() -> engine.getWalking().getDestinationDistance() < Calculations.random(6, 9), 6000);
+				else {
+					Walking.walk(location.getBankArea().getCenter().getRandomizedTile(2));
+				}
+				if (Calculations.random(0, 20) > 1) {
+					sleepUntil(() -> Walking.getDestinationDistance() < Calculations.random(6, 9), 6000);
+				}
 			} else if (readyToCut()) {
-				if (engine.getBank().isOpen()) {
-					engine.getBank().close();
-					sleepUntil(() -> !engine.getBank().isOpen(), Calculations.random(3000, 5000));
+				if (Bank.isOpen()) {
+					Bank.close();
+					sleepUntil(() -> !Bank.isOpen(), Calculations.random(3000, 5000));
 				} else {
-					engine.getWalking().walk(location.getWoodCuttingArea().getCenter().getRandomizedTile(2));
-					if (Calculations.random(0, 20) > 1)
-						sleepUntil(() -> engine.getWalking().getDestinationDistance() < Calculations.random(6, 9), 6000);
+					Walking.walk(location.getWoodCuttingArea().getCenter().getRandomizedTile(2));
+					if (Calculations.random(0, 20) > 1) {
+						sleepUntil(() -> Walking.getDestinationDistance() < Calculations.random(6, 9), 6000);
+					}
 				}
 			}
 		}
@@ -109,16 +128,16 @@ public class Woodcutter extends Script {
 
 	private boolean handleWoodcutting() {
 		boolean result = true;
-		if (!engine.getLocalPlayer().isMoving() && !engine.getLocalPlayer().isAnimating()) {
+		if (!getLocalPlayer().isMoving() && !getLocalPlayer().isAnimating()) {
 			if (currentTree == null || !currentTree.exists()) {
-				currentTree = engine.getGameObjects().closest(treeFilter());
-				if (currentTree != null && !currentTree.isOnScreen() && engine.getLocalPlayer().distance(currentTree) < 5)
+				currentTree = GameObjects.closest(treeFilter());
+				if (currentTree != null && !currentTree.isOnScreen() && getLocalPlayer().distance(currentTree) < 5)
 					currentTree = null;
 			}
 			if (currentTree != null) {
 				currentTree.interact("Chop down");
-				sleepUntil(() -> engine.getLocalPlayer().isAnimating() || engine.getDialogues().inDialogue() || currentTree == null, Calculations.random(12000, 15400));
-				//sleepUntil(() -> !engine.getLocalPlayer().isAnimating(), Calculations.random(12000, 15400));
+				sleepUntil(() -> getLocalPlayer().isAnimating() || Dialogues.inDialogue() || currentTree == null, Calculations.random(12000, 15400));
+				//sleepUntil(() -> !getLocalPlayer().isAnimating(), Calculations.random(12000, 15400));
 			}
 		}
 		return result;
@@ -127,7 +146,7 @@ public class Woodcutter extends Script {
 	private String getBestAxe() {
 		List<Axe> approvedPickaxes = gui.getAllowedAxes();
 		for (Axe axe : approvedPickaxes) {
-			if (axe.meetsAllReqsToUse(engine.getSkills()) && (engine.getBank().contains(axe.toString()) || engine.getInventory().contains(axe.toString())))
+			if (axe.meetsAllReqsToUse() && (Bank.contains(axe.toString()) || Inventory.contains(axe.toString())))
 				return axe.toString();
 		}
 		return "Bronze axe";
@@ -136,24 +155,26 @@ public class Woodcutter extends Script {
 	private boolean handleBanking() {
 		boolean results = false;
 		if (ableToBank()) {
-			if (!engine.getBank().isOpen()) {
-				engine.getBank().openClosest();
-				sleepUntil(() -> engine.getBank().isOpen(), Calculations.random(3000, 5000));
+			if (!Bank.isOpen()) {
+				Bank.openClosest();
+				sleepUntil(() -> Bank.isOpen(), Calculations.random(3000, 5000));
 			} else {
 				Axe = getBestAxe();
 				if (!hasAxe()) {
-					if (engine.getBank().contains(Axe)) {
-						engine.getBank().withdraw(Axe);
-						sleepUntil(() -> engine.getInventory().contains(Axe), Calculations.random(3000, 5000));
-					} else if (!engine.getBank().contains(Axe) && !hasAxe()) {
-						onExit();
+					if (Bank.contains(Axe)) {
+						Bank.withdraw(Axe);
+						sleepUntil(() -> Inventory.contains(Axe), Calculations.random(3000, 5000));
+					} else {
+						if (!Bank.contains(Axe) && !hasAxe()) {
+							onExit();
+						}
 					}
 				}
-				if (engine.getInventory().contains(selectedTreeType.getLogFromTree().getLogId())) {
+				if (Inventory.contains(selectedTreeType.getLogFromTree().getLogId())) {
 					increaseRunCount();
-					engine.getBank().depositAllExcept(Axe);
+					Bank.depositAllExcept(Axe);
 				}
-				if (readyToCut() && engine.getBank().close()) {
+				if (readyToCut() && Bank.close()) {
 					results = true;
 				}
 			}
@@ -175,29 +196,29 @@ public class Woodcutter extends Script {
 	}
 
 	private boolean ableToCut() {
-		return readyToCut() && (location.getWoodCuttingArea().contains(engine.getLocalPlayer()) || currentTree != null && currentTree.distance(engine.getLocalPlayer()) < 5);
+		return readyToCut() && (location.getWoodCuttingArea().contains(getLocalPlayer()) || currentTree != null && currentTree.distance(getLocalPlayer()) < 5);
 	}
 
 	private boolean readyToCut() {
-		return !engine.getInventory().isFull() && hasAxe();
+		return !Inventory.isFull() && hasAxe();
 	}
 
 	private boolean needsToBank() {
-		return engine.getInventory().isFull() || !hasAxe();
+		return Inventory.isFull() || !hasAxe();
 	}
 
 	private boolean ableToBank() {
-		return needsToBank() && (location.getBankArea().contains(engine.getLocalPlayer()) || location.getBankArea().getCenter().distance(engine.getLocalPlayer()) < 7);
+		return needsToBank() && (location.getBankArea().contains(getLocalPlayer()) || location.getBankArea().getCenter().distance(getLocalPlayer()) < 7);
 	}
 
 	private boolean hasAxe() {
 		boolean hasAxe = false;
-		Item weapon = engine.getEquipment().getItemInSlot(EquipmentSlot.WEAPON.getSlot());
+		Item weapon = Equipment.getItemInSlot(EquipmentSlot.WEAPON.getSlot());
 		if (weapon != null && weapon.getName() != null) {
 			hasAxe = weapon.getName().contains("axe");
 		}
 		if (!hasAxe) {
-			for (Item item : engine.getInventory().all()) {
+			for (Item item : Inventory.all()) {
 				if (item != null && item.getName().toLowerCase().contains("axe")) {
 					hasAxe = true;
 					break;
@@ -222,10 +243,10 @@ public class Woodcutter extends Script {
 		g.drawRect(x, y, width, height);
 		g.setColor(Color.WHITE);
 		g.drawString("Total Time: " + totalTime.formatTime(), x1, y1);
-		g.drawString("Exp Gained: " + engine.getSkillTracker().getGainedExperience(Skill.WOODCUTTING), x1, y1 + 12);
-		g.drawString("Exp Gained Per Hour: " + engine.getSkillTracker().getGainedExperiencePerHour(Skill.WOODCUTTING), x1, y1 + 12 * 2);
-		g.drawString("Levels Gained: " + engine.getSkillTracker().getGainedLevels(Skill.WOODCUTTING), x1, y1 + 12 * 3);
-		g.drawString("Current Level: " + engine.getSkills().getRealLevel(Skill.WOODCUTTING), x1, y1 + 12 * 4);
+		g.drawString("Exp Gained: " + SkillTracker.getGainedExperience(Skill.WOODCUTTING), x1, y1 + 12);
+		g.drawString("Exp Gained Per Hour: " + SkillTracker.getGainedExperiencePerHour(Skill.WOODCUTTING), x1, y1 + 12 * 2);
+		g.drawString("Levels Gained: " + SkillTracker.getGainedLevels(Skill.WOODCUTTING), x1, y1 + 12 * 3);
+		g.drawString("Current Level: " + Skills.getRealLevel(Skill.WOODCUTTING), x1, y1 + 12 * 4);
 		//g.drawString("Has Target: " + (currentNode != null ? currentNode.exists() : "false"), x1, y1 + 12 * 5);
 		if (currentTree != null) {
 			g.setColor(Color.WHITE);

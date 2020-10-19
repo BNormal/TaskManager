@@ -4,11 +4,16 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.swing.UIManager;
+
+import org.dreambot.api.Client;
 import org.dreambot.api.methods.skills.Skill;
+import org.dreambot.api.methods.skills.Skills;
 import org.dreambot.api.script.AbstractScript;
 import org.dreambot.api.utilities.Timer;
 
@@ -19,12 +24,11 @@ import org.dreambot.api.utilities.Timer;
  * @see org.dreambot.api.script.AbstractScript
  * @author NumberZ
  */
-public abstract class Script extends AbstractScript implements MouseListener {
+public abstract class Script extends AbstractScript implements MouseListener, MouseMotionListener, Cloneable {
 	protected Timer totalTime = null;
 	protected boolean running = false;
 	protected boolean taskScript = false;
 	protected Date time;
-	protected AbstractScript engine;
 	protected int runCount = 0;
 	protected List<Condition> supportedConditions = new ArrayList<Condition>();
 	protected List<Skill> supportedSkills = new ArrayList<Skill>();
@@ -34,6 +38,11 @@ public abstract class Script extends AbstractScript implements MouseListener {
 	 * Adds the default conditions for every script.
 	 */
 	public Script() {
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Throwable e) {
+			e.printStackTrace();
+		}
 		supportedConditions.add(TaskManager.Condition.Continually);
 	}
 	
@@ -125,26 +134,6 @@ public abstract class Script extends AbstractScript implements MouseListener {
 	}
 	
 	/**
-	 * The instance of the current dreambot script.
-	 * @return a <code> AbstractScript </code>
-	 */
-	public AbstractScript getEngine() {
-		return engine;
-	}
-	
-	/**
-	 * Assign the current dreambot script instance as the
-	 * main instance of all the other script.
-	 * 
-	 * @param engine represents the current dreambot
-	 * script instance.
-	 * 
-	 */
-	public void setEngine(AbstractScript engine) {
-		this.engine = engine;
-	}
-	
-	/**
 	 * The script's task that identifies the 
 	 * scripts condition for completion.
 	 * @return a <code> Task </code>
@@ -196,7 +185,7 @@ public abstract class Script extends AbstractScript implements MouseListener {
 			return false;
 		} else if (task.getCondition() == Condition.Level) {
 			int goalLevel = (int) task.getAmount();
-			int realLevel = engine.getSkills().getRealLevel((Skill) task.getConditionItem());
+			int realLevel = Skills.getRealLevel((Skill) task.getConditionItem());
 			if (realLevel >= goalLevel)
 				return true;
 			return false;
@@ -218,31 +207,35 @@ public abstract class Script extends AbstractScript implements MouseListener {
 	 */
 	public abstract int onLoop();
 	
+	public String getTaskRequirementText() {
+		if (task != null) {
+			if (task.getCondition() == Condition.Time) {
+				int time = (int) (task.getAmount() / 60000);
+				if (time / 60 > 0)
+					return task.getCondition().name() + " - " + (time / 60) + " Hour" + (time / 60 > 1 ? "s" : "") + ", " + (time % 60) + " Minute" + (time % 60 > 1 ? "s" : "");
+				else
+					return task.getCondition().name() + " - " + time + " Minute" + (time > 1 ? "s" : "");
+			} else if (task.getCondition() == Condition.Continually) {
+				return task.getCondition().name() + " - Infinitely/Completed.";
+			} else if (task.getCondition() == Condition.Level) {
+				String skill = task.getConditionItem().toString();
+				skill = skill.substring(0, 1).toUpperCase() + skill.substring(1).toLowerCase();
+				return task.getCondition().name() + " - Level " + task.getAmount() + " " + skill + ".";
+			} else {
+				return task.getCondition().name() + " " + task.getAmount() + ".";
+			}
+		} else {
+			return "";
+		}
+	}
+	
 	/**
 	 * Represents the script as a String.
 	 * @return a <code> String </code>
 	 */
 	@Override
 	public String toString() {
-		if (task != null) {
-			if (task.getCondition() == Condition.Time) {
-				int time = (int) (task.getAmount() / 60000);
-				if (time / 60 > 0)
-					return getManifest().name() + ": " + task.getCondition().name() + " - " + (time / 60) + " Hour" + (time / 60 > 1 ? "s" : "") + ", " + (time % 60) + " Minute" + (time % 60 > 1 ? "s" : "");
-				else
-					return getManifest().name() + ": " + task.getCondition().name() + " - " + time + " Minute" + (time > 1 ? "s" : "");
-			} else if (task.getCondition() == Condition.Continually) {
-				return getManifest().name() + ": " + task.getCondition().name() + " - Infinitely/Completed.";
-			} else if (task.getCondition() == Condition.Level) {
-				String skill = task.getConditionItem().toString();
-				skill = skill.substring(0, 1).toUpperCase() + skill.substring(1).toLowerCase();
-				return getManifest().name() + ": " + task.getCondition().name() + " - Level " + task.getAmount() + " " + skill + ".";
-			} else {
-				return getManifest().name() + ": " + task.getCondition().name() + " " + task.getAmount() + ".";
-			}
-		} else {
-			return getManifest().name();
-		}
+		return getManifest().name() + getTaskRequirementText();
 	}
 	
 	/**
@@ -258,8 +251,8 @@ public abstract class Script extends AbstractScript implements MouseListener {
 	 * @return a <code> Integer </code>
 	 */
 	public int getCenterX() {
-		Point clientLocation = getClient().getInstance().getApplet().getLocationOnScreen();
-		Dimension clientDimension = getClient().getInstance().getApplet().getSize();
+		Point clientLocation = Client.getInstance().getApplet().getLocationOnScreen();
+		Dimension clientDimension = Client.getInstance().getApplet().getSize();
 		return (int) (clientLocation.getX() + clientDimension.getWidth() / 2.0);
 	}
 	
@@ -268,8 +261,8 @@ public abstract class Script extends AbstractScript implements MouseListener {
 	 * @return a <code> Integer </code>
 	 */
 	public int getCenterY() {
-		Point clientLocation = getClient().getInstance().getApplet().getLocationOnScreen();
-		Dimension clientDimension = getClient().getInstance().getApplet().getSize();
+		Point clientLocation = Client.getInstance().getApplet().getLocationOnScreen();
+		Dimension clientDimension = Client.getInstance().getApplet().getSize();
 		return (int) (clientLocation.getY() + clientDimension.getHeight() / 2.0);
 	}
 	
@@ -322,5 +315,27 @@ public abstract class Script extends AbstractScript implements MouseListener {
 	public void mouseReleased(MouseEvent event) {
 		
 	}
+
+	/**
+	 * Handles the mouse event of when the mouse is pressed and
+	 * moving.
+	 * @param event represents the event of the mouse dragging.
+	 */
+	@Override
+	public void mouseDragged(MouseEvent e) {
+		
+	}
 	
+	/**
+	 * Handles the mouse event of when the mouse is moving.
+	 * @param event represents the event of the mouse moving.
+	 */
+	@Override
+	public void mouseMoved(MouseEvent e) {
+		
+	}
+	
+	public Object clone() throws CloneNotSupportedException{  
+		return super.clone();  
+	}
 }

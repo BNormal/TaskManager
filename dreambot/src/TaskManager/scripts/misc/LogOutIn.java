@@ -1,13 +1,14 @@
 package TaskManager.scripts.misc;
 
+import org.dreambot.api.methods.tabs.Tabs;
 import org.dreambot.api.script.Category;
 import org.dreambot.api.script.ScriptManifest;
+import org.dreambot.core.Instance;
 
 import TaskManager.Script;
 
 @ScriptManifest(author = "NumberZ", category = Category.MISC, name = "Log in/out", version = 1.0, description = "Logs in or out of an account")
 public class LogOutIn extends Script {
-	
 	private LogOutInGUI gui;
 	
 	public LogOutIn() {
@@ -17,8 +18,6 @@ public class LogOutIn extends Script {
 	@Override
 	public void onStart() {
 		super.onStart();
-		if (engine == null)
-			engine = this;
 	}
 	
 	@Override
@@ -28,11 +27,11 @@ public class LogOutIn extends Script {
 	
 	@Override
 	public int onLoop() {
-		if (!engine.getLocalPlayer().isOnScreen())
+		if (!getLocalPlayer().isOnScreen())
 			return 0;
 		if (!gui.isLoggingOut())
-			engine.getClient().getInstance().getScriptManager().setAccount(gui.getNickname());
-		engine.getTabs().logout();
+			Instance.getInstance().getScriptManager().setAccount(gui.getNickname());
+		Tabs.logout();
 		onExit();
 		return 0;
 	}

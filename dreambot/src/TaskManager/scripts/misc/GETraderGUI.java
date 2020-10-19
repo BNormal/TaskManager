@@ -10,7 +10,6 @@ import com.google.gson.reflect.TypeToken;
 import javax.swing.JFrame;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
@@ -63,41 +62,43 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import TaskManager.utilities.Utilities;
+import javax.swing.border.LineBorder;
+import java.awt.Color;
 
 public class GETraderGUI {
 
-	private JFrame frame;
+	private transient JFrame frame;
 	private List<Integer> priceIncrements = new ArrayList<Integer>();
 	private Map<Integer, DisplayItem> itemList = new HashMap<Integer, DisplayItem>();
-	private JTextField txtItemName;
-	private JList<DisplayItem> listItems;
+	private transient JTextField txtItemName;
+	private transient JList<DisplayItem> listItems;
 	private DefaultListModel<DisplayItem> modelItems;
-	private JList<OfferItem> listOffers;
+	private transient JList<OfferItem> listOffers;
 	private DefaultListModel<OfferItem> modelOffers;
 	private int itemId = -1;
-	private JPanel itemImage;
-	private JLabel lblLoading;
-	private JLabel lblItemName;
-	private JTextArea lblItemInfo;
-	private JCheckBox chckbxF2P;
+	private transient JPanel itemImage;
+	private transient JLabel lblLoading;
+	private transient JLabel lblItemName;
+	private transient JTextArea lblItemInfo;
+	private transient JCheckBox chckbxF2P;
 	private ImageIcon f2pIcon;
 	private ImageIcon membersIcon;
 	private Thread spriteThread;
 	private long typeDelay = 0;
-	private JSpinner spinnerCurrentPrice;
-	private JSpinner spinnerQuantity;
-	private JButton btnIncreasePrice;
-	private JButton btnDecreasePrice;
-	private JButton btnResetPrice;
-	private JButton btnSell;
-	private JButton btnBuy;
-	private JButton btnRemove;
-	private JButton btnMoveDown;
-	private JButton btnMoveUp;
-	private JButton btnStart;
-	private JCheckBox chckbxWaitForInstant;
-	private JCheckBox chckbxWUC;
-	private JSpinner spinnerMaxIncrements;
+	private transient JSpinner spinnerCurrentPrice;
+	private transient JSpinner spinnerQuantity;
+	private transient JButton btnIncreasePrice;
+	private transient JButton btnDecreasePrice;
+	private transient JButton btnResetPrice;
+	private transient JButton btnSell;
+	private transient JButton btnBuy;
+	private transient JButton btnRemove;
+	private transient JButton btnMoveDown;
+	private transient JButton btnMoveUp;
+	private transient JButton btnStart;
+	private transient JCheckBox chckbxWaitForInstant;
+	private transient JCheckBox chckbxWUC;
+	private transient JSpinner spinnerMaxIncrements;
 	private boolean isFinished;
 
 	/**
@@ -120,11 +121,6 @@ public class GETraderGUI {
 	 * Create the application.
 	 */
 	public GETraderGUI(String title) {
-		try {
-			UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
-		} catch (Throwable e) {
-			e.printStackTrace();
-		}
 		initialize(title);
 	}
 	
@@ -171,6 +167,7 @@ public class GETraderGUI {
 		frame.getContentPane().add(lblName);
 		
 		JScrollPane scrollItems = new JScrollPane();
+		scrollItems.setBorder(new LineBorder(Color.DARK_GRAY, 1, true));
 		
 		modelItems = new DefaultListModel<DisplayItem>();
 		
@@ -364,6 +361,7 @@ public class GETraderGUI {
 		frame.getContentPane().add(btnIncreasePrice);
 		
 		JScrollPane scrollOffers = new JScrollPane();
+		scrollOffers.setBorder(new LineBorder(Color.DARK_GRAY, 1, true));
 		scrollOffers.setBounds(10, 262, 468, 83);
 		frame.getContentPane().add(scrollOffers);
 		

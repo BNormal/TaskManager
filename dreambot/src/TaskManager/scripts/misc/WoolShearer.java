@@ -5,9 +5,17 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 
 import org.dreambot.api.methods.Calculations;
+import org.dreambot.api.methods.container.impl.Inventory;
+import org.dreambot.api.methods.container.impl.bank.Bank;
 import org.dreambot.api.methods.filter.Filter;
+import org.dreambot.api.methods.input.Camera;
+import org.dreambot.api.methods.interactive.GameObjects;
+import org.dreambot.api.methods.interactive.NPCs;
+import org.dreambot.api.methods.item.GroundItems;
 import org.dreambot.api.methods.map.Area;
+import org.dreambot.api.methods.map.Map;
 import org.dreambot.api.methods.map.Tile;
+import org.dreambot.api.methods.walking.impl.Walking;
 import org.dreambot.api.methods.walking.web.node.impl.bank.WebBankArea;
 import org.dreambot.api.script.Category;
 import org.dreambot.api.script.ScriptManifest;
@@ -20,7 +28,6 @@ import TaskManager.utilities.Utilities;
 
 @ScriptManifest(author = "NumberZ", category = Category.MISC, name = "Wool Shearer", version = 1.0, description = "Shears the sheep at the lumbridge farms")
 public class WoolShearer extends Script {
-
 	private Area FARMERS_HOUSE = new Area(3188, 3274, 3191, 3271, 0);
 	private Area SHEEP_AREA = new Area(3194, 3275, 3212, 3258, 0);
 	private Area CASTLE = new Area(3205, 3228, 3216, 3208, 0);
@@ -35,18 +42,16 @@ public class WoolShearer extends Script {
 	@Override
 	public void onStart() {
 		super.onStart();
-		if (engine == null)
-			engine = this;
 	}
 
 	@Override
 	public int onLoop() {
-		if (!engine.getLocalPlayer().isOnScreen())
+		if (!getLocalPlayer().isOnScreen())
 			return 0;
-		if (!engine.getInventory().contains(SHEARS)) {
+		if (!Inventory.contains(SHEARS)) {
 			grabShears();
-		} else if (engine.getInventory().contains(SHEARS)) {
-			if (engine.getInventory().isFull()) {
+		} else if (Inventory.contains(SHEARS)) {
+			if (Inventory.isFull()) {
 				handleBanking();
 			} else {
 				handleShearing();
@@ -56,7 +61,7 @@ public class WoolShearer extends Script {
 	}
 
 	public GameObject getObject(Tile tile, String name, String option) {
-		GameObject[] objects = engine.getGameObjects().getObjectsOnTile(tile);
+		GameObject[] objects = GameObjects.getGameObjects().getObjectsOnTile(tile);
 		if (objects == null)
 			return null;
 		for (int i = 0; i < objects.length; i++) {
@@ -79,22 +84,22 @@ public class WoolShearer extends Script {
 	public void handleBanking() {
 		Area bank = WebBankArea.LUMBRIDGE.getArea();
 		bank.setZ(2);
-		if (inAreaIgnoreZ(CASTLE, engine.getLocalPlayer().getTile())) {
-			if (bank.contains(engine.getLocalPlayer())) {
-				if (!engine.getBank().isOpen()) {
-					engine.getBank().openClosest();
-					sleepUntil(() -> engine.getBank().isOpen(), Calculations.random(3000, 5000));
+		if (inAreaIgnoreZ(CASTLE, getLocalPlayer().getTile())) {
+			if (bank.contains(getLocalPlayer())) {
+				if (!Bank.isOpen()) {
+					Bank.openClosest();
+					sleepUntil(() -> Bank.isOpen(), Calculations.random(3000, 5000));
 				} else {
 					state = "Banking";
-					if (!engine.getInventory().onlyContains(SHEARS) && !engine.getInventory().isEmpty()) {
-						engine.getBank().depositAllExcept(SHEARS);
-						sleepUntil(() -> engine.getInventory().onlyContains(SHEARS) || engine.getInventory().isEmpty(), Calculations.random(3000, 5000));
+					if (!Inventory.onlyContains(SHEARS) && !Inventory.isEmpty()) {
+						Bank.depositAllExcept(SHEARS);
+						sleepUntil(() -> Inventory.onlyContains(SHEARS) || Inventory.isEmpty(), Calculations.random(3000, 5000));
 					}
-					if (!engine.getInventory().contains(SHEARS) && engine.getBank().contains(SHEARS)) {
-						engine.getBank().withdraw(SHEARS);
-						sleepUntil(() -> engine.getInventory().contains(SHEARS), Calculations.random(3000, 5000));
+					if (!Inventory.contains(SHEARS) && Bank.contains(SHEARS)) {
+						Bank.withdraw(SHEARS);
+						sleepUntil(() -> Inventory.contains(SHEARS), Calculations.random(3000, 5000));
 					}
-					if (engine.getBank().contains(SHEARS)) {
+					if (Bank.contains(SHEARS)) {
 						bankStatus = 1;
 					} else {
 						bankStatus = 0;
@@ -102,64 +107,64 @@ public class WoolShearer extends Script {
 				}
 			} else {
 				state = "Going to bank";
-				engine.getWalking().walk(bank.getCenter());
-				sleepUntil(() -> engine.getWalking().getDestination().distance(engine.getLocalPlayer()) < 6, 6000);
+				Walking.walk(bank.getCenter());
+				sleepUntil(() -> Walking.getDestination().distance(getLocalPlayer()) < 6, 6000);
 			}
 		} else {
 			state = "Going to bank";
-			engine.getWalking().walk(new Tile(3208, 3210, 0));//lumbridge castle
-			sleepUntil(() -> engine.getWalking().getDestination().distance(engine.getLocalPlayer()) < 6, 6000);
+			Walking.walk(new Tile(3208, 3210, 0));//lumbridge castle
+			sleepUntil(() -> Walking.getDestination().distance(getLocalPlayer()) < 6, 6000);
 		}
 	}
 	
 	public void handleShearing() {
-		if (inAreaIgnoreZ(CASTLE, engine.getLocalPlayer().getTile()) && engine.getLocalPlayer().getZ() > 1) {
-			if (engine.getLocalPlayer().getZ() == 2) {
+		if (inAreaIgnoreZ(CASTLE, getLocalPlayer().getTile()) && getLocalPlayer().getZ() > 1) {
+			if (getLocalPlayer().getZ() == 2) {
 				state = "Going to sheep";
-				if (engine.getBank().isOpen()) {
-					engine.getBank().close();
-					sleepUntil(() -> !engine.getBank().isOpen(), Calculations.random(3000, 5000));
+				if (Bank.isOpen()) {
+					Bank.close();
+					sleepUntil(() -> !Bank.isOpen(), Calculations.random(3000, 5000));
 				} else {
-					engine.getWalking().walk(SHEEP_AREA.getCenter());
-					sleepUntil(() -> engine.getWalking().getDestination().distance(engine.getLocalPlayer()) < 6, 6000);
+					Walking.walk(SHEEP_AREA.getCenter());
+					sleepUntil(() -> Walking.getDestination().distance(getLocalPlayer()) < 6, 6000);
 				}
 			}
-		} else if (SHEEP_AREA.contains(engine.getLocalPlayer())) {
+		} else if (SHEEP_AREA.contains(getLocalPlayer())) {
 			state = "Shearing the sheep";
-			NPC sheep = engine.getNpcs().closest(npcFilter());
+			NPC sheep = NPCs.closest(npcFilter());
 			if (sheep != null) {
-				engine.getCamera().mouseRotateToEntity(sheep);
+				Camera.mouseRotateToEntity(sheep);
 				int id = sheep.getID();
 				sheep.interactForceRight("Shear");
-				sleepUntil(() -> engine.getLocalPlayer().isAnimating() || sheep.getID() != id, 6000);
-				sleepUntil(() -> !engine.getLocalPlayer().isAnimating(), 6000);
+				sleepUntil(() -> getLocalPlayer().isAnimating() || sheep.getID() != id, 6000);
+				sleepUntil(() -> !getLocalPlayer().isAnimating(), 6000);
 			}
 		} else {
 			state = "Going to sheep";
-			engine.getWalking().walk(SHEEP_AREA.getCenter());
-			sleepUntil(() -> engine.getWalking().getDestination().distance(engine.getLocalPlayer()) < 6, 6000);
+			Walking.walk(SHEEP_AREA.getCenter());
+			sleepUntil(() -> Walking.getDestination().distance(getLocalPlayer()) < 6, 6000);
 		}
 	}
 	
 	public void grabShears() {
-		if (CASTLE.getCenter().distance(engine.getLocalPlayer()) < FARMERS_HOUSE.getCenter().distance(engine.getLocalPlayer()) && (bankStatus == -1 || bankStatus == 1)) {
+		if (CASTLE.getCenter().distance(getLocalPlayer()) < FARMERS_HOUSE.getCenter().distance(getLocalPlayer()) && (bankStatus == -1 || bankStatus == 1)) {
 			state = "Checking bank for shears";
 			handleBanking();
 		} else {
 			state = "Getting a pair of shears";
-			if (FARMERS_HOUSE.contains(engine.getLocalPlayer())) {
-				GroundItem shears = engine.getGroundItems().closest(SHEARS);
+			if (FARMERS_HOUSE.contains(getLocalPlayer())) {
+				GroundItem shears = GroundItems.closest(SHEARS);
 				if (shears != null && shears.exists()) {
 					shears.interactForceRight("Take");
-					sleepUntil(() -> engine.getInventory().contains(SHEARS), Calculations.random(3000, 5000));
+					sleepUntil(() -> Inventory.contains(SHEARS), Calculations.random(3000, 5000));
 				}
 			} else {
-				if (engine.getBank().isOpen()) {
-					engine.getBank().close();
-					sleepUntil(() -> !engine.getBank().isOpen(), Calculations.random(3000, 5000));
+				if (Bank.isOpen()) {
+					Bank.close();
+					sleepUntil(() -> !Bank.isOpen(), Calculations.random(3000, 5000));
 				}
-				engine.getWalking().walk(FARMERS_HOUSE.getCenter());
-				sleepUntil(() -> engine.getWalking().getDestination().distance(engine.getLocalPlayer()) < 6, 6000);
+				Walking.walk(FARMERS_HOUSE.getCenter());
+				sleepUntil(() -> Walking.getDestination().distance(getLocalPlayer()) < 6, 6000);
 			}
 		}
 	}
@@ -167,7 +172,7 @@ public class WoolShearer extends Script {
 	private Filter<NPC> npcFilter() {//Sheep
 		return npc -> {
 			boolean accepted = false;
-			if (npc != null && (npc.getID() == 2693 || npc.getID() == 2694 || npc.getID() == 2699 || npc.getID() == 2786 || npc.getID() == 2787) && engine.getMap().canReach(npc) && SHEEP_AREA.contains(npc)) {
+			if (npc != null && (npc.getID() == 2693 || npc.getID() == 2694 || npc.getID() == 2699 || npc.getID() == 2786 || npc.getID() == 2787) && Map.canReach(npc) && SHEEP_AREA.contains(npc)) {
 					accepted = true;
 			}
 			return accepted;

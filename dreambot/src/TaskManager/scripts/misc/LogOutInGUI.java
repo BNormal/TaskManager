@@ -14,11 +14,10 @@ import java.awt.event.ActionEvent;
 import javax.swing.JButton;
 
 public class LogOutInGUI {
-
-	private JFrame frame;
+	private transient JFrame frame;
 	private String title;
-	private JTextField txtNickname;
-	private JRadioButton rdbtnLogout;
+	private transient JTextField txtNickname;
+	private transient JRadioButton rdbtnLogout;
 
 	/**
 	 * Launch the application.
@@ -71,6 +70,7 @@ public class LogOutInGUI {
 		txtNickname.setColumns(10);
 		
 		rdbtnLogout = new JRadioButton("Logout");
+		rdbtnLogout.setFocusable(false);
 		rdbtnLogout.setMargin(new Insets(0, 0, 0, 0));
 		rdbtnLogout.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -79,12 +79,13 @@ public class LogOutInGUI {
 			}
 		});
 		rdbtnLogout.setSelected(true);
-		rdbtnLogout.setBounds(57, 39, 57, 23);
+		rdbtnLogout.setBounds(57, 39, 86, 23);
 		frame.getContentPane().add(rdbtnLogout);
 		
 		JRadioButton rdbtnLogin = new JRadioButton("Login");
+		rdbtnLogin.setFocusable(false);
 		rdbtnLogin.setMargin(new Insets(0, 0, 0, 0));
-		rdbtnLogin.setBounds(120, 39, 47, 23);
+		rdbtnLogin.setBounds(149, 40, 77, 23);
 		frame.getContentPane().add(rdbtnLogin);
 		rdbtnLogin.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -98,6 +99,7 @@ public class LogOutInGUI {
 		btnGroup.add(rdbtnLogin);
 		
 		JButton btnFinished = new JButton("Finished");
+		btnFinished.setFocusable(false);
 		btnFinished.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				close();

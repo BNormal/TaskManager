@@ -1,5 +1,6 @@
 package TaskManager.scripts.mining;
 
+import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Insets;
 
@@ -11,6 +12,7 @@ import javax.swing.JList;
 import javax.swing.JButton;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
+import javax.swing.border.LineBorder;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import java.awt.event.ActionListener;
@@ -27,13 +29,13 @@ import TaskManager.scripts.mining.MinerData.Pickaxe;
 
 public class MinerGUI {
 
-	private JFrame frameMiner;
+	private transient JFrame frameMiner;
 	private boolean isFinished = false;
 	private String title;
 	private DefaultListModel<Pickaxe> modelDisallowed = new DefaultListModel<Pickaxe>();
 	private DefaultListModel<Pickaxe> modelAllowed = new DefaultListModel<Pickaxe>();
-	private JComboBox<MiningSpot> cbxLocation;
-	private JComboBox<OreNode> cbxOreNode;
+	private transient JComboBox<MiningSpot> cbxLocation;
+	private transient JComboBox<OreNode> cbxOreNode;
 	private DefaultComboBoxModel<OreNode> modelOreNode = new DefaultComboBoxModel<OreNode>();
 	
 
@@ -114,6 +116,7 @@ public class MinerGUI {
 		frameMiner.getContentPane().add(cbxOreNode);
 		
 		JScrollPane scrollAllow = new JScrollPane();
+		scrollAllow.setBorder(new LineBorder(Color.DARK_GRAY, 1, true));
 		scrollAllow.setBounds(10, 100, 105, 105);
 		frameMiner.getContentPane().add(scrollAllow);
 		
@@ -122,6 +125,7 @@ public class MinerGUI {
 		scrollAllow.setViewportView(listAllow);
 		
 		JScrollPane scrollDisallow = new JScrollPane();
+		scrollDisallow.setBorder(new LineBorder(Color.DARK_GRAY, 1, true));
 		scrollDisallow.setBounds(149, 100, 105, 105);
 		frameMiner.getContentPane().add(scrollDisallow);
 		

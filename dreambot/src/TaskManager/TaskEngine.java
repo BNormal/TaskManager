@@ -2,12 +2,16 @@ package TaskManager;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 
+import org.dreambot.api.methods.MethodProvider;
 import org.dreambot.api.randoms.RandomEvent;
 import org.dreambot.api.script.AbstractScript;
 import org.dreambot.api.script.Category;
@@ -18,10 +22,13 @@ import org.dreambot.core.Instance;
 import TaskManager.utilities.Utilities;
 
 @ScriptManifest(author = "NumberZ", name = "Task Manager", version = 1.0, description = "Allows you to runs a script to do a task then switch to another task or stop completely.", category = Category.MISC)
-public class TaskEngine extends AbstractScript implements MouseListener {
+public class TaskEngine extends AbstractScript implements MouseListener, MouseMotionListener {
 
 	private TaskEngineGUI gui;
 	private boolean started = false;
+	private boolean hovered = false;
+	private Rectangle unhoveredShape = new Rectangle(310, 10, 200, 67);
+	private Rectangle hoveredShape = new Rectangle(310, 10, 200, 467);
 	private Script currentScript = null;
 	private Timer totalTime = new Timer();
 	private Color filled = new Color(0.56F, 0.45F, 0.32F, 0.5F);
@@ -29,17 +36,26 @@ public class TaskEngine extends AbstractScript implements MouseListener {
 	
 	@Override
     public void onStart() {
-		Point clientLocation = Instance.getInstance().getApplet().getLocationOnScreen();
-		Dimension clientDimension = Instance.getInstance().getApplet().getSize();
-		int x = (int) (clientLocation.getX() + clientDimension.getWidth() / 2.0);
-		int y = (int) (clientLocation.getY() + clientDimension.getHeight() / 2.0);
 		getRandomManager().disableSolver(RandomEvent.RESIZABLE_DISABLER);
 		getRandomManager().disableSolver(RandomEvent.LOGIN);
 		if (getRandomManager().getCurrentSolver() != null)
 			if (getRandomManager().getCurrentSolver().getEventString().equalsIgnoreCase(RandomEvent.RESIZABLE_DISABLER.name()) || getRandomManager().getCurrentSolver().getEventString().equalsIgnoreCase(RandomEvent.LOGIN.name()))
 				getRandomManager().getCurrentSolver().disable();
-		gui = new TaskEngineGUI(x, y);
-		gui.open();
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					Point clientLocation = Instance.getInstance().getApplet().getLocationOnScreen();
+					Dimension clientDimension = Instance.getInstance().getApplet().getSize();
+					int x = (int) (clientLocation.getX() + clientDimension.getWidth() / 2.0);
+					int y = (int) (clientLocation.getY() + clientDimension.getHeight() / 2.0);
+					gui = new TaskEngineGUI(x, y);
+					gui.open();
+				} catch (Exception e) {
+					MethodProvider.log(e.getLocalizedMessage());
+					e.printStackTrace();
+				}
+			}
+		});
 	}
 	
 	@Override
@@ -61,8 +77,6 @@ public class TaskEngine extends AbstractScript implements MouseListener {
 				return 0;
 			}
 			if (currentScript != null) {
-				if (currentScript.getEngine() == null)
-					currentScript.setEngine(this);
 				currentScript.onStart();
 			}
 			return 0;
@@ -86,26 +100,39 @@ public class TaskEngine extends AbstractScript implements MouseListener {
 	@SuppressWarnings("deprecation")
 	@Override
     public void onPaint(Graphics2D g) {
-		int x = 310;
-		int y = 10;
-		g.setColor(filled);//Filled in square
-		g.fillRect(x, y, 200, 67);
-		g.setColor(border);//Border
-		g.setFont(new Font("Arial", 1, 11));
-		g.drawRect(x, y, 200, 67);
-		g.setColor(Color.WHITE);
-		Utilities.drawShadowString(g, "    Total Time Running: " + totalTime.formatTime(), x + 5, y + 13);
-		Utilities.drawShadowString(g, "------------------------------------------------", x + 5, y + 23);
-		Color gray = Color.GRAY;
 		if (gui != null) {
-			for (int i = 0; i < 4; i++) {
-				if (i + gui.getCurrentScriptId() >= gui.getScripts().size())
+			int x = (int) unhoveredShape.getX();
+			int y = (int) unhoveredShape.getY();
+			int size = gui.getScripts().size();
+			g.setColor(filled);//Filled in square
+			if (hovered) {
+				int height = 67;
+				if (size > 4)
+					height += (size - 4) * 10;
+				if (height > 467)
+					height = 467;
+				hoveredShape.setBounds(x, y, (int) hoveredShape.getWidth(), height);
+				g.fillRect(x, y, (int) hoveredShape.getWidth(), (int) hoveredShape.getHeight());
+				g.setColor(border);//Border
+				g.drawRect(x, y, (int) hoveredShape.getWidth(), (int) hoveredShape.getHeight());
+			} else {
+				g.fillRect(x, y, (int) unhoveredShape.getWidth(), (int) unhoveredShape.getHeight());
+				g.setColor(border);//Border
+				g.drawRect(x, y, (int) unhoveredShape.getWidth(), (int) unhoveredShape.getHeight());
+			}
+			g.setFont(new Font("Arial", 1, 11));
+			g.setColor(Color.WHITE);
+			Utilities.drawShadowString(g, "    Total Time Running: " + totalTime.formatTime(), x + 5, y + 13);
+			Utilities.drawShadowString(g, "------------------------------------------------", x + 5, y + 23);
+			Color gray = Color.GRAY;
+			for (int i = 0; i < (hovered ? size : 4); i++) {
+				if (i + gui.getCurrentScriptId() >= size)
 					break;
 				Script script = gui.getScripts().get(i + gui.getCurrentScriptId());
 				String scriptTitle = script.getManifest().name() + (script.getTotalTime() != null ? " - " + script.getTotalTime().formatTime() : "");
-				if (i + gui.getCurrentScriptId() == gui.getCurrentScriptId())
+				if (i + gui.getCurrentScriptId() == gui.getCurrentScriptId()) {
 					Utilities.drawShadowString(g, "> " + scriptTitle, x + 5, y + 33 + i * 10, Color.GREEN, Color.BLACK);
-				else {
+				} else {
 					Utilities.drawShadowString(g, "   " + scriptTitle, x + 5, y + 33 + i * 10, gray, Color.BLACK);
 					gray = gray.darker();
 				}
@@ -153,6 +180,33 @@ public class TaskEngine extends AbstractScript implements MouseListener {
 			return;
 		if (currentScript != null)
 			currentScript.mouseReleased(e);
+	}
+
+	@Override
+	public void mouseDragged(MouseEvent e) {
+		if (!started || !gui.isFinished())
+			return;
+		if (currentScript != null)
+			currentScript.mouseDragged(e);
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent e) {
+		MethodProvider.log(e.toString());
+		Point point = new Point(e.getX(), e.getY());
+		if (!hovered) {
+			if (unhoveredShape.contains(point)) {
+				hovered = true;
+			}
+		} else {
+			if (!hoveredShape.contains(point)) {
+				hovered = false;
+			}
+		}
+		if (!started || !gui.isFinished())
+			return;
+		if (currentScript != null)
+			currentScript.mouseMoved(e);
 	}
 	
 }

@@ -18,6 +18,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JList;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ChangeEvent;
+import javax.swing.SwingConstants;
+import javax.swing.border.LineBorder;
 
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -38,10 +40,11 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.awt.Font;
 import java.awt.Insets;
+import java.awt.Color;
 
 import org.dreambot.api.methods.Calculations;
+import org.dreambot.api.methods.MethodProvider;
 import org.dreambot.api.methods.skills.Skill;
-
 
 public class TaskEngineGUI {
 
@@ -49,6 +52,7 @@ public class TaskEngineGUI {
 	private DefaultListModel<Script> tasksModel;
 	private JFrame frmTaskManager;
 	private JComboBox<String> cbxScripts;
+	private JLabel lblAmount;
 	private JComboBox<Condition> cbxConditon;
 	private DefaultComboBoxModel<Condition> conditionModel;
 	private JComboBox<Skill> cbxSkills;
@@ -66,6 +70,11 @@ public class TaskEngineGUI {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Throwable e) {
+			e.printStackTrace();
+		}
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -151,14 +160,12 @@ public class TaskEngineGUI {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize(int x, int y) {
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Throwable e) {
-			e.printStackTrace();
-		}
 		frmTaskManager = new JFrame();
 		frmTaskManager.setTitle("Task Manager");
-		frmTaskManager.setBounds(x - 320 / 2, y - 345 / 2, 320, 345);
+		frmTaskManager.setBounds(0, 0, 320, 375);//320, 345
+		int width = frmTaskManager.getWidth();
+		int height = frmTaskManager.getHeight();
+		frmTaskManager.setBounds(x - width / 2, y - height / 2, width, height);
 		frmTaskManager.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frmTaskManager.getContentPane().setLayout(null);
 		frmTaskManager.setResizable(false);
@@ -215,22 +222,23 @@ public class TaskEngineGUI {
 			}
 		});
 		btnStart.setFont(new Font("Tahoma", Font.BOLD, 20));
-		btnStart.setBounds(10, 252, 294, 43);
+		btnStart.setBounds(10, 292, 294, 43);
 		frmTaskManager.getContentPane().add(btnStart);
 		
 		JLabel lblCondition = new JLabel("Condition:");
-		lblCondition.setBounds(10, 42, 49, 14);
+		lblCondition.setBounds(10, 42, 65, 14);
 		frmTaskManager.getContentPane().add(lblCondition);
 		
 		JLabel lblTask = new JLabel("Task:");
 		lblTask.setBounds(10, 14, 49, 14);
 		frmTaskManager.getContentPane().add(lblTask);
 		
-		JLabel lblAmount = new JLabel("Amount:");
+		lblAmount = new JLabel("Amount:");
 		lblAmount.setBounds(10, 67, 49, 14);
 		frmTaskManager.getContentPane().add(lblAmount);
 
 		lblAmountDescription = new JLabel("");
+		lblAmountDescription.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblAmountDescription.setBounds(139, 67, 165, 14);
 		frmTaskManager.getContentPane().add(lblAmountDescription);
 		
@@ -251,6 +259,7 @@ public class TaskEngineGUI {
 		frmTaskManager.getContentPane().add(spinAmount);
 		
 		JScrollPane scrollTasksPane = new JScrollPane();
+		scrollTasksPane.setBorder(new LineBorder(Color.DARK_GRAY, 1, true));
 		scrollTasksPane.setBounds(10, 126, 264, 118);
 		frmTaskManager.getContentPane().add(scrollTasksPane);
 		
@@ -344,6 +353,28 @@ public class TaskEngineGUI {
 		});
 		frmTaskManager.getContentPane().add(btnMoveDown);
 		
+		JButton btnSaveList = new JButton("Save List");
+		btnSaveList.setEnabled(false);
+		btnSaveList.setFocusable(false);
+		btnSaveList.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				MethodProvider.logError("Save List feature currently not supported.");
+			}
+		});
+		btnSaveList.setBounds(10, 255, 89, 23);
+		frmTaskManager.getContentPane().add(btnSaveList);
+		
+		JButton btnLoadList = new JButton("Load List");
+		btnLoadList.setEnabled(false);
+		btnLoadList.setFocusable(false);
+		btnLoadList.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				MethodProvider.logError("Load List feature currently not supported.");
+			}
+		});
+		btnLoadList.setBounds(215, 255, 89, 23);
+		frmTaskManager.getContentPane().add(btnLoadList);
+		
 		updateConditions();
 		updateSkills();
 		updateAmountDescription();
@@ -363,13 +394,18 @@ public class TaskEngineGUI {
 			}
 			Script script = null;
 			try {
+				script = (Script) scripts.get(index).clone();
+			} catch (CloneNotSupportedException e1) {
+				e1.printStackTrace();
+			}
+			/*try {
 				Class<?> clazz = Class.forName(scripts.get(index).getClass().getName());
 				Constructor<?> ctor = clazz.getConstructor();
 				Object object = ctor.newInstance();
 				script = (Script) object;
 			} catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 				
-			}
+			}*/
 			if (script != null) {
 				script.setTask(task);
 				script.setTaskScript(true);
@@ -423,10 +459,15 @@ public class TaskEngineGUI {
 		} else {
 			cbxSkills.setVisible(false);
 		}
-		if (cbxConditon.getSelectedItem() == Condition.Continually)
+		if (cbxConditon.getSelectedItem() == Condition.Continually) {
 			spinAmount.setEnabled(false);
-		else
+			spinAmount.setVisible(false);
+			lblAmount.setVisible(false);
+		} else {
 			spinAmount.setEnabled(true);
+			spinAmount.setVisible(true);
+			lblAmount.setVisible(true);
+		}
 	}
 	
 	public void updateAmountDescription() {

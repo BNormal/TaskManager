@@ -129,17 +129,17 @@ public class MinerData {
 			return pickaxeId;
 		}
 		
-		public boolean meetsAllReqsToUse(Skills skills) {
+		public boolean meetsAllReqsToUse() {
 			for (int i = 0; i < levelReqs.length - 1; i++) {
-				if (skills.getBoostedLevels(levelReqs[i].getSkill()) < levelReqs[i].getLevelReq())
+				if (Skills.getBoostedLevels(levelReqs[i].getSkill()) < levelReqs[i].getLevelReq())
 					return false;
 			}
 			return true;
 		}
 		
-		public boolean meetsAllReqsToWield(Skills skills) {
+		public boolean meetsAllReqsToWield() {
 			for (int i = 0; i < levelReqs.length; i++) {
-				if (skills.getBoostedLevels(levelReqs[i].getSkill()) < levelReqs[i].getLevelReq())
+				if (Skills.getBoostedLevels(levelReqs[i].getSkill()) < levelReqs[i].getLevelReq())
 					return false;
 			}
 			return true;

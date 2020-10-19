@@ -1,5 +1,6 @@
 package TaskManager.scripts.woodcutting;
 
+import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
@@ -23,22 +24,29 @@ import TaskManager.scripts.woodcutting.Woodcutter.WoodcuttingSpot;
 import TaskManager.scripts.woodcutting.WoodcutterData.Axe;
 import TaskManager.scripts.woodcutting.WoodcutterData.Tree;
 import javax.swing.JCheckBox;
+import javax.swing.UIManager;
+import javax.swing.border.LineBorder;
 
 public class WoodcutterGUI {
 
-	private JFrame frameWoodcutter;
+	private transient JFrame frameWoodcutter;
 	private boolean isFinished = false;
 	private DefaultListModel<Axe> modelDisallowed = new DefaultListModel<Axe>();
 	private DefaultListModel<Axe> modelAllowed = new DefaultListModel<Axe>();
-	private JComboBox<WoodcuttingSpot> cbxLocation;
-	private JComboBox<Tree> cbxTree;
+	private transient JComboBox<WoodcuttingSpot> cbxLocation;
+	private transient JComboBox<Tree> cbxTree;
 	private DefaultComboBoxModel<Tree> modelTree = new DefaultComboBoxModel<Tree>();
-	private JCheckBox chckbxPowercut;
+	private transient JCheckBox chckbxPowercut;
 
 	/**
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Throwable e) {
+			e.printStackTrace();
+		}
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -68,14 +76,14 @@ public class WoodcutterGUI {
 		modelDisallowed.add(0, Axe.INFERNAL_AXE);
 		modelDisallowed.add(0, Axe.CRYSTAL_AXE);
 		initialize(title);
+		
 	}
 
 	/**
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize(String title) {
-		frameWoodcutter = new JFrame();
-		frameWoodcutter.setTitle(title);
+		frameWoodcutter = new JFrame(title);
 		frameWoodcutter.setBounds(100, 100, 280, 290);
 		frameWoodcutter.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frameWoodcutter.getContentPane().setLayout(null);
@@ -106,6 +114,7 @@ public class WoodcutterGUI {
 		frameWoodcutter.getContentPane().add(cbxTree);
 		
 		JScrollPane scrollAllow = new JScrollPane();
+		scrollAllow.setBorder(new LineBorder(Color.DARK_GRAY, 1, true));
 		scrollAllow.setBounds(10, 100, 105, 105);
 		frameWoodcutter.getContentPane().add(scrollAllow);
 		
@@ -114,6 +123,7 @@ public class WoodcutterGUI {
 		scrollAllow.setViewportView(listAllow);
 		
 		JScrollPane scrollDisallow = new JScrollPane();
+		scrollDisallow.setBorder(new LineBorder(Color.DARK_GRAY, 1, true));
 		scrollDisallow.setBounds(149, 100, 105, 105);
 		frameWoodcutter.getContentPane().add(scrollDisallow);
 		
