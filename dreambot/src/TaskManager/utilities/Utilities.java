@@ -50,6 +50,15 @@ public class Utilities {
 		return y >= 128 ? Color.black : Color.white;
 	}
 	
+	public static Color HexToColor(String hex) {
+		return HexToColor(hex, 255);
+	}
+	
+	public static Color HexToColor(String hex, int alpha) {
+	    hex = hex.replace("#", "");
+	    return new Color(Integer.valueOf(hex.substring(0, 2), 16), Integer.valueOf(hex.substring(2, 4), 16), Integer.valueOf(hex.substring(4, 6), 16), alpha);
+	}
+	
 	public static String insertCommas(long number){
 		return insertCommas(number + "");
 	}

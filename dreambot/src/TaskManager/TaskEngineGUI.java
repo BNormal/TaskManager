@@ -166,7 +166,7 @@ public class TaskEngineGUI {
 		int width = frmTaskManager.getWidth();
 		int height = frmTaskManager.getHeight();
 		frmTaskManager.setBounds(x - width / 2, y - height / 2, width, height);
-		frmTaskManager.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		frmTaskManager.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		frmTaskManager.getContentPane().setLayout(null);
 		frmTaskManager.setResizable(false);
 		frmTaskManager.addWindowListener(new WindowAdapter() {
@@ -300,6 +300,11 @@ public class TaskEngineGUI {
 				int index = listTasks.getSelectedIndex();
 				if (index >= 0 && index < tasksModel.size()) {
 					tasksModel.remove(index);
+					int newIndex = index;
+					if (newIndex > tasksModel.getSize() - 1)
+						newIndex -= 1;
+					if (newIndex > -1)
+						listTasks.setSelectedIndex(newIndex);
 				}
 			}
 		});
@@ -511,6 +516,18 @@ public class TaskEngineGUI {
 	
 	public void open() {
 		frmTaskManager.setVisible(true);
+	}
+	
+	public void setAlwaysOnTop(boolean top) {
+		frmTaskManager.setAlwaysOnTop(top);
+	}
+	
+	public boolean isVisible() {
+		return frmTaskManager.isVisible();
+	}
+	
+	public boolean isActive() {
+		return frmTaskManager.isActive();
 	}
 	
 	public void start() {
