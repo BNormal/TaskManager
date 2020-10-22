@@ -19,15 +19,15 @@ import org.dreambot.api.methods.tabs.Tabs;
 import org.dreambot.api.methods.walking.impl.Walking;
 import org.dreambot.api.methods.widget.Widgets;
 import org.dreambot.api.script.Category;
-import org.dreambot.api.script.ScriptManifest;
 import org.dreambot.api.utilities.Timer;
 import org.dreambot.api.utilities.impl.Condition;
 import org.dreambot.api.wrappers.interactive.GameObject;
 import org.dreambot.api.wrappers.widgets.WidgetChild;
 
 import TaskManager.Script;
+import TaskManager.ScriptDetails;
 
-@ScriptManifest(author = "NumberZ", category = Category.CRAFTING, name = "Wool Spinner", version = 1.0, description = "Spins wool at Lumbridge Castle Does not gather wool.")
+@ScriptDetails(author = "NumberZ", category = Category.CRAFTING, name = "Wool Spinner", version = 1.0, description = "Spins wool at Lumbridge Castle Does not gather wool.")
 public class WoolSpinner extends Script {
 	private Timer totalTime = new Timer();
 	private Timer animDelay = new Timer();

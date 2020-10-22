@@ -23,7 +23,6 @@ import org.dreambot.api.methods.walking.impl.Walking;
 import org.dreambot.api.methods.widget.Widgets;
 import org.dreambot.api.randoms.RandomEvent;
 import org.dreambot.api.script.Category;
-import org.dreambot.api.script.ScriptManifest;
 import org.dreambot.api.wrappers.interactive.GameObject;
 import org.dreambot.api.wrappers.interactive.NPC;
 import org.dreambot.api.wrappers.widgets.Menu;
@@ -31,8 +30,9 @@ import org.dreambot.api.wrappers.widgets.WidgetChild;
 
 import TaskManager.utilities.Utilities;
 import TaskManager.Script;
+import TaskManager.ScriptDetails;
 
-@ScriptManifest(author = "NumberZ", name = "Tutorial Island", version = 1.0, description = "Does tutorial island for you.", category = Category.MISC)
+@ScriptDetails(author = "NumberZ", name = "Tutorial Island", version = 1.0, description = "Does tutorial island for you.", category = Category.MISC)
 public class TutorialIsle extends Script {
 	WidgetChild interfaceItem = null;
 	WidgetChild NPCName = null;

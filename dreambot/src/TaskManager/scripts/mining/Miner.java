@@ -22,17 +22,17 @@ import org.dreambot.api.methods.skills.Skills;
 import org.dreambot.api.methods.walking.impl.Walking;
 import org.dreambot.api.methods.walking.web.node.impl.bank.WebBankArea;
 import org.dreambot.api.script.Category;
-import org.dreambot.api.script.ScriptManifest;
 import org.dreambot.api.wrappers.interactive.GameObject;
 import org.dreambot.api.wrappers.items.Item;
 import org.dreambot.core.Instance;
 
 import TaskManager.Script;
+import TaskManager.ScriptDetails;
 import TaskManager.scripts.mining.MinerData.OreNode;
 import TaskManager.scripts.mining.MinerData.Pickaxe;
 import TaskManager.utilities.Utilities;
 
-@ScriptManifest(author = "NumberZ", category = Category.MINING, name = "Miner", version = 1.0, description = "Mines ores in various areas")
+@ScriptDetails(author = "NumberZ", category = Category.MINING, name = "Miner", version = 1.0, description = "Mines ores in various areas")
 public class Miner extends Script {
 	private String pickaxe = "pickaxe";
 	private boolean tracking = false;
@@ -46,7 +46,7 @@ public class Miner extends Script {
 		supportedConditions.add(TaskManager.Condition.Time);
 		supportedConditions.add(TaskManager.Condition.Level);
 		supportedSkills.add(Skill.MINING);
-		gui = new MinerGUI(getManifest().name());
+		gui = new MinerGUI(getScriptDetails().name());
 	}
 	
 	@Override

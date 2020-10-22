@@ -88,6 +88,7 @@ public class MinerGUI {
 		frameMiner.setTitle(title);
 		frameMiner.setBounds(100, 100, 280, 290);
 		frameMiner.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		frameMiner.setLocationRelativeTo(null);
 		frameMiner.getContentPane().setLayout(null);
 		frameMiner.setResizable(false);
 		

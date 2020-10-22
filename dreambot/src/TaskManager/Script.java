@@ -5,6 +5,7 @@ import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -235,7 +236,7 @@ public abstract class Script extends AbstractScript implements MouseListener, Mo
 	 */
 	@Override
 	public String toString() {
-		return getManifest().name() + getTaskRequirementText();
+		return getScriptDetails().name() + ": " + getTaskRequirementText();
 	}
 	
 	/**
@@ -333,6 +334,14 @@ public abstract class Script extends AbstractScript implements MouseListener, Mo
 	@Override
 	public void mouseMoved(MouseEvent e) {
 		
+	}
+	
+	public ScriptDetails getScriptDetails() {
+		Annotation annotation = this.getClass().getAnnotation(ScriptDetails.class);
+		if(annotation instanceof ScriptDetails){
+			return (ScriptDetails) annotation;
+		}
+		return null;
 	}
 	
 	public Object clone() throws CloneNotSupportedException{  

@@ -78,7 +78,7 @@ public class TaskEngineGUI {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					TaskEngineGUI window = new TaskEngineGUI(500, 500);
+					TaskEngineGUI window = new TaskEngineGUI(-1, -1);
 					window.frmTaskManager.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -165,7 +165,10 @@ public class TaskEngineGUI {
 		frmTaskManager.setBounds(0, 0, 320, 375);//320, 345
 		int width = frmTaskManager.getWidth();
 		int height = frmTaskManager.getHeight();
-		frmTaskManager.setBounds(x - width / 2, y - height / 2, width, height);
+		if (x == -1 && y == -1)
+			frmTaskManager.setLocationRelativeTo(null);
+		else
+			frmTaskManager.setBounds(x - width / 2, y - height / 2, width, height);
 		frmTaskManager.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		frmTaskManager.getContentPane().setLayout(null);
 		frmTaskManager.setResizable(false);

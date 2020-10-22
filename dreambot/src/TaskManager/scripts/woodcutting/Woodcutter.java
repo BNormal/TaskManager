@@ -22,17 +22,17 @@ import org.dreambot.api.methods.skills.Skills;
 import org.dreambot.api.methods.walking.impl.Walking;
 import org.dreambot.api.methods.walking.web.node.impl.bank.WebBankArea;
 import org.dreambot.api.script.Category;
-import org.dreambot.api.script.ScriptManifest;
 import org.dreambot.api.wrappers.interactive.GameObject;
 import org.dreambot.api.wrappers.items.Item;
 import org.dreambot.core.Instance;
 
 import TaskManager.Script;
+import TaskManager.ScriptDetails;
 import TaskManager.utilities.Utilities;
 import TaskManager.scripts.woodcutting.WoodcutterData.Tree;
 import TaskManager.scripts.woodcutting.WoodcutterData.Axe;
 
-@ScriptManifest(author = "NumberZ", category = Category.WOODCUTTING, name = "Woodcutter", version = 1.0, description = "Cuts trees in various areas")
+@ScriptDetails(author = "NumberZ", category = Category.WOODCUTTING, name = "Woodcutter", version = 1.0, description = "Cuts trees in various areas")
 public class Woodcutter extends Script {
 	private String Axe = "axe";
 	private boolean tracking = false;
@@ -52,9 +52,10 @@ public class Woodcutter extends Script {
 	@Override
 	public void init() {
 		try {
-			gui = new WoodcutterGUI(getManifest().name());
+			gui = new WoodcutterGUI(getScriptDetails().name());
 			gui.open();
 		} catch (Exception e) {
+			e.printStackTrace();
 			MethodProvider.log(e.toString());
 		}
 	}

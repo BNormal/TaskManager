@@ -56,6 +56,7 @@ public class LogOutInGUI {
 		frame.setTitle(title);
 		frame.setBounds(100, 100, 250, 145);
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		frame.setLocationRelativeTo(null);
 		frame.getContentPane().setLayout(null);
 		
 		JLabel lblNickname = new JLabel("Nickname:");

@@ -17,16 +17,16 @@ import org.dreambot.api.methods.walking.impl.Walking;
 import org.dreambot.api.methods.walking.web.node.impl.bank.WebBankArea;
 import org.dreambot.api.methods.widget.Widgets;
 import org.dreambot.api.script.Category;
-import org.dreambot.api.script.ScriptManifest;
 import org.dreambot.api.utilities.Timer;
 import org.dreambot.api.wrappers.widgets.WidgetChild;
 import org.dreambot.core.Instance;
 
 import TaskManager.Script;
+import TaskManager.ScriptDetails;
 import TaskManager.scripts.misc.GETraderGUI.OfferItem;
 import TaskManager.utilities.Utilities;
 
-@ScriptManifest(author = "NumberZ", category = Category.MISC, name = "GE Trader", version = 1.0, description = "Buy and sell items at the Grand Exchange")
+@ScriptDetails(author = "NumberZ", category = Category.MISC, name = "GE Trader", version = 1.0, description = "Buy and sell items at the Grand Exchange")
 public class GETrader extends Script {
 	private State state = null;
 	private GETraderGUI gui;
@@ -65,7 +65,7 @@ public class GETrader extends Script {
 	
 	@Override
 	public void init() {
-		gui = new GETraderGUI(getManifest().name());
+		gui = new GETraderGUI(getScriptDetails().name());
 		gui.open();
 	}
 	

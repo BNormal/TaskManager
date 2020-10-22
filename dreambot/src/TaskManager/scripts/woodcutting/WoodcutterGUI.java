@@ -86,6 +86,7 @@ public class WoodcutterGUI {
 		frameWoodcutter = new JFrame(title);
 		frameWoodcutter.setBounds(100, 100, 280, 290);
 		frameWoodcutter.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		frameWoodcutter.setLocationRelativeTo(null);
 		frameWoodcutter.getContentPane().setLayout(null);
 		frameWoodcutter.setResizable(false);
 		

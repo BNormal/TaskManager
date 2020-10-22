@@ -135,6 +135,7 @@ public class GETraderGUI {
 		frame.setTitle(title);
 		frame.setBounds(100, 100, 500, 415);
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		frame.setLocationRelativeTo(null);
 		frame.getContentPane().setLayout(null);
 		
 		txtItemName = new JTextField();

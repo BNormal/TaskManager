@@ -25,15 +25,15 @@ import org.dreambot.api.methods.tabs.Tabs;
 import org.dreambot.api.methods.walking.impl.Walking;
 import org.dreambot.api.methods.widget.Widgets;
 import org.dreambot.api.script.Category;
-import org.dreambot.api.script.ScriptManifest;
 import org.dreambot.api.wrappers.interactive.GameObject;
 import org.dreambot.api.wrappers.items.GroundItem;
 import org.dreambot.api.wrappers.widgets.WidgetChild;
 
 import TaskManager.Script;
+import TaskManager.ScriptDetails;
 import TaskManager.utilities.Utilities;
 
-@ScriptManifest(author = "NumberZ", category = Category.QUEST, name = "Ernest The Chicken", version = 1.0, description = "Completes Ernest The Chicken quest")
+@ScriptDetails(author = "NumberZ", category = Category.QUEST, name = "Ernest The Chicken", version = 1.0, description = "Completes Ernest The Chicken quest")
 public class ErnestTheChicken extends Script {
 	private State state;
 	private int progressId = -1;

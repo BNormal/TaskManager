@@ -154,7 +154,7 @@ public class TaskEngine extends AbstractScript implements MouseListener, MouseMo
 				if (i + gui.getCurrentScriptId() >= size)
 					break;
 				Script script = gui.getScripts().get(i + gui.getCurrentScriptId());
-				String scriptTitle = script.getManifest().name() + (script.getTotalTime() != null ? " - " + script.getTotalTime().formatTime() : "");
+				String scriptTitle = script.getScriptDetails().name() + (script.getTotalTime() != null ? " - " + script.getTotalTime().formatTime() : "");
 				if (i + gui.getCurrentScriptId() == gui.getCurrentScriptId()) {
 					Utilities.drawShadowString(g, "> " + scriptTitle, x + 5, y + 33 + i * 10, Color.GREEN, Color.BLACK);
 				} else {

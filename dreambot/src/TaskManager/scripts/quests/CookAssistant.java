@@ -21,13 +21,13 @@ import org.dreambot.api.methods.tabs.Tabs;
 import org.dreambot.api.methods.walking.impl.Walking;
 import org.dreambot.api.methods.widget.Widgets;
 import org.dreambot.api.script.Category;
-import org.dreambot.api.script.ScriptManifest;
 import org.dreambot.api.wrappers.widgets.WidgetChild;
 
 import TaskManager.Script;
+import TaskManager.ScriptDetails;
 import TaskManager.utilities.Utilities;
 
-@ScriptManifest(author = "Trialander", category = Category.QUEST, name = "Cooks Assistant", version = 1.0, description = "Completes Cooks Assistant")
+@ScriptDetails(author = "Trialander", category = Category.QUEST, name = "Cooks Assistant", version = 1.0, description = "Completes Cooks Assistant")
 public class CookAssistant extends Script implements Serializable {
 	private static final long serialVersionUID = 6969736550720908670L;
 	private State state;
