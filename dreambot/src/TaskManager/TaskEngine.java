@@ -28,6 +28,7 @@ public class TaskEngine extends AbstractScript implements MouseListener, MouseMo
 	private boolean started = false;
 	private boolean hovered = false;
 	private boolean loadedStartUp = false;
+	private Rectangle detailsShape = new Rectangle(510, 10, 230, 22);
 	private Rectangle unhoveredShape = new Rectangle(310, 10, 200, 67);
 	private Rectangle hoveredShape = new Rectangle(310, 10, 200, 467);
 	private Rectangle dropdownButton = new Rectangle(480, 77, 30, 15);
@@ -77,7 +78,6 @@ public class TaskEngine extends AbstractScript implements MouseListener, MouseMo
 		if (currentScript == null) {
 			currentScript = gui.getCurrentScript();
 			if (currentScript == null) {
-				MethodProvider.log("Script has stopped.");
 				stop();
 				return 0;
 			}
@@ -128,6 +128,13 @@ public class TaskEngine extends AbstractScript implements MouseListener, MouseMo
 				g.fillRect(x, y, (int) unhoveredShape.getWidth(), (int) unhoveredShape.getHeight());
 				g.setColor(border);//Border
 				g.drawRect(x, y, (int) unhoveredShape.getWidth(), (int) unhoveredShape.getHeight());
+			}
+			if (currentScript != null) {
+				g.setColor(filled);//Filled in square
+				g.fillRect(x + 200, y, (int) detailsShape.getWidth(), (int) detailsShape.getHeight());
+				g.setColor(border);//Border
+				g.drawRect(x + 200, y, (int) detailsShape.getWidth(), (int) detailsShape.getHeight());
+				Utilities.drawShadowString(g, currentScript.toString(), x + 205, y + 15, Color.WHITE, Color.BLACK);
 			}
 			if (size > 4) {
 				g.setColor(filled);
@@ -231,7 +238,6 @@ public class TaskEngine extends AbstractScript implements MouseListener, MouseMo
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
-		//MethodProvider.log(e.toString());
 		if (!started || !gui.isFinished())
 			return;
 		if (currentScript != null)

@@ -3,6 +3,8 @@ package TaskManager.scripts.woodcutting;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.dreambot.api.data.GameState;
@@ -26,6 +28,10 @@ import org.dreambot.api.wrappers.interactive.GameObject;
 import org.dreambot.api.wrappers.items.Item;
 import org.dreambot.core.Instance;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+
 import TaskManager.Script;
 import TaskManager.ScriptDetails;
 import TaskManager.utilities.Utilities;
@@ -47,12 +53,12 @@ public class Woodcutter extends Script {
 		supportedConditions.add(TaskManager.Condition.Time);
 		supportedConditions.add(TaskManager.Condition.Level);
 		supportedSkills.add(Skill.WOODCUTTING);
+		gui = new WoodcutterGUI(getScriptDetails().name());
 	}
 	
 	@Override
 	public void init() {
 		try {
-			gui = new WoodcutterGUI(getScriptDetails().name());
 			gui.open();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -63,7 +69,6 @@ public class Woodcutter extends Script {
 	@Override
 	public void onStart() {
 		if (!taskScript) {
-			MethodProvider.log("Not a task Script");
 			init();
 		}
 		super.onStart();
@@ -227,6 +232,27 @@ public class Woodcutter extends Script {
 			}
 		}
 		return hasAxe;
+	}
+	
+	@Override
+	public String saveState() {
+		String taskData = super.saveState();
+		Gson gson = new GsonBuilder().create();
+		List<String> preferences = new ArrayList<String>();
+		preferences.add(taskData);
+		preferences.add(gui.getSaveDate());
+		return gson.toJson(preferences);
+	}
+	
+	@Override
+	public void loadState(String data) {
+		Gson gson = new Gson();
+		List<String> preferences = new ArrayList<String>();
+		Type type = new TypeToken<List<String>>() {}.getType();
+		preferences = gson.fromJson(data, type);
+		setTaskScript(true);
+		setTask(gson.fromJson(preferences.get(0), TaskManager.Task.class));
+		gui.loadSaveDate(preferences.get(1));
 	}
 
 	@Override

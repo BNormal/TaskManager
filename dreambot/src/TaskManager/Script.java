@@ -18,6 +18,9 @@ import org.dreambot.api.methods.skills.Skills;
 import org.dreambot.api.script.AbstractScript;
 import org.dreambot.api.utilities.Timer;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 /**
  * This is a base class for the bare necessities for a script to be used for
  * the task engine script manager
@@ -236,7 +239,8 @@ public abstract class Script extends AbstractScript implements MouseListener, Mo
 	 */
 	@Override
 	public String toString() {
-		return getScriptDetails().name() + ": " + getTaskRequirementText();
+		String req = getTaskRequirementText();
+		return getScriptDetails().name() + (req.equals("") ?  "" : ": " + getTaskRequirementText());
 	}
 	
 	/**
@@ -336,6 +340,30 @@ public abstract class Script extends AbstractScript implements MouseListener, Mo
 		
 	}
 	
+	/**
+	 * Handles saving preferences such as options selected in a GUI.
+	 * @param saves preference made by the user.
+	 * @return 
+	 */
+	public String saveState() {
+		Gson gson = new GsonBuilder().create();
+		return gson.toJson(getTask());
+	}
+	
+	/**
+	 * Handles loads preferences such as options selected in a GUI.
+	 * @param loads preference made by the user.
+	 */
+	public void loadState(String data) {
+		Gson gson = new Gson();
+		setTaskScript(true);
+		setTask(gson.fromJson(data, Task.class));
+	}
+	
+	/**
+	 * Handles the details for each individual script.
+	 * @param holds details about each individual script.
+	 */
 	public ScriptDetails getScriptDetails() {
 		Annotation annotation = this.getClass().getAnnotation(ScriptDetails.class);
 		if(annotation instanceof ScriptDetails){

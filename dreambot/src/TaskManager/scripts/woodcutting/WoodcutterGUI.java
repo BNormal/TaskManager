@@ -5,6 +5,7 @@ import java.awt.EventQueue;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -27,16 +28,20 @@ import javax.swing.JCheckBox;
 import javax.swing.UIManager;
 import javax.swing.border.LineBorder;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+
 public class WoodcutterGUI {
 
-	private transient JFrame frameWoodcutter;
+	private JFrame frameWoodcutter;
 	private boolean isFinished = false;
 	private DefaultListModel<Axe> modelDisallowed = new DefaultListModel<Axe>();
 	private DefaultListModel<Axe> modelAllowed = new DefaultListModel<Axe>();
-	private transient JComboBox<WoodcuttingSpot> cbxLocation;
-	private transient JComboBox<Tree> cbxTree;
+	private JComboBox<WoodcuttingSpot> cbxLocation;
+	private JComboBox<Tree> cbxTree;
 	private DefaultComboBoxModel<Tree> modelTree = new DefaultComboBoxModel<Tree>();
-	private transient JCheckBox chckbxPowercut;
+	private JCheckBox chckbxPowercut;
 
 	/**
 	 * Launch the application.
@@ -266,5 +271,29 @@ public class WoodcutterGUI {
 		frameWoodcutter.setVisible(false);
 		frameWoodcutter.dispose();
 	}
+	
+	public String getSaveDate() {
+		Gson gson = new GsonBuilder().create();
+		List<String> settings = new ArrayList<String>();
+		settings.add(cbxLocation.getSelectedIndex() + "");
+		settings.add(cbxTree.getSelectedIndex() + "");
+		settings.add(chckbxPowercut.isSelected() + "");
+		settings.add(gson.toJson(modelDisallowed));
+		settings.add(gson.toJson(modelAllowed));
+		return gson.toJson(settings);
+	}
 
+	public void loadSaveDate(String json) {
+		Gson gson = new Gson();
+		List<String> settings = new ArrayList<String>();
+		Type type = new TypeToken<List<String>>() {}.getType();
+		settings = gson.fromJson(json, type);
+		cbxLocation.setSelectedIndex(Integer.parseInt(settings.get(0)));
+		cbxTree.setSelectedIndex(Integer.parseInt(settings.get(1)));
+		chckbxPowercut.setSelected(settings.get(2).equalsIgnoreCase("true"));
+		Type type2 = new TypeToken<DefaultListModel<Axe>>() {}.getType();
+		modelDisallowed = gson.fromJson(settings.get(3), type2);
+		modelAllowed = gson.fromJson(settings.get(4), type2);
+	}
+	
 }

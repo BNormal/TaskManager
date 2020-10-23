@@ -63,9 +63,12 @@ public class GETrader extends Script {
 		return State.NOTHING;
 	}
 	
+	public GETrader() {
+		gui = new GETraderGUI(getScriptDetails().name());
+	}
+	
 	@Override
 	public void init() {
-		gui = new GETraderGUI(getScriptDetails().name());
 		gui.open();
 	}
 	

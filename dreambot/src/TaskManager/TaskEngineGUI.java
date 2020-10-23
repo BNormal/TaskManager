@@ -3,6 +3,7 @@ package TaskManager;
 import javax.swing.JFrame;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
@@ -13,6 +14,7 @@ import javax.swing.JSpinner;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.DefaultFormatter;
 import javax.swing.JScrollPane;
 import javax.swing.JList;
@@ -26,9 +28,14 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Reader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Type;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.awt.event.ActionEvent;
 import java.awt.EventQueue;
 import java.util.ArrayList;
@@ -43,8 +50,13 @@ import java.awt.Insets;
 import java.awt.Color;
 
 import org.dreambot.api.methods.Calculations;
-import org.dreambot.api.methods.MethodProvider;
 import org.dreambot.api.methods.skills.Skill;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+
+import TaskManager.utilities.SaveData;
 
 public class TaskEngineGUI {
 
@@ -63,7 +75,9 @@ public class TaskEngineGUI {
 	private JButton btnMoveUp;
 	private JButton btnMoveDown;
 	private JLabel lblAmountDescription;
+	private JLabel lblFileName;
 	private boolean isFinished = false;
+	private File scriptList = null;
 	private int currentScript = 0;
 
 	/**
@@ -162,7 +176,7 @@ public class TaskEngineGUI {
 	private void initialize(int x, int y) {
 		frmTaskManager = new JFrame();
 		frmTaskManager.setTitle("Task Manager");
-		frmTaskManager.setBounds(0, 0, 320, 375);//320, 345
+		frmTaskManager.setBounds(0, 0, 320, 400);//320, 345
 		int width = frmTaskManager.getWidth();
 		int height = frmTaskManager.getHeight();
 		if (x == -1 && y == -1)
@@ -170,7 +184,7 @@ public class TaskEngineGUI {
 		else
 			frmTaskManager.setBounds(x - width / 2, y - height / 2, width, height);
 		frmTaskManager.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-		frmTaskManager.getContentPane().setLayout(null);
+		frmTaskManager.getContentPane().setLayout(null);//new MigLayout()
 		frmTaskManager.setResizable(false);
 		frmTaskManager.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent we) {
@@ -225,7 +239,7 @@ public class TaskEngineGUI {
 			}
 		});
 		btnStart.setFont(new Font("Tahoma", Font.BOLD, 20));
-		btnStart.setBounds(10, 292, 294, 43);
+		btnStart.setBounds(10, 317, 294, 43);
 		frmTaskManager.getContentPane().add(btnStart);
 		
 		JLabel lblCondition = new JLabel("Condition:");
@@ -362,30 +376,118 @@ public class TaskEngineGUI {
 		frmTaskManager.getContentPane().add(btnMoveDown);
 		
 		JButton btnSaveList = new JButton("Save List");
-		btnSaveList.setEnabled(false);
 		btnSaveList.setFocusable(false);
 		btnSaveList.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				MethodProvider.logError("Save List feature currently not supported.");
+				if (tasksModel.size() > 0) {
+					if (scriptList == null && browseForFile(true))
+						return;
+					Script script = null;
+					SaveData data = null;
+					List<SaveData> scriptSettings = new ArrayList<SaveData>();
+					for (int i = 0; i < tasksModel.size(); i++) {
+						script = tasksModel.get(i);
+						data = new SaveData(script.getClass().getName(), script.saveState());
+						scriptSettings.add(data);
+					}
+					try {
+						Gson gson = new GsonBuilder().create();
+						FileWriter writer = new FileWriter(scriptList);
+						gson.toJson(scriptSettings, writer);
+						writer.flush();
+						writer.close();
+						System.out.println("wrote file");
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+				
 			}
 		});
-		btnSaveList.setBounds(10, 255, 89, 23);
+		btnSaveList.setBounds(10, 283, 89, 23);
 		frmTaskManager.getContentPane().add(btnSaveList);
 		
 		JButton btnLoadList = new JButton("Load List");
-		btnLoadList.setEnabled(false);
 		btnLoadList.setFocusable(false);
 		btnLoadList.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				MethodProvider.logError("Load List feature currently not supported.");
+				if (scriptList == null || !scriptList.exists())
+					browseForFile(false);
+				if (scriptList != null && scriptList.exists()) {
+			        try {
+						Gson gson = new Gson();
+						Reader reader = Files.newBufferedReader(Paths.get(scriptList.getAbsolutePath()));
+						Type type = new TypeToken<List<SaveData>>() {}.getType();
+						List<SaveData> scriptSettings = gson.fromJson(reader, type);
+						SaveData sd = null;
+						for (int i = 0; i < scriptSettings.size(); i++) {
+							try {
+								sd = scriptSettings.get(i);
+								Class<?> clazz = Class.forName(sd.getName());
+								if (!Script.class.isAssignableFrom(clazz)) {
+									System.out.println("class not found");
+									continue;
+								}
+								Constructor<?> ctor = clazz.getConstructor();
+								Object object = ctor.newInstance();
+								if (object == null) {
+									System.out.println("null object");
+									continue;
+								}
+								if (object instanceof Script) {
+									Script script = (Script) object;
+									script.loadState(sd.getData());
+									System.out.println("worked");
+									tasksModel.addElement(script);
+								}
+							} catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException | ClassNotFoundException e2) {
+							}
+						}
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+				}
 			}
 		});
-		btnLoadList.setBounds(215, 255, 89, 23);
+		btnLoadList.setBounds(114, 283, 89, 23);
 		frmTaskManager.getContentPane().add(btnLoadList);
+		
+		JButton btnBrowse = new JButton("Select");
+		btnBrowse.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				browseForFile(false);
+			}
+		});
+		btnBrowse.setFocusable(false);
+		btnBrowse.setBounds(215, 283, 89, 23);
+		frmTaskManager.getContentPane().add(btnBrowse);
+		
+		lblFileName = new JLabel("");
+		lblFileName.setBounds(10, 255, 294, 17);
+		frmTaskManager.getContentPane().add(lblFileName);
 		
 		updateConditions();
 		updateSkills();
 		updateAmountDescription();
+	}
+	
+	public boolean browseForFile(boolean save) {
+		final JFileChooser fc = new JFileChooser();
+		fc.addChoosableFileFilter(new FileNameExtensionFilter("JavaScript Object Notation .json", "json"));
+		fc.setAcceptAllFileFilterUsed(false);
+		int returnVal = (save ? fc.showSaveDialog(frmTaskManager) : fc.showOpenDialog(frmTaskManager));
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File file = fc.getSelectedFile();
+            if (file != null) {
+            	if (!file.getName().toLowerCase().endsWith(".json")) {
+            		file = new File(file.getAbsolutePath() + ".json");
+            	}
+                lblFileName.setText("Selected file: " + file.getName());
+                scriptList = file;
+            }
+            return false;
+        }
+        return true;
 	}
 	
 	public void addScript(int slot) {
@@ -519,6 +621,8 @@ public class TaskEngineGUI {
 	
 	public void open() {
 		frmTaskManager.setVisible(true);
+		frmTaskManager.revalidate();
+		frmTaskManager.repaint();
 	}
 	
 	public void setAlwaysOnTop(boolean top) {
