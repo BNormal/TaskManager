@@ -3,7 +3,9 @@ package TaskManager.scripts.misc;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.container.impl.Inventory;
@@ -20,6 +22,10 @@ import org.dreambot.api.script.Category;
 import org.dreambot.api.utilities.Timer;
 import org.dreambot.api.wrappers.widgets.WidgetChild;
 import org.dreambot.core.Instance;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 
 import TaskManager.Script;
 import TaskManager.ScriptDetails;
@@ -487,6 +493,27 @@ public class GETrader extends Script {
 			
 		}
 		return 0;
+	}
+	
+	@Override
+	public String saveState() {
+		String taskData = super.saveState();
+		Gson gson = new GsonBuilder().create();
+		List<String> preferences = new ArrayList<String>();
+		preferences.add(taskData);
+		preferences.add(gui.getSaveDate());
+		return gson.toJson(preferences);
+	}
+	
+	@Override
+	public void loadState(String data) {
+		Gson gson = new Gson();
+		List<String> preferences = new ArrayList<String>();
+		Type type = new TypeToken<List<String>>() {}.getType();
+		preferences = gson.fromJson(data, type);
+		setTaskScript(true);
+		setTask(gson.fromJson(preferences.get(0), TaskManager.Task.class));
+		gui.loadSaveDate(preferences.get(1));
 	}
 	
 	public void reset() {

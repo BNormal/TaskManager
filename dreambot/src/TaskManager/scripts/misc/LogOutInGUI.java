@@ -9,15 +9,25 @@ import javax.swing.JTextField;
 import javax.swing.JLabel;
 import javax.swing.JRadioButton;
 import javax.swing.UIManager;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+
+
 import java.awt.event.ActionListener;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 import java.awt.event.ActionEvent;
 import javax.swing.JButton;
 
 public class LogOutInGUI {
-	private transient JFrame frame;
+	private JFrame frame;
 	private String title;
-	private transient JTextField txtNickname;
-	private transient JRadioButton rdbtnLogout;
+	private JTextField txtNickname;
+	private JRadioButton rdbtnLogout;
+	private JRadioButton rdbtnLogin;
 
 	/**
 	 * Launch the application.
@@ -83,7 +93,7 @@ public class LogOutInGUI {
 		rdbtnLogout.setBounds(57, 39, 86, 23);
 		frame.getContentPane().add(rdbtnLogout);
 		
-		JRadioButton rdbtnLogin = new JRadioButton("Login");
+		rdbtnLogin = new JRadioButton("Login");
 		rdbtnLogin.setFocusable(false);
 		rdbtnLogin.setMargin(new Insets(0, 0, 0, 0));
 		rdbtnLogin.setBounds(149, 40, 77, 23);
@@ -133,5 +143,25 @@ public class LogOutInGUI {
 	public void exit() {
 		frame.setVisible(false);
 		frame.dispose();
+	}
+	
+	public String getSaveDate() {
+		Gson gson = new GsonBuilder().create();
+		List<String> settings = new ArrayList<String>();
+		settings.add(txtNickname.getText());
+		settings.add(rdbtnLogout.isSelected() + "");
+		return gson.toJson(settings);
+	}
+
+	public void loadSaveDate(String json) {
+		Gson gson = new Gson();
+		List<String> settings = new ArrayList<String>();
+		Type type = new TypeToken<List<String>>() {}.getType();
+		settings = gson.fromJson(json, type);
+		txtNickname.setText(settings.get(0));
+		if (settings.get(1).equalsIgnoreCase("true"))
+			rdbtnLogout.setSelected(true);
+		else
+			rdbtnLogin.setSelected(true);
 	}
 }

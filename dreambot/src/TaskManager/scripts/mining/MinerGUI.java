@@ -10,12 +10,19 @@ import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JList;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.border.LineBorder;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import java.awt.event.ActionListener;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -37,6 +44,7 @@ public class MinerGUI {
 	private transient JComboBox<MiningSpot> cbxLocation;
 	private transient JComboBox<OreNode> cbxOreNode;
 	private DefaultComboBoxModel<OreNode> modelOreNode = new DefaultComboBoxModel<OreNode>();
+	private JCheckBox chckbxPowermine;
 	
 
 	/**
@@ -112,7 +120,7 @@ public class MinerGUI {
 		
 		cbxOreNode = new JComboBox<OreNode>();
 		cbxOreNode.setFocusable(false);
-		cbxOreNode.setBounds(61, 42, 193, 20);
+		cbxOreNode.setBounds(61, 42, 115, 20);
 		cbxOreNode.setModel(modelOreNode);
 		frameMiner.getContentPane().add(cbxOreNode);
 		
@@ -188,6 +196,12 @@ public class MinerGUI {
 		});
 		btnFinished.setBounds(10, 216, 244, 24);
 		frameMiner.getContentPane().add(btnFinished);
+		
+		chckbxPowermine = new JCheckBox("Powermine");
+		chckbxPowermine.setFocusable(false);
+		chckbxPowermine.setBounds(182, 42, 80, 20);
+		frameMiner.getContentPane().add(chckbxPowermine);
+		
 		updateOre();
 	}
 
@@ -239,6 +253,10 @@ public class MinerGUI {
 		return pickaxes;
 	}
 
+	public boolean isPowerMining() {
+		return chckbxPowermine.isSelected();
+	}
+	
 	public boolean isFinished() {
 		return isFinished;
 	}
@@ -258,5 +276,29 @@ public class MinerGUI {
 	public void exit() {
 		frameMiner.setVisible(false);
 		frameMiner.dispose();
+	}
+	
+	public String getSaveDate() {
+		Gson gson = new GsonBuilder().create();
+		List<String> settings = new ArrayList<String>();
+		settings.add(cbxLocation.getSelectedIndex() + "");
+		settings.add(cbxOreNode.getSelectedIndex() + "");
+		settings.add(chckbxPowermine.isSelected() + "");
+		settings.add(gson.toJson(modelDisallowed));
+		settings.add(gson.toJson(modelAllowed));
+		return gson.toJson(settings);
+	}
+
+	public void loadSaveDate(String json) {
+		Gson gson = new Gson();
+		List<String> settings = new ArrayList<String>();
+		Type type = new TypeToken<List<String>>() {}.getType();
+		settings = gson.fromJson(json, type);
+		cbxLocation.setSelectedIndex(Integer.parseInt(settings.get(0)));
+		cbxOreNode.setSelectedIndex(Integer.parseInt(settings.get(1)));
+		chckbxPowermine.setSelected(settings.get(2).equalsIgnoreCase("true"));
+		Type type2 = new TypeToken<DefaultListModel<Pickaxe>>() {}.getType();
+		modelDisallowed = gson.fromJson(settings.get(3), type2);
+		modelAllowed = gson.fromJson(settings.get(4), type2);
 	}
 }

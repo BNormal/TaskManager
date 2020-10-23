@@ -3,6 +3,8 @@ package TaskManager.scripts.mining;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.dreambot.api.data.GameState;
@@ -26,6 +28,10 @@ import org.dreambot.api.wrappers.interactive.GameObject;
 import org.dreambot.api.wrappers.items.Item;
 import org.dreambot.core.Instance;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+
 import TaskManager.Script;
 import TaskManager.ScriptDetails;
 import TaskManager.scripts.mining.MinerData.OreNode;
@@ -41,6 +47,7 @@ public class Miner extends Script {
 	private MiningSpot location;
 	private OreNode selectedRockType;
 	private MinerGUI gui;
+	private boolean dropping = false;
 	
 	public Miner() {
 		supportedConditions.add(TaskManager.Condition.Time);
@@ -81,14 +88,27 @@ public class Miner extends Script {
 		if (running && gui.isFinished()) {
 			if (Dialogues.inDialogue() && Dialogues.continueDialogue())
 				Dialogues.spaceToContinue();
-			if (ableToMine()) {
+			if (dropping) {
+				if (Inventory.contains(selectedRockType.getOreFromNode().getOreId())) {
+					Inventory.dropAll(selectedRockType.getOreFromNode().getOreId());
+				} else {
+					if (!Inventory.contains(selectedRockType.getOreFromNode().getOreId()))
+						dropping = false;
+				}
+			} else if (getLocalPlayer().isAnimating()) {
+				
+			} else if (ableToMine()) {
 				handleMining();
 			} else if (ableToBank()) {
 				handleBanking();
 			} else if (needsToBank()) {
-				Walking.walk(location.getBankArea().getCenter().getRandomizedTile(2));
-				if (Calculations.random(0, 20) > 1)
-					sleepUntil(() -> Walking.getDestinationDistance() < 6, 6000);
+				if (gui.isPowerMining())
+					dropping = true;
+				else {
+					Walking.walk(location.getBankArea().getCenter().getRandomizedTile(2));
+					if (Calculations.random(0, 20) > 1)
+						sleepUntil(() -> Walking.getDestinationDistance() < 6, 6000);
+				}
 			} else if (readyToMine()) {
 				if (Bank.isOpen()) {
 					Bank.close();
@@ -201,6 +221,27 @@ public class Miner extends Script {
 		return hasPickaxe;
 	}
 
+	@Override
+	public String saveState() {
+		String taskData = super.saveState();
+		Gson gson = new GsonBuilder().create();
+		List<String> preferences = new ArrayList<String>();
+		preferences.add(taskData);
+		preferences.add(gui.getSaveDate());
+		return gson.toJson(preferences);
+	}
+	
+	@Override
+	public void loadState(String data) {
+		Gson gson = new Gson();
+		List<String> preferences = new ArrayList<String>();
+		Type type = new TypeToken<List<String>>() {}.getType();
+		preferences = gson.fromJson(data, type);
+		setTaskScript(true);
+		setTask(gson.fromJson(preferences.get(0), TaskManager.Task.class));
+		gui.loadSaveDate(preferences.get(1));
+	}
+	
 	@Override
 	public void onPaint(Graphics2D g) {
 		int x = 10;

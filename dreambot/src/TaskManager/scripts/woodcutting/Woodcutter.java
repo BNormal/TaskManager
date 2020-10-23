@@ -113,9 +113,9 @@ public class Woodcutter extends Script {
 					dropping = true;
 				else {
 					Walking.walk(location.getBankArea().getCenter().getRandomizedTile(2));
-				}
-				if (Calculations.random(0, 20) > 1) {
-					sleepUntil(() -> Walking.getDestinationDistance() < Calculations.random(6, 9), 6000);
+					if (Calculations.random(0, 20) > 1) {
+						sleepUntil(() -> Walking.getDestinationDistance() < Calculations.random(6, 9), 6000);
+					}
 				}
 			} else if (readyToCut()) {
 				if (Bank.isOpen()) {

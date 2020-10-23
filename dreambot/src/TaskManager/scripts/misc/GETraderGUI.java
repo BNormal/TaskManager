@@ -1,6 +1,7 @@
 package TaskManager.scripts.misc;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
@@ -31,6 +32,8 @@ import javax.swing.JFormattedTextField;
 import javax.swing.JButton;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
+import javax.swing.border.LineBorder;
+import javax.swing.UIManager;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -60,10 +63,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.awt.Color;
 
 import TaskManager.utilities.Utilities;
-import javax.swing.border.LineBorder;
-import java.awt.Color;
 
 public class GETraderGUI {
 
@@ -105,6 +107,11 @@ public class GETraderGUI {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Throwable e) {
+			e.printStackTrace();
+		}
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -828,6 +835,23 @@ public class GETraderGUI {
 	public void exit() {
 		frame.setVisible(false);
 		frame.dispose();
+	}
+	
+	public String getSaveDate() {
+		Gson gson = new GsonBuilder().create();
+		List<String> settings = new ArrayList<String>();
+		settings.add(gson.toJson(modelOffers));
+		return gson.toJson(settings);
+	}
+
+	public void loadSaveDate(String json) {
+		Gson gson = new Gson();
+		List<String> settings = new ArrayList<String>();
+		Type type = new TypeToken<List<String>>() {}.getType();
+		settings = gson.fromJson(json, type);
+		Type type2 = new TypeToken<DefaultListModel<OfferItem>>() {}.getType();
+		modelOffers = gson.fromJson(settings.get(0), type2);
+		updateOfferList();
 	}
 	
 	public boolean isFinished() {
