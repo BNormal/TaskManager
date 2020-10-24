@@ -43,6 +43,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.awt.Font;
@@ -51,19 +53,25 @@ import java.awt.Color;
 
 import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.skills.Skill;
+import org.dreambot.api.script.Category;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 import TaskManager.utilities.SaveData;
+import javax.swing.JTree;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.event.TreeSelectionEvent;
 
 public class TaskEngineGUI {
 
 	private List<Script> scripts = new ArrayList<Script>();
 	private DefaultListModel<Script> tasksModel;
 	private JFrame frmTaskManager;
-	private JComboBox<String> cbxScripts;
+	//private JComboBox<String> cbxScripts;
 	private JLabel lblAmount;
 	private JComboBox<Condition> cbxConditon;
 	private DefaultComboBoxModel<Condition> conditionModel;
@@ -76,6 +84,8 @@ public class TaskEngineGUI {
 	private JButton btnMoveDown;
 	private JLabel lblAmountDescription;
 	private JLabel lblFileName;
+	private JLabel lblSelectedScript;
+	private Script selectedScript = null;
 	private boolean isFinished = false;
 	private File scriptList = null;
 	private int currentScript = 0;
@@ -176,7 +186,7 @@ public class TaskEngineGUI {
 	private void initialize(int x, int y) {
 		frmTaskManager = new JFrame();
 		frmTaskManager.setTitle("Task Manager");
-		frmTaskManager.setBounds(0, 0, 320, 400);//320, 345
+		frmTaskManager.setBounds(0, 0, 550, 400);//320, 400
 		int width = frmTaskManager.getWidth();
 		int height = frmTaskManager.getHeight();
 		if (x == -1 && y == -1)
@@ -194,23 +204,64 @@ public class TaskEngineGUI {
 		});
 		
 		loadSctipts();
+
+		lblSelectedScript = new JLabel("None");
+		lblSelectedScript.setBounds(94, 11, 210, 20);
+		frmTaskManager.getContentPane().add(lblSelectedScript);
 		
-		DefaultComboBoxModel<String> scriptModel = new DefaultComboBoxModel<String>();
+		JScrollPane spScripts = new JScrollPane();
+		spScripts.setBorder(new LineBorder(Color.DARK_GRAY, 1, true));
+		spScripts.setBounds(314, 11, 220, 349);
+		frmTaskManager.getContentPane().add(spScripts);
+		
+		DefaultMutableTreeNode treeTitleNode = new DefaultMutableTreeNode("Scripts");
+		DefaultTreeModel treeScriptsModel = new DefaultTreeModel(treeTitleNode);
+		Map<String, DefaultMutableTreeNode> uniqueCategories = new TreeMap<String, DefaultMutableTreeNode>();
+		for (int i = 0; i < scripts.size(); i++) {
+			Category c = scripts.get(i).getScriptDetails().category();
+			DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(c);
+			if (!uniqueCategories.containsKey(c.name()))
+				uniqueCategories.put(c.name(), treeNode);
+		}
+		for (DefaultMutableTreeNode node : uniqueCategories.values())
+			treeTitleNode.add(node);
+		for (Script script : scripts)
+			uniqueCategories.get(script.getScriptDetails().category().name()).add(new DefaultMutableTreeNode(script));
+		
+		JTree treeScripts = new JTree();
+		treeScripts.addTreeSelectionListener(new TreeSelectionListener() {
+			public void valueChanged(TreeSelectionEvent arg0) {
+				DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) treeScripts.getLastSelectedPathComponent();
+				if (selectedNode != null) {
+					if (selectedNode.getUserObject() instanceof Script) {
+						selectedScript = (Script) selectedNode.getUserObject();
+						lblSelectedScript.setText(selectedScript.toString());
+						updateConditions();
+						updateSkills();
+					}
+				}
+			}
+		});
+		treeScripts.setModel(treeScriptsModel);
+		spScripts.setViewportView(treeScripts);
+		
+		/*DefaultComboBoxModel<String> scriptModel = new DefaultComboBoxModel<String>();
 		cbxScripts = new JComboBox<String>(scriptModel);
 		for (Script script : scripts) {
 			scriptModel.addElement(script.toString());
 		}
 		cbxScripts.setFocusable(false);
-		cbxScripts.setBounds(69, 11, 235, 20);
+		cbxScripts.setBounds(94, 11, 210, 20);
 		
-		conditionModel = new DefaultComboBoxModel<Condition>();
 		cbxScripts.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				updateConditions();
 				updateSkills();
 			}
 		});
-		frmTaskManager.getContentPane().add(cbxScripts);
+		frmTaskManager.getContentPane().add(cbxScripts);*/
+		
+		conditionModel = new DefaultComboBoxModel<Condition>();
 
 		cbxSkills = new JComboBox<Skill>(modelSkills);
 		cbxSkills.setFocusable(false);
@@ -246,20 +297,23 @@ public class TaskEngineGUI {
 		lblCondition.setBounds(10, 42, 65, 14);
 		frmTaskManager.getContentPane().add(lblCondition);
 		
-		JLabel lblTask = new JLabel("Task:");
-		lblTask.setBounds(10, 14, 49, 14);
-		frmTaskManager.getContentPane().add(lblTask);
+		JLabel lblScript = new JLabel("Selected Script:");
+		lblScript.setBounds(10, 14, 80, 14);
+		frmTaskManager.getContentPane().add(lblScript);
 		
 		lblAmount = new JLabel("Amount:");
+		lblAmount.setVisible(false);
 		lblAmount.setBounds(10, 67, 49, 14);
 		frmTaskManager.getContentPane().add(lblAmount);
 
 		lblAmountDescription = new JLabel("");
+		lblAmountDescription.setVisible(false);
 		lblAmountDescription.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblAmountDescription.setBounds(139, 67, 165, 14);
 		frmTaskManager.getContentPane().add(lblAmountDescription);
 		
 		spinAmount = new JSpinner();
+		spinAmount.setVisible(false);
 		JComponent comp = spinAmount.getEditor();
 		JFormattedTextField field = (JFormattedTextField) comp.getComponent(0);
 		DefaultFormatter formatter = (DefaultFormatter) field.getFormatter();
@@ -301,7 +355,7 @@ public class TaskEngineGUI {
 		
 		JButton btnAdd = new JButton("Add");
 		btnAdd.setFocusable(false);
-		btnAdd.setBounds(10, 92, 80, 23);
+		btnAdd.setBounds(224, 92, 80, 23);
 		btnAdd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				addScript(-1);
@@ -311,7 +365,7 @@ public class TaskEngineGUI {
 		
 		JButton btnRemove = new JButton("Remove");
 		btnRemove.setFocusable(false);
-		btnRemove.setBounds(224, 92, 80, 23);
+		btnRemove.setBounds(10, 92, 80, 23);
 		btnRemove.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				int index = listTasks.getSelectedIndex();
@@ -491,8 +545,7 @@ public class TaskEngineGUI {
 	}
 	
 	public void addScript(int slot) {
-		int index = cbxScripts.getSelectedIndex();
-		if (index >= 0 && index < scripts.size()) {
+		if (selectedScript != null) {
 			Task task = new Task((Condition) cbxConditon.getSelectedItem(), (int) spinAmount.getValue());
 			if (cbxConditon.getSelectedItem() == Condition.Time) {
 				task.setAmount(Long.valueOf((int) spinAmount.getValue() * 60000 + Calculations.random(0, 60000)));
@@ -504,7 +557,7 @@ public class TaskEngineGUI {
 			}
 			Script script = null;
 			try {
-				script = (Script) scripts.get(index).clone();
+				script = (Script) selectedScript.clone();
 			} catch (CloneNotSupportedException e1) {
 				e1.printStackTrace();
 			}
@@ -529,9 +582,8 @@ public class TaskEngineGUI {
 	}
 	
 	protected void updateConditions() {
-		Script script = scripts.get(cbxScripts.getSelectedIndex());
-		if (script != null) {
-			List<Condition> supportedConditions = script.supportedCondition();
+		if (selectedScript != null) {
+			List<Condition> supportedConditions = selectedScript.supportedCondition();
 			if (supportedConditions.size() < 1)
 				return;
 			conditionModel.removeAllElements();
@@ -542,9 +594,8 @@ public class TaskEngineGUI {
 	}
 	
 	public void updateSkills() {
-		Script script = scripts.get(cbxScripts.getSelectedIndex());
-		if (script != null) {
-			List<Skill> supportedSkills = script.supportedSkills();
+		if (selectedScript != null) {
+			List<Skill> supportedSkills = selectedScript.supportedSkills();
 			modelSkills.removeAllElements();
 			if (supportedSkills.size() < 1)
 				return;
