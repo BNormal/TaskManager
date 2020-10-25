@@ -7,7 +7,6 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.dreambot.api.data.GameState;
 import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.container.impl.Inventory;
 import org.dreambot.api.methods.container.impl.bank.Bank;
@@ -23,6 +22,7 @@ import org.dreambot.api.methods.skills.SkillTracker;
 import org.dreambot.api.methods.skills.Skills;
 import org.dreambot.api.methods.walking.impl.Walking;
 import org.dreambot.api.methods.walking.web.node.impl.bank.WebBankArea;
+import org.dreambot.api.methods.widget.Widgets;
 import org.dreambot.api.script.Category;
 import org.dreambot.api.wrappers.interactive.GameObject;
 import org.dreambot.api.wrappers.items.Item;
@@ -38,7 +38,7 @@ import TaskManager.scripts.mining.MinerData.OreNode;
 import TaskManager.scripts.mining.MinerData.Pickaxe;
 import TaskManager.utilities.Utilities;
 
-@ScriptDetails(author = "NumberZ", category = Category.MINING, name = "Miner", version = 1.0, description = "Mines ores in various areas")
+@ScriptDetails(author = "NumberZ", category = Category.MINING, name = "Miner", version = 1.0, description = "Mines ores in various areas.")
 public class Miner extends Script {
 	private String pickaxe = "pickaxe";
 	private boolean tracking = false;
@@ -72,7 +72,7 @@ public class Miner extends Script {
 
 	@Override
 	public int onLoop() {
-		if (!GameState.values().equals(GameState.LOGGED_IN)) {
+		if (Widgets.getWidget(122) == null) {
 			return 0;
 		} else if (!tracking && getLocalPlayer().isOnScreen()) {
 			tracking = true;

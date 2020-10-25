@@ -27,7 +27,7 @@ import TaskManager.Script;
 import TaskManager.ScriptDetails;
 import TaskManager.utilities.Utilities;
 
-@ScriptDetails(author = "Trialander", category = Category.QUEST, name = "Cooks Assistant", version = 1.0, description = "Completes Cooks Assistant")
+@ScriptDetails(author = "Trialander", category = Category.QUEST, name = "Cooks Assistant", version = 1.0, description = "Completes the Cook's Assistant quest.")
 public class CookAssistant extends Script implements Serializable {
 	private static final long serialVersionUID = 6969736550720908670L;
 	private State state;
@@ -39,6 +39,10 @@ public class CookAssistant extends Script implements Serializable {
 	private Area flourMill = new Area(3168, 3304, 3165, 3306, 0);
 	private WidgetChild interfaceItem;
 
+	public CookAssistant() {
+		
+	}
+	
 	private enum State {
 		TALK_COOK, DIALOGUE, GET_FLOUR, GET_EGG, GET_MILK, TURN_IN, FINISHED, NOTHING;
 	}

@@ -26,7 +26,7 @@ import TaskManager.utilities.Utilities;
 import TaskManager.Script;
 import TaskManager.ScriptDetails;
 
-@ScriptDetails(author = "NumberZ", category = Category.QUEST, name = "Romeo and Juliet", version = 1.0, description = "Completes Romeo and Juliet quest")
+@ScriptDetails(author = "NumberZ", category = Category.QUEST, name = "Romeo and Juliet", version = 1.0, description = "Completes the Romeo and Juliet quest.")
 public class RomeoAndJuliet extends Script {
 	private State state;
 	private int progressId = -1;
@@ -35,6 +35,10 @@ public class RomeoAndJuliet extends Script {
 	private Area apothecaryArea = new Area(3192, 3406, 3197, 3402, 0);
 	private Area dangerArea = new Area(3217, 3380, 3244, 3359, 0);
 	WidgetChild interfaceItem; 
+	
+	public RomeoAndJuliet() {
+		
+	}
 	
 	private enum State {
 		PROGRESS, DIALOGUE, FINISHED, NOTHING;

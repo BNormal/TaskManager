@@ -1,10 +1,12 @@
 package TaskManager;
 
+import org.dreambot.api.methods.skills.Skill;
+
 public class Task {
 
 	private Condition condition;
 	private long amount;
-	private Object conditionItem = null;
+	private Skill conditionItem = null;
 	
 	public Task(Condition condition, int amount) {
 		this.condition = condition;
@@ -27,11 +29,11 @@ public class Task {
 		this.amount = amount;
 	}
 	
-	public void setConditionItem(Object item) {
+	public void setConditionItem(Skill item) {
 		this.conditionItem = item;
 	}
 	
-	public Object getConditionItem() {
+	public Skill getConditionItem() {
 		return conditionItem;
 	}
 }

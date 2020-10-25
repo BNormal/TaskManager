@@ -10,8 +10,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.swing.UIManager;
-
 import org.dreambot.api.Client;
 import org.dreambot.api.methods.skills.Skill;
 import org.dreambot.api.methods.skills.Skills;
@@ -42,11 +40,6 @@ public abstract class Script extends AbstractScript implements MouseListener, Mo
 	 * Adds the default conditions for every script.
 	 */
 	public Script() {
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Throwable e) {
-			e.printStackTrace();
-		}
 		supportedConditions.add(TaskManager.Condition.Continually);
 	}
 	

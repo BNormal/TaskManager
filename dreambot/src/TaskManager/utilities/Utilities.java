@@ -7,19 +7,94 @@ import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
+import java.util.List;
 
 import javax.swing.ImageIcon;
 
+import org.dreambot.api.methods.MethodProvider;
+import org.dreambot.api.methods.interactive.GameObjects;
 import org.dreambot.api.methods.map.Area;
+import org.dreambot.api.methods.map.Tile;
 import org.dreambot.api.methods.walking.web.node.impl.bank.WebBankArea;
+import org.dreambot.api.wrappers.interactive.GameObject;
+
+import TaskManager.Script;
 
 public class Utilities {
+	
+	public static Script getScriptFromName(String name) {
+		if (name.toLowerCase().endsWith(".script"))
+			return null;
+		try {
+			Class<?> clazz = Class.forName(name);
+			Constructor<?> ctor = clazz.getConstructor();
+			Object object = ctor.newInstance();
+			return (Script) object;
+		} catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			MethodProvider.log(e);
+			MethodProvider.log(e.getLocalizedMessage());
+			MethodProvider.log(e.getMessage());
+			e.printStackTrace();
+		}
+		return null;
+	}
 	
 	public static Area getLumbridgeBank() {
 		Area lumbridgeBank = WebBankArea.LUMBRIDGE.getArea();
 		lumbridgeBank.setZ(2);
 		return lumbridgeBank;
+	}
+	
+	public List<GameObject> getObjectsFromTile(Tile tile) {
+		List<GameObject> objects = GameObjects.all(object -> {
+			 boolean accepted = false;
+			 if (tile.getX() == object.getX() && tile.getY() == object.getY() && tile.getZ() == object.getZ()) {
+				 accepted = true;
+			 }
+			 return accepted;
+		});
+		return objects;
+	}
+	
+	public static GameObject getObject(Tile tile, String name) {
+		List<GameObject> objects = GameObjects.all(object -> {
+            boolean accepted = false;
+            if(object.getName().toLowerCase().contains(name.toLowerCase()) && 
+            		tile.getX() == object.getX() && 
+            		tile.getY() == object.getY() && 
+            		tile.getZ() == object.getZ()) {
+					accepted = true;
+            }
+            return accepted;
+        });
+		if (objects.size() <= 0)
+			return null;
+		else
+			return objects.get(0);
+	}
+	
+	public GameObject getObject(Tile tile, String name, String option) {
+		List<GameObject> objects = GameObjects.all(object -> {
+            boolean accepted = false;
+            if(object.getName().toLowerCase().contains(name.toLowerCase()) && 
+            		tile.getX() == object.getX() && 
+            		tile.getY() == object.getY() && 
+            		tile.getZ() == object.getZ()) {
+            	String[] actions = object.getActions();
+				for (int j = 0; j < actions.length; j++) {
+					if (actions[j].contains(option))
+							accepted = true;
+				}
+            }
+            return accepted;
+        });
+		if (objects.size() <= 0)
+			return null;
+		else
+			return objects.get(0);
 	}
 	
 	public static void drawShadowString(Graphics2D g, String s, int x, int y) {

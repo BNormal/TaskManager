@@ -15,7 +15,7 @@ import com.google.gson.reflect.TypeToken;
 import TaskManager.Script;
 import TaskManager.ScriptDetails;
 
-@ScriptDetails(author = "NumberZ", category = Category.MISC, name = "Log in/out", version = 1.0, description = "Logs in or out of an account")
+@ScriptDetails(author = "NumberZ", category = Category.MISC, name = "Log in/out", version = 1.0, description = "Logs in or out of an account.")
 public class LogOutIn extends Script {
 	private LogOutInGUI gui;
 	

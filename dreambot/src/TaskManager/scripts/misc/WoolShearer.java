@@ -9,7 +9,6 @@ import org.dreambot.api.methods.container.impl.Inventory;
 import org.dreambot.api.methods.container.impl.bank.Bank;
 import org.dreambot.api.methods.filter.Filter;
 import org.dreambot.api.methods.input.Camera;
-import org.dreambot.api.methods.interactive.GameObjects;
 import org.dreambot.api.methods.interactive.NPCs;
 import org.dreambot.api.methods.item.GroundItems;
 import org.dreambot.api.methods.map.Area;
@@ -18,7 +17,6 @@ import org.dreambot.api.methods.map.Tile;
 import org.dreambot.api.methods.walking.impl.Walking;
 import org.dreambot.api.methods.walking.web.node.impl.bank.WebBankArea;
 import org.dreambot.api.script.Category;
-import org.dreambot.api.wrappers.interactive.GameObject;
 import org.dreambot.api.wrappers.interactive.NPC;
 import org.dreambot.api.wrappers.items.GroundItem;
 
@@ -26,7 +24,7 @@ import TaskManager.Script;
 import TaskManager.ScriptDetails;
 import TaskManager.utilities.Utilities;
 
-@ScriptDetails(author = "NumberZ", category = Category.MISC, name = "Wool Shearer", version = 1.0, description = "Shears the sheep at the lumbridge farms")
+@ScriptDetails(author = "NumberZ", category = Category.MISC, name = "Wool Shearer", version = 1.0, description = "Shears the sheep at the lumbridge farms.")
 public class WoolShearer extends Script {
 	private Area FARMERS_HOUSE = new Area(3188, 3274, 3191, 3271, 0);
 	private Area SHEEP_AREA = new Area(3194, 3275, 3212, 3258, 0);
@@ -58,22 +56,6 @@ public class WoolShearer extends Script {
 			}
 		}
 		return 0;
-	}
-
-	public GameObject getObject(Tile tile, String name, String option) {
-		GameObject[] objects = GameObjects.getGameObjects().getObjectsOnTile(tile);
-		if (objects == null)
-			return null;
-		for (int i = 0; i < objects.length; i++) {
-			if (objects[i].getName().toLowerCase().contains(name.toLowerCase())) {
-				String[] actions = objects[i].getActions();
-				for (int j = 0; j < actions.length; j++) {
-					if (actions[j].contains(option))
-						return objects[i];
-				}
-			}
-		}
-		return null;
 	}
 
 	public boolean inAreaIgnoreZ(Area a, Tile b) {

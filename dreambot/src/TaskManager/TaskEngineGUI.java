@@ -31,8 +31,6 @@ import java.io.FileFilter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -60,11 +58,17 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 import TaskManager.utilities.SaveData;
+import TaskManager.utilities.Utilities;
+
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.event.TreeSelectionEvent;
+import javax.swing.JPanel;
+import javax.swing.border.TitledBorder;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 
 public class TaskEngineGUI {
 
@@ -84,11 +88,14 @@ public class TaskEngineGUI {
 	private JButton btnMoveDown;
 	private JLabel lblAmountDescription;
 	private JLabel lblFileName;
-	private JLabel lblSelectedScript;
 	private Script selectedScript = null;
 	private boolean isFinished = false;
 	private File scriptList = null;
 	private int currentScript = 0;
+	private JPanel panelDetails;
+	private JTextArea txtDescription;
+	private TitledBorder scriptDetailsBorder;
+	private JTextField txtSearch;
 
 	/**
 	 * Launch the application.
@@ -140,21 +147,21 @@ public class TaskEngineGUI {
 				}
 				String className = je.getName().substring(0, je.getName().length() - 6);
 				className = className.replace('/', '.');
-				try {
-					Class<?> clazz = Class.forName(className);
-					if (!Script.class.isAssignableFrom(clazz))
-						continue;
-					Constructor<?> ctor = clazz.getConstructor();
-					Object object = ctor.newInstance();
-					if (object == null)
-						continue;
-					if (object instanceof Script) {
-						Script script = (Script) object;
-						scripts.add(script);
-						//System.out.println("Loaded script: " + script);
-					}
-				} catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e2) {
-				}
+				Class<?> clazz = Class.forName(className);
+				if (!Script.class.isAssignableFrom(clazz))
+					continue;
+				Script script = Utilities.getScriptFromName(className);
+				if (script != null)
+					scripts.add(script);
+				/*Constructor<?> ctor = clazz.getDeclaredConstructor();
+				Object object = ctor.newInstance();
+				if (object == null)
+					continue;
+				if (object instanceof Script) {
+					Script script = (Script) object;
+					scripts.add(script);
+					//System.out.println("Loaded script: " + script);
+				}*/
 			}
 		} catch (IOException | ClassNotFoundException | SecurityException | IllegalArgumentException e1) {
 		}
@@ -186,7 +193,7 @@ public class TaskEngineGUI {
 	private void initialize(int x, int y) {
 		frmTaskManager = new JFrame();
 		frmTaskManager.setTitle("Task Manager");
-		frmTaskManager.setBounds(0, 0, 550, 400);//320, 400
+		frmTaskManager.setBounds(0, 0, 650, 400);//320, 400
 		int width = frmTaskManager.getWidth();
 		int height = frmTaskManager.getHeight();
 		if (x == -1 && y == -1)
@@ -204,14 +211,10 @@ public class TaskEngineGUI {
 		});
 		
 		loadSctipts();
-
-		lblSelectedScript = new JLabel("None");
-		lblSelectedScript.setBounds(94, 11, 210, 20);
-		frmTaskManager.getContentPane().add(lblSelectedScript);
 		
 		JScrollPane spScripts = new JScrollPane();
 		spScripts.setBorder(new LineBorder(Color.DARK_GRAY, 1, true));
-		spScripts.setBounds(314, 11, 220, 349);
+		spScripts.setBounds(10, 42, 170, 283);
 		frmTaskManager.getContentPane().add(spScripts);
 		
 		DefaultMutableTreeNode treeTitleNode = new DefaultMutableTreeNode("Scripts");
@@ -235,7 +238,12 @@ public class TaskEngineGUI {
 				if (selectedNode != null) {
 					if (selectedNode.getUserObject() instanceof Script) {
 						selectedScript = (Script) selectedNode.getUserObject();
-						lblSelectedScript.setText(selectedScript.toString());
+						scriptDetailsBorder.setTitle(selectedScript.toString());
+						ScriptDetails sd = selectedScript.getScriptDetails();
+						txtDescription.setText("Author: " + sd.author() + 
+								", Version: " + sd.version() + 
+								"\nDescription: " + sd.description());
+						panelDetails.repaint();
 						updateConditions();
 						updateSkills();
 					}
@@ -265,7 +273,7 @@ public class TaskEngineGUI {
 
 		cbxSkills = new JComboBox<Skill>(modelSkills);
 		cbxSkills.setFocusable(false);
-		cbxSkills.setBounds(189, 39, 115, 20);
+		cbxSkills.setBounds(369, 114, 115, 20);
 		cbxSkills.setVisible(false);
 		frmTaskManager.getContentPane().add(cbxSkills);
 		
@@ -278,7 +286,7 @@ public class TaskEngineGUI {
 				updateAmountDescription();
 			}
 		});
-		cbxConditon.setBounds(69, 39, 110, 20);
+		cbxConditon.setBounds(249, 114, 110, 20);
 		cbxConditon.setFocusable(false);
 		frmTaskManager.getContentPane().add(cbxConditon);
 		
@@ -290,26 +298,22 @@ public class TaskEngineGUI {
 			}
 		});
 		btnStart.setFont(new Font("Tahoma", Font.BOLD, 20));
-		btnStart.setBounds(10, 317, 294, 43);
+		btnStart.setBounds(494, 332, 142, 30);
 		frmTaskManager.getContentPane().add(btnStart);
 		
 		JLabel lblCondition = new JLabel("Condition:");
-		lblCondition.setBounds(10, 42, 65, 14);
+		lblCondition.setBounds(190, 117, 65, 14);
 		frmTaskManager.getContentPane().add(lblCondition);
-		
-		JLabel lblScript = new JLabel("Selected Script:");
-		lblScript.setBounds(10, 14, 80, 14);
-		frmTaskManager.getContentPane().add(lblScript);
 		
 		lblAmount = new JLabel("Amount:");
 		lblAmount.setVisible(false);
-		lblAmount.setBounds(10, 67, 49, 14);
+		lblAmount.setBounds(190, 148, 49, 14);
 		frmTaskManager.getContentPane().add(lblAmount);
 
 		lblAmountDescription = new JLabel("");
 		lblAmountDescription.setVisible(false);
-		lblAmountDescription.setHorizontalAlignment(SwingConstants.TRAILING);
-		lblAmountDescription.setBounds(139, 67, 165, 14);
+		lblAmountDescription.setHorizontalAlignment(SwingConstants.LEFT);
+		lblAmountDescription.setBounds(319, 148, 165, 14);
 		frmTaskManager.getContentPane().add(lblAmountDescription);
 		
 		spinAmount = new JSpinner();
@@ -326,12 +330,12 @@ public class TaskEngineGUI {
 	        	updateAmountDescription();
 	        }
 	    });
-		spinAmount.setBounds(69, 64, 60, 20);
+		spinAmount.setBounds(249, 145, 60, 20);
 		frmTaskManager.getContentPane().add(spinAmount);
 		
 		JScrollPane scrollTasksPane = new JScrollPane();
 		scrollTasksPane.setBorder(new LineBorder(Color.DARK_GRAY, 1, true));
-		scrollTasksPane.setBounds(10, 126, 264, 118);
+		scrollTasksPane.setBounds(220, 207, 416, 118);
 		frmTaskManager.getContentPane().add(scrollTasksPane);
 		
 		tasksModel = new DefaultListModel<Script>();
@@ -355,7 +359,7 @@ public class TaskEngineGUI {
 		
 		JButton btnAdd = new JButton("Add");
 		btnAdd.setFocusable(false);
-		btnAdd.setBounds(224, 92, 80, 23);
+		btnAdd.setBounds(190, 176, 89, 23);
 		btnAdd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				addScript(-1);
@@ -365,7 +369,7 @@ public class TaskEngineGUI {
 		
 		JButton btnRemove = new JButton("Remove");
 		btnRemove.setFocusable(false);
-		btnRemove.setBounds(10, 92, 80, 23);
+		btnRemove.setBounds(294, 176, 89, 23);
 		btnRemove.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				int index = listTasks.getSelectedIndex();
@@ -384,7 +388,7 @@ public class TaskEngineGUI {
 		btnReplace = new JButton("Replace");
 		btnReplace.setVisible(false);
 		btnReplace.setFocusable(false);
-		btnReplace.setBounds(119, 92, 80, 23);
+		btnReplace.setBounds(395, 176, 89, 23);
 		btnReplace.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				int replaceIndex = listTasks.getSelectedIndex();
@@ -397,7 +401,7 @@ public class TaskEngineGUI {
 		frmTaskManager.getContentPane().add(btnReplace);
 		btnMoveUp = new JButton("\u2191");
 		btnMoveUp.setMargin(new Insets(0, 0, 0, 0));
-		btnMoveUp.setBounds(284, 124, 20, 40);
+		btnMoveUp.setBounds(191, 205, 20, 40);
 		btnMoveUp.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				int replaceIndex = listTasks.getSelectedIndex();
@@ -414,7 +418,7 @@ public class TaskEngineGUI {
 		
 		btnMoveDown = new JButton("\u2193");
 		btnMoveDown.setMargin(new Insets(0, 0, 0, 0));
-		btnMoveDown.setBounds(284, 204, 20, 40);
+		btnMoveDown.setBounds(191, 285, 20, 40);
 		btnMoveDown.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				int replaceIndex = listTasks.getSelectedIndex();
@@ -458,7 +462,7 @@ public class TaskEngineGUI {
 				
 			}
 		});
-		btnSaveList.setBounds(10, 283, 89, 23);
+		btnSaveList.setBounds(294, 337, 89, 23);
 		frmTaskManager.getContentPane().add(btnSaveList);
 		
 		JButton btnLoadList = new JButton("Load List");
@@ -475,14 +479,20 @@ public class TaskEngineGUI {
 						List<SaveData> scriptSettings = gson.fromJson(reader, type);
 						SaveData sd = null;
 						for (int i = 0; i < scriptSettings.size(); i++) {
-							try {
+							sd = scriptSettings.get(i);
+							Script script = Utilities.getScriptFromName(sd.getName());
+							if (script != null) {
+								script.loadState(sd.getData());
+								tasksModel.addElement(script);
+							}
+							/*try {
 								sd = scriptSettings.get(i);
 								Class<?> clazz = Class.forName(sd.getName());
 								if (!Script.class.isAssignableFrom(clazz)) {
 									System.out.println("class not found");
 									continue;
 								}
-								Constructor<?> ctor = clazz.getConstructor();
+								Constructor<?> ctor = clazz.getDeclaredConstructor();
 								Object object = ctor.newInstance();
 								if (object == null) {
 									System.out.println("null object");
@@ -495,7 +505,7 @@ public class TaskEngineGUI {
 									tasksModel.addElement(script);
 								}
 							} catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException | ClassNotFoundException e2) {
-							}
+							}*/
 						}
 					} catch (IOException e1) {
 						e1.printStackTrace();
@@ -503,7 +513,7 @@ public class TaskEngineGUI {
 				}
 			}
 		});
-		btnLoadList.setBounds(114, 283, 89, 23);
+		btnLoadList.setBounds(395, 337, 89, 23);
 		frmTaskManager.getContentPane().add(btnLoadList);
 		
 		JButton btnBrowse = new JButton("Select");
@@ -513,12 +523,34 @@ public class TaskEngineGUI {
 			}
 		});
 		btnBrowse.setFocusable(false);
-		btnBrowse.setBounds(215, 283, 89, 23);
+		btnBrowse.setBounds(190, 337, 89, 23);
 		frmTaskManager.getContentPane().add(btnBrowse);
 		
 		lblFileName = new JLabel("");
-		lblFileName.setBounds(10, 255, 294, 17);
+		lblFileName.setBounds(10, 339, 174, 17);
 		frmTaskManager.getContentPane().add(lblFileName);
+		
+		panelDetails = new JPanel();
+		scriptDetailsBorder = new TitledBorder(new LineBorder(Color.DARK_GRAY, 1, true), "---", TitledBorder.LEADING, TitledBorder.TOP, null, Color.WHITE);
+		panelDetails.setBorder(scriptDetailsBorder);
+		
+		//new TitledBorder(new LineBorder(Color.DARK_GRAY, 1, true), "Script Details", TitledBorder.LEADING, TitledBorder.TOP, null, Color.WHITE)
+		panelDetails.setBounds(190, 5, 294, 100);
+		frmTaskManager.getContentPane().add(panelDetails);
+		panelDetails.setLayout(null);
+		
+		txtDescription = new JTextArea();
+		txtDescription.setLineWrap(true);
+		txtDescription.setWrapStyleWord(true);
+		txtDescription.setFont(new Font("Tahoma", Font.PLAIN, 11));
+		txtDescription.setOpaque(false);
+		txtDescription.setBounds(11, 17, 273, 76);
+		panelDetails.add(txtDescription);
+		
+		txtSearch = new JTextField();
+		txtSearch.setBounds(10, 11, 170, 20);
+		frmTaskManager.getContentPane().add(txtSearch);
+		txtSearch.setColumns(10);
 		
 		updateConditions();
 		updateSkills();
@@ -553,22 +585,15 @@ public class TaskEngineGUI {
 				task.setAmount(0);
 			} else if (cbxConditon.getSelectedItem() == Condition.Level) {
 				task.setAmount(Long.valueOf((int) spinAmount.getValue()));
-				task.setConditionItem(cbxSkills.getSelectedItem());
+				task.setConditionItem((Skill) cbxSkills.getSelectedItem());
 			}
 			Script script = null;
-			try {
+			/*try {
 				script = (Script) selectedScript.clone();
 			} catch (CloneNotSupportedException e1) {
 				e1.printStackTrace();
-			}
-			/*try {
-				Class<?> clazz = Class.forName(scripts.get(index).getClass().getName());
-				Constructor<?> ctor = clazz.getConstructor();
-				Object object = ctor.newInstance();
-				script = (Script) object;
-			} catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-				
 			}*/
+			script = Utilities.getScriptFromName(selectedScript.getClass().getName());
 			if (script != null) {
 				script.setTask(task);
 				script.setTaskScript(true);
@@ -624,10 +649,12 @@ public class TaskEngineGUI {
 			spinAmount.setEnabled(false);
 			spinAmount.setVisible(false);
 			lblAmount.setVisible(false);
+			lblAmountDescription.setVisible(false);
 		} else {
 			spinAmount.setEnabled(true);
 			spinAmount.setVisible(true);
 			lblAmount.setVisible(true);
+			lblAmountDescription.setVisible(true);
 		}
 	}
 	
@@ -651,16 +678,17 @@ public class TaskEngineGUI {
 					lblAmountDescription.setText((amount / 60) + " Hour" + (amount / 60 > 1 ? "s" : "") + ", " + (amount % 60) + " Minute" + (amount % 60 > 1 ? "s" : ""));
 				} else
 					lblAmountDescription.setText(amount + " Minute" + (amount > 1 ? "s" : ""));
-			}else if (cbxConditon.getSelectedItem() == Condition.Continually)
+			} else if (cbxConditon.getSelectedItem() == Condition.Continually) {
 				lblAmountDescription.setText("Infinitely/Completed");
-			else if (cbxConditon.getSelectedItem() == Condition.Level) {
+			} else if (cbxConditon.getSelectedItem() == Condition.Level) {
 				if (amount > 99) {
 					spinAmount.setValue(99);
 					amount = 99;
 				}
 				lblAmountDescription.setText("Level " + amount);
-			}else
+			} else {
 				lblAmountDescription.setText(amount + " time(s).");
+			}
 		} else if (amount == 0) {
 			lblAmountDescription.setText("Infinitely/Completed.");
 		}

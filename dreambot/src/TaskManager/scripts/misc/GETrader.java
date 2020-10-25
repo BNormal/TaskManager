@@ -32,7 +32,7 @@ import TaskManager.ScriptDetails;
 import TaskManager.scripts.misc.GETraderGUI.OfferItem;
 import TaskManager.utilities.Utilities;
 
-@ScriptDetails(author = "NumberZ", category = Category.MISC, name = "GE Trader", version = 1.0, description = "Buy and sell items at the Grand Exchange")
+@ScriptDetails(author = "NumberZ", category = Category.MISC, name = "GE Trader", version = 1.0, description = "Buy and sell items at the Grand Exchange.")
 public class GETrader extends Script {
 	private State state = null;
 	private GETraderGUI gui;
@@ -47,6 +47,10 @@ public class GETrader extends Script {
 	private OfferStatus status = OfferStatus.MAKING_OFFER;
 	private int COINS = 995;
 
+	public GETrader() {
+		gui = new GETraderGUI(getScriptDetails().name());
+	}
+	
 	private enum OfferStatus {
 		MAKING_OFFER, WAITING_ON_OFFER
 	}
@@ -67,10 +71,6 @@ public class GETrader extends Script {
 				return State.SELLING;
 		}
 		return State.NOTHING;
-	}
-	
-	public GETrader() {
-		gui = new GETraderGUI(getScriptDetails().name());
 	}
 	
 	@Override

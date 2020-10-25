@@ -7,7 +7,6 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.dreambot.api.data.GameState;
 import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.MethodProvider;
 import org.dreambot.api.methods.container.impl.Inventory;
@@ -23,6 +22,7 @@ import org.dreambot.api.methods.skills.SkillTracker;
 import org.dreambot.api.methods.skills.Skills;
 import org.dreambot.api.methods.walking.impl.Walking;
 import org.dreambot.api.methods.walking.web.node.impl.bank.WebBankArea;
+import org.dreambot.api.methods.widget.Widgets;
 import org.dreambot.api.script.Category;
 import org.dreambot.api.wrappers.interactive.GameObject;
 import org.dreambot.api.wrappers.items.Item;
@@ -38,7 +38,7 @@ import TaskManager.utilities.Utilities;
 import TaskManager.scripts.woodcutting.WoodcutterData.Tree;
 import TaskManager.scripts.woodcutting.WoodcutterData.Axe;
 
-@ScriptDetails(author = "NumberZ", category = Category.WOODCUTTING, name = "Woodcutter", version = 1.0, description = "Cuts trees in various areas")
+@ScriptDetails(author = "NumberZ", category = Category.WOODCUTTING, name = "Woodcutter", version = 1.0, description = "Cuts trees in various areas.")
 public class Woodcutter extends Script {
 	private String Axe = "axe";
 	private boolean tracking = false;
@@ -78,7 +78,7 @@ public class Woodcutter extends Script {
 
 	@Override
 	public int onLoop() {
-		if (!GameState.values().equals(GameState.LOGGED_IN)) {
+		if (Widgets.getWidget(122) == null) {
 			return 0;
 		} else if (!tracking && getLocalPlayer().isOnScreen()) {
 			tracking = true;

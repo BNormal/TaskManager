@@ -58,6 +58,7 @@ public class TaskEngine extends AbstractScript implements MouseListener, MouseMo
 						int x = (int) (clientLocation.getX() + clientDimension.getWidth() / 2.0);
 						int y = (int) (clientLocation.getY() + clientDimension.getHeight() / 2.0);
 						gui = new TaskEngineGUI(x, y);
+						sleep(300);
 						gui.open();
 					} catch (Exception e) {
 						MethodProvider.log(e.getLocalizedMessage());

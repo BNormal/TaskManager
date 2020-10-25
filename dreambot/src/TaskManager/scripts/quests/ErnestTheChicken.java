@@ -25,7 +25,6 @@ import org.dreambot.api.methods.tabs.Tabs;
 import org.dreambot.api.methods.walking.impl.Walking;
 import org.dreambot.api.methods.widget.Widgets;
 import org.dreambot.api.script.Category;
-import org.dreambot.api.wrappers.interactive.GameObject;
 import org.dreambot.api.wrappers.items.GroundItem;
 import org.dreambot.api.wrappers.widgets.WidgetChild;
 
@@ -33,7 +32,7 @@ import TaskManager.Script;
 import TaskManager.ScriptDetails;
 import TaskManager.utilities.Utilities;
 
-@ScriptDetails(author = "NumberZ", category = Category.QUEST, name = "Ernest The Chicken", version = 1.0, description = "Completes Ernest The Chicken quest")
+@ScriptDetails(author = "NumberZ", category = Category.QUEST, name = "Ernest The Chicken", version = 1.0, description = "Completes the Ernest The Chicken quest.")
 public class ErnestTheChicken extends Script {
 	private State state;
 	private int progressId = -1;
@@ -45,6 +44,10 @@ public class ErnestTheChicken extends Script {
 	private int[] mansionX = {3091, 3091, 3097, 3097, 3119, 3120, 3126, 3126};
 	private int[] mansionY = {3354, 3363, 3363, 3373, 3373, 3360, 3361, 3354};
 	private Shape mansionArea = new Polygon(mansionX, mansionY, 8);
+	
+	public ErnestTheChicken() {
+		
+	}
 	
 	private enum State {
 		PROGRESS, DIALOGUE, FINISHED, NOTHING;
@@ -69,7 +72,9 @@ public class ErnestTheChicken extends Script {
 			if (questStatus.getTextColor() == 16711680) {//not started/red
 				return 0;
 			} else if (questStatus.getTextColor() == 16776960) {//started/yellow
-				return 1;//should be 1 here
+				if (gatherItemsId == -1)
+					gatherItemsId = 0;
+				return 3;//should be 1 here
 			} else if (questStatus.getTextColor() == 901389) {//completed/green
 				return 6;
 			}
@@ -101,15 +106,6 @@ public class ErnestTheChicken extends Script {
 		default: return "Identifying progress...";
 		}
 	}
-	
-	public GameObject getObject(Tile tile, String name) {
-		GameObject[] objects = GameObjects.getGameObjects().getObjectsOnTile(tile);
-		for (int i = 0; i < objects.length; i++) {
-			if (objects[i].getName().toLowerCase().contains(name.toLowerCase()))
-				return objects[i];
-		}
-		return null;
-	}
 
 	@Override
 	public void onStart() {
@@ -118,6 +114,8 @@ public class ErnestTheChicken extends Script {
 
 	@Override
 	public int onLoop() {
+		if (Widgets.getWidget(122) == null)
+			return 0;
 		state = getState();
 		switch (state) {
 		case PROGRESS:
@@ -140,7 +138,7 @@ public class ErnestTheChicken extends Script {
 					}
 				} else if (getLocalPlayer().getY() >= 3354 && getLocalPlayer().getZ() == 0) {
 					if (!Map.canReach(new Tile(3109, 3359, 0))) {
-						getObject(new Tile(3109, 3358, 0), "Door").interactForceRight("Open");//rc
+						Utilities.getObject(new Tile(3109, 3358, 0), "Door").interactForceRight("Open");//rc
 						sleepUntil(() -> Map.canReach(new Tile(3109, 3359, 0)), 6000);
 					} else {
 						if (getLocalPlayer().distance(GameObjects.closest("Staircase")) < 4) {
@@ -154,11 +152,11 @@ public class ErnestTheChicken extends Script {
 					}
 					
 				} else if (getLocalPlayer().getY() >= 3354 && getLocalPlayer().getZ() == 1) {
-					getObject(new Tile(3104, 3362, 1), "Staircase").interact();//lc
+					Utilities.getObject(new Tile(3104, 3362, 1), "Staircase").interact();//lc
 					sleepUntil(() -> getLocalPlayer().getZ() == 2, 6000);
 				} else if (getLocalPlayer().getY() >= 3354 && getLocalPlayer().getZ() == 2) {//floor with ernest
 					if (!Map.canReach(new Tile(3109, 3364, 2))) {
-						getObject(new Tile(3108, 3364, 2), "Door").interact("Open");//lc
+						Utilities.getObject(new Tile(3108, 3364, 2), "Door").interact("Open");//lc
 						sleepUntil(() -> Map.canReach(new Tile(3109, 3364, 2)), 6000);
 					} else {
 						NPCs.closest("Professor Oddenstein").interact();
@@ -168,7 +166,7 @@ public class ErnestTheChicken extends Script {
 			} else if (progressId == 3) {//look for stuff
 				if (getLocalPlayer().getZ() == 2) {
 					if (!Map.canReach(new Tile(3107, 3364, 2))) {
-						getObject(new Tile(3108, 3364, 2), "Door").interact("Open");//lc
+						Utilities.getObject(new Tile(3108, 3364, 2), "Door").interact("Open");//lc
 						sleepUntil(() -> Map.canReach(new Tile(3107, 3364, 2)), 6000);
 					} else {
 						GameObjects.closest("Staircase").interact();
@@ -181,7 +179,7 @@ public class ErnestTheChicken extends Script {
 							Walking.walk(new Tile(3116, 3364, 1));
 							sleepUntil(() -> getLocalPlayer().isMoving(), 6000);
 							sleepUntil(() -> !getLocalPlayer().isMoving(), 6000);
-							getObject(new Tile(3116, 3361, 1), "Door").interact("Open");//lc
+							Utilities.getObject(new Tile(3116, 3361, 1), "Door").interact("Open");//lc
 							sleepUntil(() -> Map.canReach(new Tile(3116, 3361, 1)), 6000);
 						} else {
 							GroundItems.closest("Fish food").interactForceRight("Take");
@@ -195,26 +193,29 @@ public class ErnestTheChicken extends Script {
 						gatherItemsId = 2;
 					else if (getLocalPlayer().getZ() == 1) {
 						if (!Map.canReach(new Tile(3116, 3362, 1))) {
-							getObject(new Tile(3116, 3361, 1), "Door").interact("Open");//lc
+							Utilities.getObject(new Tile(3116, 3361, 1), "Door").interact("Open");//lc
 							sleepUntil(() -> Map.canReach(new Tile(3116, 3362, 1)), 6000);
 						} else {
-							getObject(new Tile(3108, 3364, 1), "Staircase").interact();//lc
+							Utilities.getObject(new Tile(3108, 3364, 1), "Staircase").interact();//lc
 							sleepUntil(() -> getLocalPlayer().getZ() == 0, 6000);
 						}
 					} else if (getLocalPlayer().getZ() == 0) {
 						if (!Inventory.contains("Poison") && !Inventory.contains("Poisoned fish food") && getLocalPlayer().distance(new Tile(3089, 3337, 0)) > 6) {
 							if (!Map.canReach(new Tile(3106, 3369, 0))) {
-								getObject(new Tile(3106, 3368, 0), "Door").interactForceRight("Open");//rc
+								Utilities.getObject(new Tile(3106, 3368, 0), "Door").interactForceRight("Open");//rc
 								sleepUntil(() -> Map.canReach(new Tile(3106, 3369, 0)), 6000);
 							} else if (!Map.canReach(new Tile(3101, 3371, 0))) {
-								getObject(new Tile(3101, 3371, 0), "Door").interact("Open");//lc
+								Utilities.getObject(new Tile(3101, 3371, 0), "Door").interact("Open");//lc
 								sleepUntil(() -> Map.canReach(new Tile(3101, 3371, 0)), 6000);
 							} else if (!Map.canReach(new Tile(3099, 3366, 0))) {
-								getObject(new Tile(3099, 3366, 0), "Door").interact("Open");//lc
+								Utilities.getObject(new Tile(3099, 3366, 0), "Door").interact("Open");//lc
 								sleepUntil(() -> Map.canReach(new Tile(3099, 3366, 0)), 6000);
 							} else {
-								GroundItems.closest("Poison").interactForceRight("Take");
-								sleepUntil(() -> Inventory.contains("Poison"), 6000);
+								GroundItem poison = GroundItems.closest("Poison");
+								if (poison != null) {
+									GroundItems.closest("Poison").interactForceRight("Take");
+									sleepUntil(() -> Inventory.contains("Poison"), 6000);
+								}
 							}
 						} else {
 							if (mansionArea.contains(getLocalPlayer().getX(), getLocalPlayer().getY())) {
@@ -223,16 +224,16 @@ public class ErnestTheChicken extends Script {
 									sleepUntil(() -> Inventory.contains("Spade"), 6000);
 								}
 								if (!Map.canReach(new Tile(3099, 3367, 0))) {
-									getObject(new Tile(3099, 3366, 0), "Door").interact("Open");//lc
+									Utilities.getObject(new Tile(3099, 3366, 0), "Door").interact("Open");//lc
 									sleepUntil(() -> Map.canReach(new Tile(3099, 3367, 0)), 6000);
 								} else if (!Map.canReach(new Tile(3102, 3371, 0))) {
-									getObject(new Tile(3101, 3371, 0), "Door").interact("Open");//lc
+									Utilities.getObject(new Tile(3101, 3371, 0), "Door").interact("Open");//lc
 									sleepUntil(() -> Map.canReach(new Tile(3102, 3371, 0)), 6000);
 								} else if (getLocalPlayer().distance(new Tile(3119, 3356, 0)) < 8 && !Map.canReach(new Tile(3120, 3356, 0))) {
-									getObject(new Tile(3120, 3356, 0), "Door").interactForceRight("Open");//rc
+									Utilities.getObject(new Tile(3120, 3356, 0), "Door").interactForceRight("Open");//rc
 									sleepUntil(() -> Map.canReach(new Tile(3120, 3356, 0)), 6000);
 								} else if (Map.canReach(new Tile(3123, 3360, 0)) && Inventory.contains("Spade")) {
-									getObject(new Tile(3123, 3361, 0), "Door").interact("Open");//lc
+									Utilities.getObject(new Tile(3123, 3361, 0), "Door").interact("Open");//lc
 									sleepUntil(() -> !mansionArea.contains(getLocalPlayer().getX(), getLocalPlayer().getY()), 6000);
 								} else if (Map.canReach(new Tile(3123, 3360, 0)) && !Inventory.contains("Spade")) {
 									Walking.walk(new Tile(3122 + Calculations.random(-1, 2), 3358 + Calculations.random(-1, 2), 0));
@@ -293,7 +294,7 @@ public class ErnestTheChicken extends Script {
 							rubberTube.interactForceRight("Take");
 							sleepUntil(() -> Inventory.contains("Rubber tube"), 6000);
 						} else if (!Map.canReach(new Tile(3109, 3359, 0))) {
-							getObject(new Tile(3109, 3358, 0), "Door").interactForceRight("Open");//rc
+							Utilities.getObject(new Tile(3109, 3358, 0), "Door").interactForceRight("Open");//rc
 							sleepUntil(() -> Map.canReach(new Tile(3109, 3359, 0)), 6000);
 						} else if (!Map.canReach(new Tile(3108, 3368, 0)) && !Inventory.contains("Rubber tube")) {
 							if (getLocalPlayer().distance(new Tile(3106, 3367, 0)) > 3) {
@@ -304,7 +305,7 @@ public class ErnestTheChicken extends Script {
 								if (Walking.getRunEnergy() >= 2 && !Walking.isRunEnabled()) {
 									Walking.toggleRun();
 								} else if (rubberTube != null && rubberTube.exists()) {
-									getObject(new Tile(3107, 3367, 0), "Door").interactForceRight("Open");//rc
+									Utilities.getObject(new Tile(3107, 3367, 0), "Door").interactForceRight("Open");//rc
 									sleepUntil(() -> Map.canReach(new Tile(3108, 3368, 0)), 6000);
 								}
 							}
@@ -315,16 +316,16 @@ public class ErnestTheChicken extends Script {
 						if (getLocalPlayer().getY() < 9000) {
 							if (getLocalPlayer().getX() >= 3097) {
 								if (Map.canReach(new Tile(3108, 3367, 0))) {
-									getObject(new Tile(3107, 3367, 0), "Door").interactForceRight("Open");//rc
+									Utilities.getObject(new Tile(3107, 3367, 0), "Door").interactForceRight("Open");//rc
 									sleepUntil(() -> !Map.canReach(new Tile(3108, 3367, 0)), 6000);
 								} else if (!Map.canReach(new Tile(3106, 3369, 0))) {
-									getObject(new Tile(3106, 3368, 0), "Door").interact("Open");//lc
+									Utilities.getObject(new Tile(3106, 3368, 0), "Door").interact("Open");//lc
 									sleepUntil(() -> Map.canReach(new Tile(3106, 3369, 0)), 6000);
 								} else if (!Map.canReach(new Tile(3103, 3363, 0))) {
-									getObject(new Tile(3103, 3364, 0), "Door").interact("Open");//lc
+									Utilities.getObject(new Tile(3103, 3364, 0), "Door").interact("Open");//lc
 									sleepUntil(() -> Map.canReach(new Tile(3103, 3363, 0)), 6000);
 								} else if (!Map.canReach(new Tile(3103, 3363, 0))) {
-									getObject(new Tile(3103, 3364, 0), "Door").interact("Open");//lc
+									Utilities.getObject(new Tile(3103, 3364, 0), "Door").interact("Open");//lc
 									sleepUntil(() -> Map.canReach(new Tile(3103, 3363, 0)), 6000);
 								} else if (Map.canReach(GameObjects.closest("Bookcase"))) {
 									GameObjects.closest("Bookcase").interactForceRight("Search");
@@ -503,7 +504,7 @@ public class ErnestTheChicken extends Script {
 						GameObjects.closest("Lever").interactForceRight("Pull");
 						sleepUntil(() -> Map.canReach(new Tile(3098, 3359, 0)), 6000);
 					} else if (!Map.canReach(new Tile(3103, 3365, 0))) {
-						getObject(new Tile(3103, 3364, 0), "Door").interactForceRight("Open");//rc
+						Utilities.getObject(new Tile(3103, 3364, 0), "Door").interactForceRight("Open");//rc
 						sleepUntil(() -> !Map.canReach(new Tile(3103, 3365, 0)), 6000);
 					} else if (!Map.canReach(new Tile(3106, 3367, 0))) {
 						if (getLocalPlayer().distance(new Tile(3106, 3368, 0)) < 4) {
@@ -511,7 +512,7 @@ public class ErnestTheChicken extends Script {
 							sleepUntil(() -> getLocalPlayer().isMoving(), 6000);
 							sleepUntil(() -> getLocalPlayer().distance(new Tile(3106, 3368, 0)) < 6, 6000);
 						} else {
-							getObject(new Tile(3106, 3368, 0), "Door").interactForceRight("Open");//rc
+							Utilities.getObject(new Tile(3106, 3368, 0), "Door").interactForceRight("Open");//rc
 							sleepUntil(() -> !Map.canReach(new Tile(3106, 3367, 0)), 6000);
 						}
 					} else {
@@ -519,11 +520,11 @@ public class ErnestTheChicken extends Script {
 						sleepUntil(() -> getLocalPlayer().getZ() == 1, 6000);
 					}
 				} else if (getLocalPlayer().getZ() == 1) {
-					getObject(new Tile(3104, 3362, 1), "Staircase").interact();//lc
+					Utilities.getObject(new Tile(3104, 3362, 1), "Staircase").interact();//lc
 					sleepUntil(() -> getLocalPlayer().getZ() == 2, 6000);
 				} else if (getLocalPlayer().getZ() == 2) {//floor with ernest
 					if (!Map.canReach(new Tile(3107, 3364, 2))) {
-						getObject(new Tile(3108, 3364, 2), "Door").interact("Open");//lc
+						Utilities.getObject(new Tile(3108, 3364, 2), "Door").interact("Open");//lc
 						sleepUntil(() -> Map.canReach(new Tile(3107, 3364, 2)), 6000);
 					} else if (Map.canReach(NPCs.closest("Professor Oddenstein"))) {
 						NPCs.closest("Professor Oddenstein").interact();
