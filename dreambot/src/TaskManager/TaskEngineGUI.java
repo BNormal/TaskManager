@@ -12,6 +12,8 @@ import javax.swing.JLabel;
 import javax.swing.UIManager;
 import javax.swing.JSpinner;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -57,11 +59,13 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
+import TaskManager.utilities.Node;
 import TaskManager.utilities.SaveData;
+import TaskManager.utilities.TreeFilter;
 import TaskManager.utilities.Utilities;
 
-import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.event.TreeSelectionEvent;
@@ -217,21 +221,22 @@ public class TaskEngineGUI {
 		spScripts.setBounds(10, 42, 170, 283);
 		frmTaskManager.getContentPane().add(spScripts);
 		
-		DefaultMutableTreeNode treeTitleNode = new DefaultMutableTreeNode("Scripts");
-		DefaultTreeModel treeScriptsModel = new DefaultTreeModel(treeTitleNode);
-		Map<String, DefaultMutableTreeNode> uniqueCategories = new TreeMap<String, DefaultMutableTreeNode>();
+		Node root = new Node("Scripts");
+		Map<String, Node> uniqueCategories = new TreeMap<String, Node>();
 		for (int i = 0; i < scripts.size(); i++) {
 			Category c = scripts.get(i).getScriptDetails().category();
-			DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(c);
+			Node treeNode = new Node(c);
 			if (!uniqueCategories.containsKey(c.name()))
 				uniqueCategories.put(c.name(), treeNode);
 		}
-		for (DefaultMutableTreeNode node : uniqueCategories.values())
-			treeTitleNode.add(node);
+		for (Node node : uniqueCategories.values()) {
+			root.add(node);
+		}
 		for (Script script : scripts)
-			uniqueCategories.get(script.getScriptDetails().category().name()).add(new DefaultMutableTreeNode(script));
+			uniqueCategories.get(script.getScriptDetails().category().name()).add(new Node(script));
 		
-		JTree treeScripts = new JTree();
+		DefaultTreeModel treeScriptsModel = new DefaultTreeModel(root);
+		TreeFilter treeScripts = new TreeFilter(treeScriptsModel);
 		treeScripts.addTreeSelectionListener(new TreeSelectionListener() {
 			public void valueChanged(TreeSelectionEvent arg0) {
 				DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) treeScripts.getLastSelectedPathComponent();
@@ -250,8 +255,47 @@ public class TaskEngineGUI {
 				}
 			}
 		});
-		treeScripts.setModel(treeScriptsModel);
 		spScripts.setViewportView(treeScripts);
+		
+		txtSearch = new JTextField();
+		txtSearch.setBounds(10, 11, 170, 20);
+		txtSearch.setColumns(10);
+		txtSearch.getDocument().addDocumentListener(new DocumentListener() {
+			@Override
+			public void changedUpdate(DocumentEvent arg0) {
+				handle();
+			}
+
+			@Override
+			public void insertUpdate(DocumentEvent arg0) {
+				handle();
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent arg0) {
+				handle();
+			}
+			public void handle() {
+				String f = txtSearch.getText().trim();
+				Node currentRoot = (Node) treeScripts.getModel().getRoot();
+				Enumeration<TreePath> en = currentRoot != null ?
+					treeScripts.getExpandedDescendants(new TreePath(currentRoot.getPath())) : null;
+				List<TreePath> pl = en != null ? Collections.list(en) : null;
+				if (f.length() > 0) {
+					treeScripts.setModel(new DefaultTreeModel(treeScripts.createFilteredTree(root, f)));
+				}
+				else {
+					treeScripts.setModel(treeScriptsModel);
+				}
+				if (en != null) {
+					Node r = (Node) treeScripts.getModel().getRoot();
+					if (r != null)
+						treeScripts.restoreExpandedState(r, pl, treeScripts);
+				}
+				treeScripts.repaint();
+			}
+		});
+		frmTaskManager.getContentPane().add(txtSearch);
 		
 		/*DefaultComboBoxModel<String> scriptModel = new DefaultComboBoxModel<String>();
 		cbxScripts = new JComboBox<String>(scriptModel);
@@ -546,11 +590,6 @@ public class TaskEngineGUI {
 		txtDescription.setOpaque(false);
 		txtDescription.setBounds(11, 17, 273, 76);
 		panelDetails.add(txtDescription);
-		
-		txtSearch = new JTextField();
-		txtSearch.setBounds(10, 11, 170, 20);
-		frmTaskManager.getContentPane().add(txtSearch);
-		txtSearch.setColumns(10);
 		
 		updateConditions();
 		updateSkills();
