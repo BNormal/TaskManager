@@ -283,14 +283,16 @@ public class TaskEngineGUI {
 				List<TreePath> pl = en != null ? Collections.list(en) : null;
 				if (f.length() > 0) {
 					treeScripts.setModel(new DefaultTreeModel(treeScripts.createFilteredTree(root, f)));
-				}
-				else {
+					treeScripts.expandAllNodes();
+					if (en != null) {
+						Node r = (Node) treeScripts.getModel().getRoot();
+						if (r != null) {
+							treeScripts.restoreExpandedState(r, pl, treeScripts);
+						}
+					}
+				} else {
 					treeScripts.setModel(treeScriptsModel);
-				}
-				if (en != null) {
-					Node r = (Node) treeScripts.getModel().getRoot();
-					if (r != null)
-						treeScripts.restoreExpandedState(r, pl, treeScripts);
+					treeScripts.collapseAllNodes();
 				}
 				treeScripts.repaint();
 			}

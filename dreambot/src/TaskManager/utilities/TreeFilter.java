@@ -13,6 +13,18 @@ public class TreeFilter extends JTree {
 		super(model);
 	}
 	
+	public void expandAllNodes() {
+	    for(int i = 0; i < getRowCount(); i++){
+	        expandRow(i);
+	    }
+	}
+	
+	public void collapseAllNodes() {
+	    for(int i = 1; i < getRowCount(); i++){
+	    	collapseRow(i);
+	    }
+	}
+	
 	public void restoreExpandedState(Node base, List<TreePath> exps, JTree tree) {
 		if (base == null) {
 			throw new NullPointerException();
