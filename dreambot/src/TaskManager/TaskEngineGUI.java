@@ -100,6 +100,7 @@ public class TaskEngineGUI {
 	private JTextArea txtDescription;
 	private TitledBorder scriptDetailsBorder;
 	private JTextField txtSearch;
+	private JTextArea textSettingsDetails;
 
 	/**
 	 * Launch the application.
@@ -395,7 +396,9 @@ public class TaskEngineGUI {
                 	int index = listTasks.getSelectedIndex();
                 	if (index > -1) {
                     	btnReplace.setVisible(true);
+						textSettingsDetails.setText(tasksModel.get(index).getSettingsDetails());
                 	} else {
+                		textSettingsDetails.setText("");
                 		btnReplace.setVisible(false);
                 	}
                 }
@@ -592,6 +595,16 @@ public class TaskEngineGUI {
 		txtDescription.setOpaque(false);
 		txtDescription.setBounds(11, 17, 273, 76);
 		panelDetails.add(txtDescription);
+		
+		JScrollPane scrollSettingDetails = new JScrollPane();
+		scrollSettingDetails.setBounds(494, 11, 140, 187);
+		scrollSettingDetails.setBorder(new LineBorder(Color.DARK_GRAY, 1, true));
+		frmTaskManager.getContentPane().add(scrollSettingDetails);
+		
+		textSettingsDetails = new JTextArea();
+		textSettingsDetails.setOpaque(false);
+		textSettingsDetails.setFont(new Font("Tahoma", Font.PLAIN, 11));
+		scrollSettingDetails.setViewportView(textSettingsDetails);
 		
 		updateConditions();
 		updateSkills();

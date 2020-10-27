@@ -227,6 +227,14 @@ public abstract class Script extends AbstractScript implements MouseListener, Mo
 	}
 	
 	/**
+	 * Represents the script settings as a String.
+	 * @return a <code> String </code>
+	 */
+	public String getSettingsDetails() {
+		return "";
+	}
+	
+	/**
 	 * Represents the script as a String.
 	 * @return a <code> String </code>
 	 */

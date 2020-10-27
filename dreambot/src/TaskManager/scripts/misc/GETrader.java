@@ -547,4 +547,9 @@ public class GETrader extends Script {
 		super.onExit();
 	}
 	
+	@Override
+	public String getSettingsDetails() {
+		return gui.getSettingsDetails();
+	}
+	
 }

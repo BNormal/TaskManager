@@ -70,6 +70,11 @@ public class LogOutIn extends Script {
 		setTask(gson.fromJson(preferences.get(0), TaskManager.Task.class));
 		gui.loadSaveDate(preferences.get(1));
 	}
+	
+	@Override
+	public String getSettingsDetails() {
+		return gui.getSettingsDetails();
+	}
 }
 
 

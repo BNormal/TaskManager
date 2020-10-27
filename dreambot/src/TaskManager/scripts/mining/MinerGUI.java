@@ -301,4 +301,15 @@ public class MinerGUI {
 		modelDisallowed = gson.fromJson(settings.get(3), type2);
 		modelAllowed = gson.fromJson(settings.get(4), type2);
 	}
+	
+	public String getSettingsDetails() {
+		String settings = "Location: " + cbxLocation.getSelectedItem() + 
+				"\nTree: " + cbxOreNode.getSelectedItem() + 
+				"\nPower Cuttings: " + (chckbxPowermine.isSelected() ? "Yes" : "No") +
+				"\nAllowed Pickaxes: ";
+		for (int i = 0; i < modelAllowed.size(); i++) {
+			settings += "\n* " + modelAllowed.get(i);
+		}
+		return settings;
+	}
 }

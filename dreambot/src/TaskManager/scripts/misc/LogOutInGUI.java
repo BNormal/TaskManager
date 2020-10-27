@@ -164,4 +164,9 @@ public class LogOutInGUI {
 		else
 			rdbtnLogin.setSelected(true);
 	}
+	
+	public String getSettingsDetails() {
+		String settings = (rdbtnLogout.isSelected() ? "Logging out" : "Logging into " + txtNickname.getText());
+		return settings;
+	}
 }

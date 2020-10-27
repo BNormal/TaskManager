@@ -274,6 +274,11 @@ public class Miner extends Script {
 		super.onExit();
 	}
 	
+	@Override
+	public String getSettingsDetails() {
+		return gui.getSettingsDetails();
+	}
+	
 	public static enum MiningSpot {
 		Varrock_East(WebBankArea.VARROCK_EAST.getArea(), new Area(3278, 3371, 3291, 3359, 0), OreNode.TIN_NODE, OreNode.COPPER_NODE, OreNode.IRON_NODE),
 		Varrock_West(WebBankArea.VARROCK_WEST.getArea(), new Area(new Tile(3181, 3381, 0), new Tile(3176, 3374, 0), new Tile(3171, 3369, 0), new Tile(3171, 3364, 0), new Tile(3177, 3361, 0), new Tile(3185, 3367, 0), new Tile(3186, 3379, 0)), OreNode.CLAY_NODE, OreNode.TIN_NODE, OreNode.IRON_NODE, OreNode.SILVER_NODE),

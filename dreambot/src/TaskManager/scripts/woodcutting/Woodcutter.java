@@ -286,6 +286,11 @@ public class Woodcutter extends Script {
 		gui.exit();
 		super.onExit();
 	}
+
+	@Override
+	public String getSettingsDetails() {
+		return gui.getSettingsDetails();
+	}
 	
 	public static enum WoodcuttingSpot {
 		Varrock_West(WebBankArea.VARROCK_WEST.getArea(), new Area(3160, 3423, 3170, 3411, 0), Tree.TREE, Tree.OAK_TREE),

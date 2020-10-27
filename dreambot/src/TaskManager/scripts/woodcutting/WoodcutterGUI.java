@@ -295,5 +295,17 @@ public class WoodcutterGUI {
 		modelDisallowed = gson.fromJson(settings.get(3), type2);
 		modelAllowed = gson.fromJson(settings.get(4), type2);
 	}
+
+	public String getSettingsDetails() {
+		String settings = "Location: " + cbxLocation.getSelectedItem() + 
+				"\nTree: " + cbxTree.getSelectedItem() + 
+				"\nPower Cuttings: " + (chckbxPowercut.isSelected() ? "Yes" : "No") +
+				"\nAllowed Axes: ";
+		for (int i = 0; i < modelAllowed.size(); i++) {
+			settings += "\n* " + modelAllowed.get(i);
+		}
+			
+		return settings;
+	}
 	
 }

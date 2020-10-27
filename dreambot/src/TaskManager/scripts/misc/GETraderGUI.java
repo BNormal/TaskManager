@@ -861,6 +861,14 @@ public class GETraderGUI {
 	public ArrayList<OfferItem> getOfferItems() {
 		return Collections.list(modelOffers.elements());
 	}
+	
+	public String getSettingsDetails() {
+		String settings = "";
+		for (int i = 0; i < modelOffers.size(); i++) {
+			settings += modelOffers.get(i) + "\n";
+		}
+		return settings;
+	}
 
 	public class ItemImageRenderer extends DefaultListCellRenderer {
 		private static final long serialVersionUID = 1L;
