@@ -356,7 +356,7 @@ public class ErnestTheChicken extends Script {
 							if (pulledLever)
 								puzzleStageId = 2;
 						} else if (puzzleStageId == 2) {
-							pulledLever = GameObjects.getGameObjects().getTopObjectOnTile(new Tile(3108, 9758, 0)).interactForceRight("Open");//door 1
+							pulledLever = GameObjects.getTopObjectOnTile(new Tile(3108, 9758, 0)).interactForceRight("Open");//door 1
 							sleepUntil(() -> getLocalPlayer().getY() > 9758, 12000);
 							if (pulledLever)
 								puzzleStageId = 3;
@@ -368,12 +368,12 @@ public class ErnestTheChicken extends Script {
 							if (pulledLever)
 								puzzleStageId = 4;
 						} else if (puzzleStageId == 4) {
-							pulledLever = GameObjects.getGameObjects().getTopObjectOnTile(new Tile(3105, 9760, 0)).interactForceRight("Open");//door 2
+							pulledLever = GameObjects.getTopObjectOnTile(new Tile(3105, 9760, 0)).interactForceRight("Open");//door 2
 							sleepUntil(() -> getLocalPlayer().getX() < 3105, 6000);
 							if (pulledLever)
 								puzzleStageId = 5;
 						} else if (puzzleStageId == 5) {
-							pulledLever = GameObjects.getGameObjects().getTopObjectOnTile(new Tile(3102, 9758, 0)).interactForceRight("Open");//door 3
+							pulledLever = GameObjects.getTopObjectOnTile(new Tile(3102, 9758, 0)).interactForceRight("Open");//door 3
 							sleepUntil(() -> getLocalPlayer().getY() < 9758, 6000);
 							puzzleStageId = 6;
 						} else if (puzzleStageId == 6) {
@@ -397,17 +397,17 @@ public class ErnestTheChicken extends Script {
 							if (pulledLever)
 								puzzleStageId = 8;
 						} else if (puzzleStageId == 8) {
-							pulledLever = GameObjects.getGameObjects().getTopObjectOnTile(new Tile(3102, 9758, 0)).interactForceRight("Open");//door 3
+							pulledLever = GameObjects.getTopObjectOnTile(new Tile(3102, 9758, 0)).interactForceRight("Open");//door 3
 							sleepUntil(() -> getLocalPlayer().getY() > 9758, 12000);
 							if (pulledLever)
 								puzzleStageId = 9;
 						} else if (puzzleStageId == 9) {
-							pulledLever = GameObjects.getGameObjects().getTopObjectOnTile(new Tile(3100, 9760, 0)).interactForceRight("Open");//door 4
+							pulledLever = GameObjects.getTopObjectOnTile(new Tile(3100, 9760, 0)).interactForceRight("Open");//door 4
 							sleepUntil(() -> getLocalPlayer().getX() < 3100, 6000);
 							if (pulledLever)
 								puzzleStageId = 10;
 						} else if (puzzleStageId == 10) {
-							pulledLever = GameObjects.getGameObjects().getTopObjectOnTile(new Tile(3097, 9763, 0)).interactForceRight("Open");//door 5
+							pulledLever = GameObjects.getTopObjectOnTile(new Tile(3097, 9763, 0)).interactForceRight("Open");//door 5
 							sleepUntil(() -> getLocalPlayer().getY() > 9763, 6000);
 							if (pulledLever)
 								puzzleStageId = 11;
@@ -426,12 +426,12 @@ public class ErnestTheChicken extends Script {
 							if (pulledLever)
 								puzzleStageId = 13;
 						} else if (puzzleStageId == 13) {
-							pulledLever = GameObjects.getGameObjects().getTopObjectOnTile(new Tile(3100, 9765, 0)).interactForceRight("Open");//door 6
+							pulledLever = GameObjects.getTopObjectOnTile(new Tile(3100, 9765, 0)).interactForceRight("Open");//door 6
 							sleepUntil(() -> getLocalPlayer().getX() > 3100, 6000);
 							if (pulledLever)
 								puzzleStageId = 14;
 						} else if (puzzleStageId == 14) {
-							pulledLever = GameObjects.getGameObjects().getTopObjectOnTile(new Tile(3105, 9765, 0)).interactForceRight("Open");//door 7
+							pulledLever = GameObjects.getTopObjectOnTile(new Tile(3105, 9765, 0)).interactForceRight("Open");//door 7
 							sleepUntil(() -> getLocalPlayer().getX() > 3105, 6000);
 							if (pulledLever)
 								puzzleStageId = 15;
@@ -443,12 +443,12 @@ public class ErnestTheChicken extends Script {
 							if (pulledLever)
 								puzzleStageId = 16;
 						} else if (puzzleStageId == 16) {
-							pulledLever = GameObjects.getGameObjects().getTopObjectOnTile(new Tile(3105, 9765, 0)).interactForceRight("Open");//door 7
+							pulledLever = GameObjects.getTopObjectOnTile(new Tile(3105, 9765, 0)).interactForceRight("Open");//door 7
 							sleepUntil(() -> getLocalPlayer().getX() < 3105, 6000);
 							if (pulledLever)
 								puzzleStageId = 17;
 						} else if (puzzleStageId == 17) {
-							pulledLever = GameObjects.getGameObjects().getTopObjectOnTile(new Tile(3100, 9765, 0)).interactForceRight("Open");//door 6
+							pulledLever = GameObjects.getTopObjectOnTile(new Tile(3100, 9765, 0)).interactForceRight("Open");//door 6
 							sleepUntil(() -> getLocalPlayer().getX() < 3100, 6000);
 							if (pulledLever)
 								puzzleStageId = 18;
@@ -460,22 +460,22 @@ public class ErnestTheChicken extends Script {
 							if (pulledLever)
 								puzzleStageId = 19;
 						} else if (puzzleStageId == 19) {
-							pulledLever = GameObjects.getGameObjects().getTopObjectOnTile(new Tile(3100, 9765, 0)).interactForceRight("Open");//door 6
+							pulledLever = GameObjects.getTopObjectOnTile(new Tile(3100, 9765, 0)).interactForceRight("Open");//door 6
 							sleepUntil(() -> getLocalPlayer().getX() > 3100, 6000);
 							if (pulledLever)
 								puzzleStageId = 20;
 						} else if (puzzleStageId == 20) {
-							pulledLever = GameObjects.getGameObjects().getTopObjectOnTile(new Tile(3102, 9763, 0)).interactForceRight("Open");//door 8
+							pulledLever = GameObjects.getTopObjectOnTile(new Tile(3102, 9763, 0)).interactForceRight("Open");//door 8
 							sleepUntil(() -> getLocalPlayer().getY() < 9763, 6000);
 							if (pulledLever)
 								puzzleStageId = 21;
 						} else if (puzzleStageId == 21) {
-							pulledLever = GameObjects.getGameObjects().getTopObjectOnTile(new Tile(3102, 9758, 0)).interactForceRight("Open");//door 3
+							pulledLever = GameObjects.getTopObjectOnTile(new Tile(3102, 9758, 0)).interactForceRight("Open");//door 3
 							sleepUntil(() -> getLocalPlayer().getY() < 9758, 6000);
 							if (pulledLever)
 								puzzleStageId = 22;
 						} else if (puzzleStageId == 22) {
-							pulledLever = GameObjects.getGameObjects().getTopObjectOnTile(new Tile(3100, 9755, 0)).interactForceRight("Open");//door 9
+							pulledLever = GameObjects.getTopObjectOnTile(new Tile(3100, 9755, 0)).interactForceRight("Open");//door 9
 							sleepUntil(() -> getLocalPlayer().getX() < 3100, 6000);
 							if (pulledLever)
 								puzzleStageId = 23;
@@ -484,7 +484,7 @@ public class ErnestTheChicken extends Script {
 							sleepUntil(() -> Inventory.contains("Oil can"), 6000);
 							puzzleStageId = 24;
 						} else if (puzzleStageId == 24) {
-							pulledLever = GameObjects.getGameObjects().getTopObjectOnTile(new Tile(3100, 9755, 0)).interactForceRight("Open");//door 9
+							pulledLever = GameObjects.getTopObjectOnTile(new Tile(3100, 9755, 0)).interactForceRight("Open");//door 9
 							sleepUntil(() -> getLocalPlayer().getX() > 3100, 6000);
 							if (pulledLever)
 								puzzleStageId = 25;

@@ -224,12 +224,12 @@ public class CookAssistant extends Script implements Serializable {
 						Walking.walk(bucketArea.getRandomTile());
 						sleepUntil(() -> Walking.getDestinationDistance() < 6, 6000);
 						if (!Map.canReach(new Tile(3236, 3295, 0))) {
-							GameObjects.getGameObjects().getTopObjectOnTile(new Tile(3236, 3295, 0))
+							GameObjects.getTopObjectOnTile(new Tile(3236, 3295, 0))
 									.interactForceRight("Open");// door
 							sleepUntil(() -> Map.canReach(new Tile(3236, 3295, 0)), 6000);
 						}
 						if (!Map.canReach(new Tile(3229, 3291, 0))) {
-							GameObjects.getGameObjects().getTopObjectOnTile(new Tile(3230, 3291, 0))
+							GameObjects.getTopObjectOnTile(new Tile(3230, 3291, 0))
 									.interactForceRight("Open");// door
 							sleepUntil(() -> Map.canReach(new Tile(3229, 3291, 0)), 6000);
 						}
@@ -245,7 +245,7 @@ public class CookAssistant extends Script implements Serializable {
 					Walking.walk(milkArea.getRandomTile());
 					sleepUntil(() -> Walking.getDestinationDistance() < 6, 6000);
 					if (!Map.canReach(new Tile(3254, 3266, 0))) {
-						GameObjects.getGameObjects().getTopObjectOnTile(new Tile(3253, 3267, 0)).interactForceRight("Open");// door
+						GameObjects.getTopObjectOnTile(new Tile(3253, 3267, 0)).interactForceRight("Open");// door
 						sleepUntil(() -> Map.canReach(new Tile(3254, 3266, 0)), 6000);
 					}
 				}

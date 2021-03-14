@@ -103,7 +103,6 @@ public class TaskEngine extends AbstractScript implements MouseListener, MouseMo
 			gui.exit();
 	}
 	
-	@SuppressWarnings("deprecation")
 	@Override
     public void onPaint(Graphics2D g) {
 		if (gui != null) {// && gui.isFinished()

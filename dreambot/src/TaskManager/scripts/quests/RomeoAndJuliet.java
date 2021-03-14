@@ -87,7 +87,7 @@ public class RomeoAndJuliet extends Script {
 	}
 	
 	public GameObject getObject(Tile tile, String name) {//Not being used
-		GameObject[] objects = GameObjects.getGameObjects().getObjectsOnTile(tile);
+		GameObject[] objects = GameObjects.getObjectsOnTile(tile);
 		for (int i = 0; i < objects.length; i++) {
 			if (objects[i].getName().toLowerCase().contains(name.toLowerCase()))
 				return objects[i];
@@ -138,12 +138,12 @@ public class RomeoAndJuliet extends Script {
 					}
 				} else if (getLocalPlayer().getZ() == 1) {//second floor
 					if (!Map.canReach(new Tile(3158, 3429, 1))) {
-						GameObjects.getGameObjects().getTopObjectOnTile(new Tile(3157, 3430, 1)).interactForceRight("Open");
+						GameObjects.getTopObjectOnTile(new Tile(3157, 3430, 1)).interactForceRight("Open");
 						//getObject(new Tile(3157, 3430, 1), "Door").interactForceRight("Open");
 						sleepUntil(() -> Map.canReach(new Tile(3158, 3429, 1)), 6000);
 					} else {
 						if (!Map.canReach(new Tile(3158, 3428, 1))) {
-							GameObjects.getGameObjects().getTopObjectOnTile(new Tile(3158, 3426, 1)).interactForceRight("Open");
+							GameObjects.getTopObjectOnTile(new Tile(3158, 3426, 1)).interactForceRight("Open");
 							//getObject(new Tile(3158, 3426, 1), "Door").interactForceRight("Open");
 							sleepUntil(() -> Map.canReach(new Tile(3158, 3428, 1)), 6000);
 						} else {
@@ -168,12 +168,12 @@ public class RomeoAndJuliet extends Script {
 					progressId = 9;//Quest complete!
 				else if (getLocalPlayer().getZ() == 1) {
 					if (!Map.canReach(new Tile(3158, 3429, 1))) {
-						GameObjects.getGameObjects().getTopObjectOnTile(new Tile(3158, 3426, 1)).interactForceRight("Open");
+						GameObjects.getTopObjectOnTile(new Tile(3158, 3426, 1)).interactForceRight("Open");
 						//getObject(new Tile(3158, 3426, 1), "Door").interactForceRight("Open");
 						sleepUntil(() -> Map.canReach(new Tile(3158, 3429, 1)), 6000);
 					} else {
 						if (!Map.canReach(new Tile(3155, 3433, 1))) {
-							GameObjects.getGameObjects().getTopObjectOnTile(new Tile(3157, 3430, 1)).interactForceRight("Open");
+							GameObjects.getTopObjectOnTile(new Tile(3157, 3430, 1)).interactForceRight("Open");
 							//getObject(new Tile(3157, 3430, 1), "Door").interactForceRight("Open");
 							sleepUntil(() -> Map.canReach(new Tile(3155, 3433, 1)), 6000);
 						} else {
@@ -186,7 +186,7 @@ public class RomeoAndJuliet extends Script {
 				} else if (getLocalPlayer().getZ() == 0) {
 					 if (getLocalPlayer().getX() < 3165) {
 						if (!Map.canReach(new Tile(3166, 3433, 0))) {
-							GameObjects.getGameObjects().getTopObjectOnTile(new Tile(3165, 3433, 0)).interactForceRight("Open");
+							GameObjects.getTopObjectOnTile(new Tile(3165, 3433, 0)).interactForceRight("Open");
 							//getObject(new Tile(3165, 3433, 0), "Door").interactForceRight("Open");
 							sleepUntil(() -> Map.canReach(new Tile(3165, 3433, 0)), 6000);
 						} else {
@@ -216,7 +216,7 @@ public class RomeoAndJuliet extends Script {
 				} else {
 					if ((new Tile(3192, 3403, 0)).distance(getLocalPlayer()) < 7) {
 						if (!Map.canReach(new Tile(3192, 3403, 0))) {
-							GameObjects.getGameObjects().getTopObjectOnTile(new Tile(3192, 3403, 0)).interactForceRight("Open");
+							GameObjects.getTopObjectOnTile(new Tile(3192, 3403, 0)).interactForceRight("Open");
 							//getObject(new Tile(3192, 3403, 0), "Door").interactForceRight("Open");
 							sleepUntil(() -> Map.canReach(new Tile(3192, 3403, 0)), 6000);
 						}
@@ -243,7 +243,7 @@ public class RomeoAndJuliet extends Script {
 					} else {
 						if ((new Tile(3192, 3403, 0)).distance(getLocalPlayer()) < 7) {
 							if (!Map.canReach(new Tile(3192, 3403, 0))) {
-								GameObjects.getGameObjects().getTopObjectOnTile(new Tile(3192, 3403, 0)).interactForceRight("Open");
+								GameObjects.getTopObjectOnTile(new Tile(3192, 3403, 0)).interactForceRight("Open");
 								//getObject(new Tile(3192, 3403, 0), "Door").interactForceRight("Open");
 								sleepUntil(() -> Map.canReach(new Tile(3192, 3403, 0)), 6000);
 							}

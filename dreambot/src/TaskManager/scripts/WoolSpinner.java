@@ -171,7 +171,7 @@ public class WoolSpinner extends Script {
 						Walking.walk(new Tile(3207, 3214, 1));
 						sleep(300, 500);
 					}
-					GameObjects.getGameObjects().getTopObjectOnTile(new Tile(3207, 3214, 1)).interact("Open");
+					GameObjects.getTopObjectOnTile(new Tile(3207, 3214, 1)).interact("Open");
 					sleep(500, 1000);
 				} else {
 					Camera.rotateToYaw(383 + Calculations.random(0, 5));
@@ -263,7 +263,7 @@ public class WoolSpinner extends Script {
 						sleep(500, 1000);
 					}
 					currentStage = "Opening door.";
-					GameObjects.getGameObjects().getTopObjectOnTile(new Tile(3207, 3214, 1)).interact("Open");//door
+					GameObjects.getTopObjectOnTile(new Tile(3207, 3214, 1)).interact("Open");//door
 					sleep(500, 1000);
 				} else {
 					GameObject stairs = GameObjects.closest("Staircase");
