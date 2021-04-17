@@ -1,8 +1,8 @@
 # Dreambot Scripts
 
 ## DreamBot
-- https://dreambot.org/ - Client download
-- https://dreambot.org/javadocs/ - Java Documents
+- Client download - https://dreambot.org/
+- Java Documents - https://dreambot.org/javadocs/
 
 ## Getting Started
 - When using Eclipse make sure to include client.jar in your project
