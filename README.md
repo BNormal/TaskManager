@@ -4,6 +4,9 @@
 - Client download - https://dreambot.org/
 - Java Documents - https://dreambot.org/javadocs/
 
+## About
+TaskManager is a dreambot script manager API. Unlike the old style of manually running a single script on dreambot, this script allows a user to add an endless amount of scripts one after another without manually stopping one and starting another. The TaskManager also includes script conditions before continuing onto the next script such as timer, items collected, levels reached or acquired, etc.
+
 ## Getting Started
 - When using Eclipse make sure to include client.jar in your project
 - Right click your project and click **Properties**
