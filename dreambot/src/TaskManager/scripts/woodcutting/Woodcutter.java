@@ -194,7 +194,7 @@ public class Woodcutter extends Script {
 			if (gameObject != null && location.getWoodCuttingArea().contains(gameObject) && (currentTree == null || (currentTree.getID() == gameObject.getID() && currentTree.getX() == gameObject.getX() && currentTree.getY() == gameObject.getY()))) {
 				if (selectedTreeType.hasMatch(gameObject.getName())) {
 					if (currentTree == null || currentTree != null && currentTree.distance(gameObject) < 5)
-						accepted = true;	
+						accepted = true;
 				}
 			}
 			return accepted;
