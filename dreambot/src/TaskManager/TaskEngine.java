@@ -12,6 +12,8 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
 import org.dreambot.api.methods.MethodProvider;
+import org.dreambot.api.methods.skills.Skill;
+import org.dreambot.api.methods.skills.SkillTracker;
 import org.dreambot.api.randoms.RandomEvent;
 import org.dreambot.api.script.AbstractScript;
 import org.dreambot.api.script.Category;
@@ -40,6 +42,7 @@ public class TaskEngine extends AbstractScript implements MouseListener, MouseMo
 	
 	@Override
     public void onStart() {
+		SkillTracker.start();
 		getRandomManager().disableSolver(RandomEvent.LOGIN);
 		if (getRandomManager().getCurrentSolver() != null)
 			if (getRandomManager().getCurrentSolver().getEventString().equalsIgnoreCase(RandomEvent.LOGIN.name()))

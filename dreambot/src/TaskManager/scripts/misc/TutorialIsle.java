@@ -51,7 +51,7 @@ public class TutorialIsle extends Script {
 		if (interfaceItem != null && interfaceItem.isVisible()) {
 			return State.NAMING;
 		}
-		interfaceItem = Widgets.getWidgetChild(269, 100);
+		interfaceItem = Widgets.getWidgetChild(679, 68, 9);//Character Creation interface
 		if (interfaceItem != null && interfaceItem.isVisible()) {
 			return State.CHARACTER_CREATION;
 		}
@@ -92,7 +92,7 @@ public class TutorialIsle extends Script {
 			break;
 		case CHARACTER_CREATION:
 			interfaceItem.interact();
-			sleepUntil(() -> Widgets.getWidgetChild(269, 100) == null || !Widgets.getWidgetChild(269, 100).isVisible(), Calculations.random(3000, 5000));
+			sleepUntil(() -> Widgets.getWidgetChild(679, 68, 9) == null || !Widgets.getWidgetChild(679, 68, 9).isVisible(), Calculations.random(3000, 5000));
 			break;
 		case FOLLOWING_INSTRUCTION:
 			if (interfaceItem != null && interfaceItem.isVisible()) {
