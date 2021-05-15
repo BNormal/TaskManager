@@ -97,7 +97,7 @@ public class TutorialIsle extends Script {
 		case FOLLOWING_INSTRUCTION:
 			if (interfaceItem != null && interfaceItem.isVisible()) {
 				String text = interfaceItem.getChild(0).getText();
-				if (text.contains("Getting started")) {
+				if (text.contains("Settings menu")) {
 					NPC guide = NPCs.closest("Gielinor Guide");
 					Point p = guide.getModel().calculateCenterPoint();
 	                Rectangle GAME_SCREEN = new Rectangle(5, 5, 511, 333);
