@@ -7,6 +7,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.Date;
 
+import org.dreambot.api.ClientSettings;
 import org.dreambot.api.input.Mouse;
 import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.container.impl.Inventory;
@@ -47,7 +48,7 @@ public class TutorialIsle extends Script {
 	}
 	
 	private State getState() {
-		interfaceItem = Widgets.getWidgetChild(558, 11);//Setting name for new player
+		interfaceItem = Widgets.getWidgetChild(558, 12);//Setting name for new player
 		if (interfaceItem != null && interfaceItem.isVisible()) {
 			return State.NAMING;
 		}
@@ -69,9 +70,9 @@ public class TutorialIsle extends Script {
 	@Override
     public void onStart() {
 		super.onStart();
-		getRandomManager().disableSolver(RandomEvent.RESIZABLE_DISABLER);
+		/*getRandomManager().disableSolver(RandomEvent.RESIZABLE_DISABLER);
 		if (getRandomManager().getCurrentSolver() != null && getRandomManager().getCurrentSolver().getEventString().equalsIgnoreCase("RESIZABLE_DISABLER"))
-			getRandomManager().getCurrentSolver().disable();
+			getRandomManager().getCurrentSolver().disable();*/
 	}
 	
 	@Override
@@ -79,16 +80,18 @@ public class TutorialIsle extends Script {
 		state = getState();
 		switch (state) {
 		case NAMING:
-			interfaceItem.interact();
-			Keyboard.type("zezima", true);
-			
-			sleepUntil(() -> Widgets.getWidgetChild(558, 12) != null && Widgets.getWidgetChild(558, 12).getText().contains("not available"), Calculations.random(3000, 5000));
-			WidgetChild typeNameTextField = Widgets.getWidgetChild(558, Calculations.random(14, 16));
-			typeNameTextField.interact();
-			
-			sleepUntil(() -> Widgets.getWidgetChild(558, 12) != null && Widgets.getWidgetChild(558, 12).getText().contains("<col=00ff00>available"), Calculations.random(3000, 5000));
-			WidgetChild setNameButton = Widgets.getWidgetChild(558, 18);
-			setNameButton.interact();
+			if (Widgets.getWidgetChild(558, 12).getText().equals("*")) {
+				interfaceItem.interact();
+				Keyboard.type("zezima", true);
+				sleepUntil(() -> Widgets.getWidgetChild(558, 13).getText().contains("not available"), Calculations.random(3000, 5000));
+			} else if (Widgets.getWidgetChild(558, 13).getText().contains("not available")) {
+				WidgetChild typeNameTextField = Widgets.getWidgetChild(558, Calculations.random(14, 16));
+				typeNameTextField.interact();
+				sleepUntil(() -> Widgets.getWidgetChild(558, 13).getText().contains("<col=00ff00>available"), Calculations.random(3000, 5000));
+			} else if (Widgets.getWidgetChild(558, 13).getText().contains("<col=00ff00>available")) {
+				Widgets.getWidgetChild(558, 18).interact();
+				sleepUntil(() -> Widgets.getWidgetChild(558, 18) == null || !Widgets.getWidgetChild(558, 18).isVisible(), Calculations.random(3000, 5000));
+			}
 			break;
 		case CHARACTER_CREATION:
 			interfaceItem.interact();
@@ -97,35 +100,47 @@ public class TutorialIsle extends Script {
 		case FOLLOWING_INSTRUCTION:
 			if (interfaceItem != null && interfaceItem.isVisible()) {
 				String text = interfaceItem.getChild(0).getText();
-				if (text.contains("Settings menu")) {
-					NPC guide = NPCs.closest("Gielinor Guide");
-					Point p = guide.getModel().calculateCenterPoint();
-	                Rectangle GAME_SCREEN = new Rectangle(5, 5, 511, 333);
-	                Rectangle CANVAS = new Rectangle(0, 0, 765, 503);
-	                int heightAdjust = 0;
-	                int widthAdjust = 0;
-	                p.setLocation(p.getX() * (CANVAS.getWidth() / GAME_SCREEN.getWidth()) + widthAdjust, p.getY() * (CANVAS.getHeight() / GAME_SCREEN.getHeight()) + heightAdjust);
-	                Mouse.hop(p);
-	                sleepUntil(() -> Menu.contains("Talk-to"), 2000);
-	                if (Menu.contains("Talk-to")) {
-	                	Mouse.click();
-	                    sleepUntil(() -> Dialogues.canContinue(), 10000);
-	                }
-				} else if (text.contains("Options menu")) { // Clicks on setting tab and then should continue to go into fixed mode
-					if (!Tabs.isOpen(Tab.OPTIONS)) {
-						Tabs.openWithMouse(Tab.OPTIONS);
-						getRandomManager().enableSolver(RandomEvent.RESIZABLE_DISABLER);
-					} else {
+				if (text.contains("Getting started")) {
+					NPCs.closest("Gielinor Guide").interact();
+					sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
+				} else if (text.contains("Settings menu")) { // Clicks on setting tab and then should continue to go into fixed mode
+					if (ClientSettings.isResizableActive()) {
 						if (Tabs.isOpen(Tab.OPTIONS)) {
-							interfaceItem = Widgets.getWidgetChild(261, 1).getChild(2);
-							if (interfaceItem.getTextureId() != 762) {
-								interfaceItem.interact();
-								sleepUntil(() -> interfaceItem.getTextureId() == 762, Calculations.random(3000, 5000));
-								Widgets.getWidgetChild(261, 38).interact();
-								Widgets.getWidgetChild(261, 44).interact();
-								Widgets.getWidgetChild(261, 50).interact();
+							String currentTab = Widgets.getWidgetChild(116, 2).getText();
+							if (currentTab.equals("Controls Settings")) {
+								Widgets.getWidgetChild(116, 70).interact();
+								sleepUntil(() -> Widgets.getWidgetChild(116, 2).getText().equals("Audio Settings"), Calculations.random(3000, 5000));
+							} else if (currentTab.equals("Audio Settings")) {
+								WidgetChild musicW = Widgets.getWidgetChild(116, 14);//Music
+								if (musicW.getActions()[0].equals("Mute")) {
+									musicW.interact();
+								}
+								WidgetChild effectW = Widgets.getWidgetChild(116, 18);//Sound Effects
+								if (effectW.getActions()[0].equals("Mute")) {
+									effectW.interact();
+								}
+								WidgetChild areaW = Widgets.getWidgetChild(116, 22);//Area Sounds
+								if (areaW.getActions()[0].equals("Mute")) {
+									areaW.interact();
+								}
+								if (musicW.getActions()[0].equals("Unmute") && effectW.getActions()[0].equals("Unmute") && areaW.getActions()[0].equals("Unmute")) {
+									Widgets.getWidgetChild(116, 71).interact();
+									sleepUntil(() -> Widgets.getWidgetChild(116, 2).getText().equals("Display Settings"), Calculations.random(3000, 5000));
+								}
+							} else if (currentTab.equals("Display Settings")) {
+								if (Widgets.getWidgetChild(116, 37) == null || !Widgets.getWidgetChild(116, 37).isVisible()) {//checks if dropdown menu is opened
+									Widgets.getWidgetChild(116, 12, 4).interact();//clicked to open dropdown
+									sleepUntil(() -> Widgets.getWidgetChild(116, 37) != null, Calculations.random(3000, 5000));
+								} else {
+									Widgets.getWidgetChild(116, 37, 1).interact();
+									sleepUntil(() -> !ClientSettings.isResizableActive(), Calculations.random(3000, 5000));
+								}
 							}
+						} else {
+							Tabs.openWithMouse(Tab.OPTIONS);
+							sleepUntil(() -> Tabs.isOpen(Tab.OPTIONS), Calculations.random(3000, 5000));
 						}
+					} else {
 						NPCs.closest("Gielinor Guide").interact();
 						sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
 					}
@@ -440,9 +455,10 @@ public class TutorialIsle extends Script {
 					interfaceItem = Widgets.getWidgetChild(218, 6);
 					if (interfaceItem != null && interfaceItem.isVisible()) {
 						interfaceItem.interact();
-						NPCs.closest(getFilteredNPCs("Chicken")).interact();
-						sleepUntil(() -> getLocalPlayer().isAnimating(), Calculations.random(3000, 5000));
-						sleepUntil(() -> !getLocalPlayer().isAnimating(), Calculations.random(3000, 5000));
+						NPC chicken = NPCs.closest(getFilteredNPCs("Chicken"));
+						chicken.interact("Cast");
+						sleepUntil(() -> getLocalPlayer().isAnimating(), Calculations.random(1000, 3000));
+						sleepUntil(() -> !getLocalPlayer().isAnimating(), Calculations.random(1000, 3000));
 					}
 				} else if (text.contains("To the mainland")) {
 					NPCs.closest("Magic Instructor").interact();
@@ -503,7 +519,7 @@ public class TutorialIsle extends Script {
 	
 	@Override
     public void onExit() {
-		getRandomManager().enableSolver(RandomEvent.RESIZABLE_DISABLER);
+		//getRandomManager().enableSolver(RandomEvent.RESIZABLE_DISABLER);
 		super.onExit();
 	}
 
