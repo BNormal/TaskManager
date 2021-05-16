@@ -115,6 +115,7 @@ public class CookAssistant extends Script implements Serializable {
 
 		switch (state) {
 		case DIALOGUE:
+			interfaceItem = Widgets.getWidgetChild(548, 60);
 			if (Dialogues.getOptions() != null && Dialogues.getOptions().length > 0) {
 				List<String> options = Arrays.asList(Dialogues.getOptions());
 
@@ -130,6 +131,9 @@ public class CookAssistant extends Script implements Serializable {
 					if (options.contains("I can't right now, Maybe later."))
 						Dialogues.chooseOption(1);
 					else if (options.contains("I'll get right on it.")) {
+						Dialogues.chooseOption(1); 
+						}
+					else if (options.contains("Yes.")) {
 						Dialogues.chooseOption(1);
 					}
 				}
@@ -148,6 +152,7 @@ public class CookAssistant extends Script implements Serializable {
 				Walking.walk(kitchen.getRandomTile());
 				sleepUntil(() -> Walking.getDestinationDistance() < 6, 6000);
 			}
+			interfaceItem = Widgets.getWidgetChild(548, 60);
 
 			break;
 
