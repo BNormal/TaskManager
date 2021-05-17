@@ -8,6 +8,9 @@ This project is a script that only runs inside the dreambot client using the dre
 ## About
 TaskManager is a dreambot script manager that uses the dreambot API to run multiple scripts under specific conditions without the need to run each script individually. Unlike the old style of manually starting and stopping a single script on dreambot client, this script allows a user to run an endless amount of scripts one after another without manually stopping and starting another. The TaskManager also includes script conditions as a stopping point for each script before starting the next script such as a timer, number of items collected, level acquired or accumulated, etc. This project uses reflection, allowing the user to write and add their own scripts to the project rather than only using the built-in scripts provided with the TaskManager.
 
+## Images
+<img src="https://raw.githubusercontent.com/BNormal/TaskManager/master/images/task-manager.png" alt="drawing" style="auto;"/>
+
 ## Build-in Scripts
 #### Skilling bots
 * Mining
