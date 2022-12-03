@@ -7,16 +7,18 @@ import java.awt.Graphics2D;
 import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.container.impl.Inventory;
 import org.dreambot.api.methods.container.impl.bank.Bank;
+import org.dreambot.api.methods.container.impl.bank.BankLocation;
 import org.dreambot.api.methods.filter.Filter;
 import org.dreambot.api.methods.input.Camera;
 import org.dreambot.api.methods.interactive.NPCs;
+import org.dreambot.api.methods.interactive.Players;
 import org.dreambot.api.methods.item.GroundItems;
 import org.dreambot.api.methods.map.Area;
 import org.dreambot.api.methods.map.Map;
 import org.dreambot.api.methods.map.Tile;
 import org.dreambot.api.methods.walking.impl.Walking;
-import org.dreambot.api.methods.walking.web.node.impl.bank.WebBankArea;
 import org.dreambot.api.script.Category;
+import org.dreambot.api.utilities.Sleep;
 import org.dreambot.api.wrappers.interactive.NPC;
 import org.dreambot.api.wrappers.items.GroundItem;
 
@@ -44,7 +46,7 @@ public class WoolShearer extends Script {
 
 	@Override
 	public int onLoop() {
-		if (!getLocalPlayer().isOnScreen())
+		if (!Players.getLocal().isOnScreen())
 			return 0;
 		if (!Inventory.contains(SHEARS)) {
 			grabShears();
@@ -64,22 +66,22 @@ public class WoolShearer extends Script {
 	}
 	
 	public void handleBanking() {
-		Area bank = WebBankArea.LUMBRIDGE.getArea();
+		Area bank = BankLocation.LUMBRIDGE.getArea(1);
 		bank.setZ(2);
-		if (inAreaIgnoreZ(CASTLE, getLocalPlayer().getTile())) {
-			if (bank.contains(getLocalPlayer())) {
+		if (inAreaIgnoreZ(CASTLE, Players.getLocal().getTile())) {
+			if (bank.contains(Players.getLocal())) {
 				if (!Bank.isOpen()) {
-					Bank.openClosest();
-					sleepUntil(() -> Bank.isOpen(), Calculations.random(3000, 5000));
+					Bank.open();
+					Sleep.sleepUntil(() -> Bank.isOpen(), Calculations.random(3000, 5000));
 				} else {
 					state = "Banking";
 					if (!Inventory.onlyContains(SHEARS) && !Inventory.isEmpty()) {
 						Bank.depositAllExcept(SHEARS);
-						sleepUntil(() -> Inventory.onlyContains(SHEARS) || Inventory.isEmpty(), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Inventory.onlyContains(SHEARS) || Inventory.isEmpty(), Calculations.random(3000, 5000));
 					}
 					if (!Inventory.contains(SHEARS) && Bank.contains(SHEARS)) {
 						Bank.withdraw(SHEARS);
-						sleepUntil(() -> Inventory.contains(SHEARS), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Inventory.contains(SHEARS), Calculations.random(3000, 5000));
 					}
 					if (Bank.contains(SHEARS)) {
 						bankStatus = 1;
@@ -90,63 +92,63 @@ public class WoolShearer extends Script {
 			} else {
 				state = "Going to bank";
 				Walking.walk(bank.getCenter());
-				sleepUntil(() -> Walking.getDestination().distance(getLocalPlayer()) < 6, 6000);
+				Sleep.sleepUntil(() -> Walking.getDestination().distance(Players.getLocal()) < 6, 6000);
 			}
 		} else {
 			state = "Going to bank";
 			Walking.walk(new Tile(3208, 3210, 0));//lumbridge castle
-			sleepUntil(() -> Walking.getDestination().distance(getLocalPlayer()) < 6, 6000);
+			Sleep.sleepUntil(() -> Walking.getDestination().distance(Players.getLocal()) < 6, 6000);
 		}
 	}
 	
 	public void handleShearing() {
-		if (inAreaIgnoreZ(CASTLE, getLocalPlayer().getTile()) && getLocalPlayer().getZ() > 1) {
-			if (getLocalPlayer().getZ() == 2) {
+		if (inAreaIgnoreZ(CASTLE, Players.getLocal().getTile()) && Players.getLocal().getZ() > 1) {
+			if (Players.getLocal().getZ() == 2) {
 				state = "Going to sheep";
 				if (Bank.isOpen()) {
 					Bank.close();
-					sleepUntil(() -> !Bank.isOpen(), Calculations.random(3000, 5000));
+					Sleep.sleepUntil(() -> !Bank.isOpen(), Calculations.random(3000, 5000));
 				} else {
 					Walking.walk(SHEEP_AREA.getCenter());
-					sleepUntil(() -> Walking.getDestination().distance(getLocalPlayer()) < 6, 6000);
+					Sleep.sleepUntil(() -> Walking.getDestination().distance(Players.getLocal()) < 6, 6000);
 				}
 			}
-		} else if (SHEEP_AREA.contains(getLocalPlayer())) {
+		} else if (SHEEP_AREA.contains(Players.getLocal())) {
 			state = "Shearing the sheep";
 			NPC sheep = NPCs.closest(npcFilter());
 			if (sheep != null) {
 				Camera.mouseRotateToEntity(sheep);
 				int id = sheep.getID();
 				sheep.interactForceRight("Shear");
-				sleepUntil(() -> getLocalPlayer().isAnimating() || sheep.getID() != id, 6000);
-				sleepUntil(() -> !getLocalPlayer().isAnimating(), 6000);
+				Sleep.sleepUntil(() -> Players.getLocal().isAnimating() || sheep.getID() != id, 6000);
+				Sleep.sleepUntil(() -> !Players.getLocal().isAnimating(), 6000);
 			}
 		} else {
 			state = "Going to sheep";
 			Walking.walk(SHEEP_AREA.getCenter());
-			sleepUntil(() -> Walking.getDestination().distance(getLocalPlayer()) < 6, 6000);
+			Sleep.sleepUntil(() -> Walking.getDestination().distance(Players.getLocal()) < 6, 6000);
 		}
 	}
 	
 	public void grabShears() {
-		if (CASTLE.getCenter().distance(getLocalPlayer()) < FARMERS_HOUSE.getCenter().distance(getLocalPlayer()) && (bankStatus == -1 || bankStatus == 1)) {
+		if (CASTLE.getCenter().distance(Players.getLocal()) < FARMERS_HOUSE.getCenter().distance(Players.getLocal()) && (bankStatus == -1 || bankStatus == 1)) {
 			state = "Checking bank for shears";
 			handleBanking();
 		} else {
 			state = "Getting a pair of shears";
-			if (FARMERS_HOUSE.contains(getLocalPlayer())) {
+			if (FARMERS_HOUSE.contains(Players.getLocal())) {
 				GroundItem shears = GroundItems.closest(SHEARS);
 				if (shears != null && shears.exists()) {
 					shears.interactForceRight("Take");
-					sleepUntil(() -> Inventory.contains(SHEARS), Calculations.random(3000, 5000));
+					Sleep.sleepUntil(() -> Inventory.contains(SHEARS), Calculations.random(3000, 5000));
 				}
 			} else {
 				if (Bank.isOpen()) {
 					Bank.close();
-					sleepUntil(() -> !Bank.isOpen(), Calculations.random(3000, 5000));
+					Sleep.sleepUntil(() -> !Bank.isOpen(), Calculations.random(3000, 5000));
 				}
 				Walking.walk(FARMERS_HOUSE.getCenter());
-				sleepUntil(() -> Walking.getDestination().distance(getLocalPlayer()) < 6, 6000);
+				Sleep.sleepUntil(() -> Walking.getDestination().distance(Players.getLocal()) < 6, 6000);
 			}
 		}
 	}

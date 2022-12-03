@@ -14,23 +14,22 @@ import java.util.List;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
-
-import TaskManager.scripts.woodcutting.Woodcutter.WoodcuttingSpot;
-import TaskManager.scripts.woodcutting.WoodcutterData.Axe;
-import TaskManager.scripts.woodcutting.WoodcutterData.Tree;
-import javax.swing.JCheckBox;
-import javax.swing.UIManager;
 import javax.swing.border.LineBorder;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+
+import TaskManager.scripts.woodcutting.Woodcutter.WoodcuttingSpot;
+import TaskManager.scripts.woodcutting.WoodcutterData.Axe;
+import TaskManager.scripts.woodcutting.WoodcutterData.Tree;
 
 public class WoodcutterGUI {
 
@@ -47,11 +46,6 @@ public class WoodcutterGUI {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Throwable e) {
-			e.printStackTrace();
-		}
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {

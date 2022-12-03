@@ -4,6 +4,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.dreambot.api.methods.interactive.Players;
 import org.dreambot.api.methods.tabs.Tabs;
 import org.dreambot.api.script.Category;
 import org.dreambot.core.Instance;
@@ -35,7 +36,7 @@ public class LogOutIn extends Script {
 	
 	@Override
 	public int onLoop() {
-		if (!getLocalPlayer().isOnScreen())
+		if (!Players.getLocal().isOnScreen())
 			return 0;
 		if (!gui.isLoggingOut())
 			Instance.getInstance().getScriptManager().setAccount(gui.getNickname());

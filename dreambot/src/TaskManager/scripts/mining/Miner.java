@@ -10,20 +10,22 @@ import java.util.List;
 import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.container.impl.Inventory;
 import org.dreambot.api.methods.container.impl.bank.Bank;
+import org.dreambot.api.methods.container.impl.bank.BankLocation;
 import org.dreambot.api.methods.container.impl.equipment.Equipment;
 import org.dreambot.api.methods.container.impl.equipment.EquipmentSlot;
 import org.dreambot.api.methods.dialogues.Dialogues;
 import org.dreambot.api.methods.filter.Filter;
 import org.dreambot.api.methods.interactive.GameObjects;
+import org.dreambot.api.methods.interactive.Players;
 import org.dreambot.api.methods.map.Area;
 import org.dreambot.api.methods.map.Tile;
 import org.dreambot.api.methods.skills.Skill;
 import org.dreambot.api.methods.skills.SkillTracker;
 import org.dreambot.api.methods.skills.Skills;
 import org.dreambot.api.methods.walking.impl.Walking;
-import org.dreambot.api.methods.walking.web.node.impl.bank.WebBankArea;
 import org.dreambot.api.methods.widget.Widgets;
 import org.dreambot.api.script.Category;
+import org.dreambot.api.utilities.Sleep;
 import org.dreambot.api.wrappers.interactive.GameObject;
 import org.dreambot.api.wrappers.items.Item;
 import org.dreambot.core.Instance;
@@ -74,7 +76,7 @@ public class Miner extends Script {
 	public int onLoop() {
 		if (Widgets.getWidget(122) == null) {
 			return 0;
-		} else if (!tracking && getLocalPlayer().isOnScreen()) {
+		} else if (!tracking && Players.getLocal().isOnScreen()) {
 			tracking = true;
 			SkillTracker.reset(Skill.MINING);
 			SkillTracker.start(Skill.MINING);
@@ -95,7 +97,7 @@ public class Miner extends Script {
 					if (!Inventory.contains(selectedRockType.getOreFromNode().getOreId()))
 						dropping = false;
 				}
-			} else if (getLocalPlayer().isAnimating()) {
+			} else if (Players.getLocal().isAnimating()) {
 				
 			} else if (ableToMine()) {
 				handleMining();
@@ -107,16 +109,16 @@ public class Miner extends Script {
 				else {
 					Walking.walk(location.getBankArea().getCenter().getRandomizedTile(2));
 					if (Calculations.random(0, 20) > 1)
-						sleepUntil(() -> Walking.getDestinationDistance() < 6, 6000);
+						Sleep.sleepUntil(() -> Walking.getDestinationDistance() < 6, 6000);
 				}
 			} else if (readyToMine()) {
 				if (Bank.isOpen()) {
 					Bank.close();
-					sleepUntil(() -> !Bank.isOpen(), Calculations.random(3000, 5000));
+					Sleep.sleepUntil(() -> !Bank.isOpen(), Calculations.random(3000, 5000));
 				} else {
 					Walking.walk(location.getMiningArea().getCenter().getRandomizedTile(2));
 					if (Calculations.random(0, 20) > 1)
-						sleepUntil(() -> Walking.getDestinationDistance() < 6, 6000);
+						Sleep.sleepUntil(() -> Walking.getDestinationDistance() < 6, 6000);
 				}
 			}
 		}
@@ -125,13 +127,13 @@ public class Miner extends Script {
 
 	private boolean handleMining() {
 		boolean result = true;
-		if (!getLocalPlayer().isMoving() && !getLocalPlayer().isAnimating()) {
+		if (!Players.getLocal().isMoving() && !Players.getLocal().isAnimating()) {
 			if (currentNode == null || !currentNode.exists())
 				currentNode = GameObjects.closest(rockFilter());
 			if (currentNode != null) {
 				currentNode.interact("Mine");
-				sleepUntil(() -> getLocalPlayer().isAnimating() || Dialogues.inDialogue() || currentNode == null, Calculations.random(12000, 15400));
-				sleepUntil(() -> !getLocalPlayer().isAnimating(), Calculations.random(12000, 15400));
+				Sleep.sleepUntil(() -> Players.getLocal().isAnimating() || Dialogues.inDialogue() || currentNode == null, Calculations.random(12000, 15400));
+				Sleep.sleepUntil(() -> !Players.getLocal().isAnimating(), Calculations.random(12000, 15400));
 			}
 		}
 		return result;
@@ -151,14 +153,14 @@ public class Miner extends Script {
 		boolean results = false;
 		if (ableToBank()) {
 			if (!Bank.isOpen()) {
-				Bank.openClosest();
-				sleepUntil(() -> Bank.isOpen(), Calculations.random(3000, 5000));
+				Bank.open();
+				Sleep.sleepUntil(() -> Bank.isOpen(), Calculations.random(3000, 5000));
 			} else {
 				pickaxe = getBestPickaxe();
 				if (!hasPickaxe()) {
 					if (Bank.contains(pickaxe)) {
 						Bank.withdraw(pickaxe);
-						sleepUntil(() -> Inventory.contains(pickaxe), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Inventory.contains(pickaxe), Calculations.random(3000, 5000));
 					} else if (!Bank.contains(pickaxe) && !Inventory.contains(pickaxe)) {
 						onExit();
 					}
@@ -167,7 +169,7 @@ public class Miner extends Script {
 					if (Inventory.contains(selectedRockType.getOreFromNode().getOreId()))
 						increaseRunCount();
 					Bank.depositAllExcept(pickaxe);
-					sleepUntil(() -> Inventory.onlyContains(pickaxe), Calculations.random(3000, 5000));
+					Sleep.sleepUntil(() -> Inventory.onlyContains(pickaxe), Calculations.random(3000, 5000));
 				}
 				if (readyToMine() && Bank.close()) {
 					results = true;
@@ -189,7 +191,7 @@ public class Miner extends Script {
 	}
 
 	private boolean ableToMine() {
-		return readyToMine() && location.getMiningArea().contains(getLocalPlayer());
+		return readyToMine() && location.getMiningArea().contains(Players.getLocal());
 	}
 
 	private boolean readyToMine() {
@@ -201,7 +203,7 @@ public class Miner extends Script {
 	}
 
 	private boolean ableToBank() {
-		return needsToBank() && location.getBankArea().contains(getLocalPlayer());
+		return needsToBank() && location.getBankArea().contains(Players.getLocal());
 	}
 
 	private boolean hasPickaxe() {
@@ -280,10 +282,10 @@ public class Miner extends Script {
 	}
 	
 	public static enum MiningSpot {
-		Varrock_East(WebBankArea.VARROCK_EAST.getArea(), new Area(3278, 3371, 3291, 3359, 0), OreNode.TIN_NODE, OreNode.COPPER_NODE, OreNode.IRON_NODE),
-		Varrock_West(WebBankArea.VARROCK_WEST.getArea(), new Area(new Tile(3181, 3381, 0), new Tile(3176, 3374, 0), new Tile(3171, 3369, 0), new Tile(3171, 3364, 0), new Tile(3177, 3361, 0), new Tile(3185, 3367, 0), new Tile(3186, 3379, 0)), OreNode.CLAY_NODE, OreNode.TIN_NODE, OreNode.IRON_NODE, OreNode.SILVER_NODE),
-		Al_Kharid_North_High(WebBankArea.AL_KHARID.getArea(), new Area(new Tile(3298, 3319, 0), new Tile(3302, 3319, 0), new Tile(3305, 3314, 0), new Tile(3305, 3306, 0), new Tile(3307, 3303, 0), new Tile(3304, 3297, 0), new Tile(3291, 3298, 0), new Tile(3295, 3307, 0), new Tile(3293, 3310, 0), new Tile(3296, 3317, 0)), OreNode.TIN_NODE, OreNode.COPPER_NODE, OreNode.IRON_NODE, OreNode.SILVER_NODE, OreNode.COAL_NODE, OreNode.MITHRIL_NODE, OreNode.ADAMANTITE_NODE),
-		A_lKharid_North_Low(WebBankArea.AL_KHARID.getArea(), new Area(3293, 3289, 3304, 3283, 0), OreNode.IRON_NODE, OreNode.GOLD_NODE),
+		Varrock_East(BankLocation.VARROCK_EAST.getArea(1), new Area(3278, 3371, 3291, 3359, 0), OreNode.TIN_NODE, OreNode.COPPER_NODE, OreNode.IRON_NODE),
+		Varrock_West(BankLocation.VARROCK_WEST.getArea(1), new Area(new Tile(3181, 3381, 0), new Tile(3176, 3374, 0), new Tile(3171, 3369, 0), new Tile(3171, 3364, 0), new Tile(3177, 3361, 0), new Tile(3185, 3367, 0), new Tile(3186, 3379, 0)), OreNode.CLAY_NODE, OreNode.TIN_NODE, OreNode.IRON_NODE, OreNode.SILVER_NODE),
+		Al_Kharid_North_High(BankLocation.AL_KHARID.getArea(1), new Area(new Tile(3298, 3319, 0), new Tile(3302, 3319, 0), new Tile(3305, 3314, 0), new Tile(3305, 3306, 0), new Tile(3307, 3303, 0), new Tile(3304, 3297, 0), new Tile(3291, 3298, 0), new Tile(3295, 3307, 0), new Tile(3293, 3310, 0), new Tile(3296, 3317, 0)), OreNode.TIN_NODE, OreNode.COPPER_NODE, OreNode.IRON_NODE, OreNode.SILVER_NODE, OreNode.COAL_NODE, OreNode.MITHRIL_NODE, OreNode.ADAMANTITE_NODE),
+		A_lKharid_North_Low(BankLocation.AL_KHARID.getArea(1), new Area(3293, 3289, 3304, 3283, 0), OreNode.IRON_NODE, OreNode.GOLD_NODE),
 		Lumbridge_East(Utilities.getLumbridgeBank(), new Area(3222, 3149, 3230, 3144, 0), OreNode.TIN_NODE, OreNode.COPPER_NODE),
 		Lumbridge_West(Utilities.getLumbridgeBank(), new Area(3144, 3154, 3148, 3144, 0), OreNode.COAL_NODE, OreNode.MITHRIL_NODE, OreNode.ADAMANTITE_NODE);
 		

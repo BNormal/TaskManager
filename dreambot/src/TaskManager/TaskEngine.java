@@ -11,8 +11,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
-import org.dreambot.api.methods.MethodProvider;
-import org.dreambot.api.methods.skills.Skill;
 import org.dreambot.api.methods.skills.SkillTracker;
 import org.dreambot.api.randoms.RandomEvent;
 import org.dreambot.api.script.AbstractScript;
@@ -64,7 +62,7 @@ public class TaskEngine extends AbstractScript implements MouseListener, MouseMo
 						sleep(300);
 						gui.open();
 					} catch (Exception e) {
-						MethodProvider.log(e.getLocalizedMessage());
+						log(e.getLocalizedMessage());
 						e.printStackTrace();
 					}
 				}

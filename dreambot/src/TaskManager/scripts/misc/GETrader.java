@@ -10,16 +10,18 @@ import java.util.List;
 import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.container.impl.Inventory;
 import org.dreambot.api.methods.container.impl.bank.Bank;
+import org.dreambot.api.methods.container.impl.bank.BankLocation;
 import org.dreambot.api.methods.container.impl.equipment.Equipment;
 import org.dreambot.api.methods.container.impl.equipment.EquipmentSlot;
 import org.dreambot.api.methods.grandexchange.GrandExchange;
+import org.dreambot.api.methods.interactive.Players;
 import org.dreambot.api.methods.tabs.Tab;
 import org.dreambot.api.methods.tabs.Tabs;
 import org.dreambot.api.methods.walking.impl.Walking;
-import org.dreambot.api.methods.walking.web.node.impl.bank.WebBankArea;
 import org.dreambot.api.methods.widget.Widgets;
 import org.dreambot.api.script.Category;
 import org.dreambot.api.utilities.Timer;
+import org.dreambot.api.utilities.Sleep;
 import org.dreambot.api.wrappers.widgets.WidgetChild;
 import org.dreambot.core.Instance;
 
@@ -60,7 +62,7 @@ public class GETrader extends Script {
 	}
 	
 	private State getState() {
-		if (!WebBankArea.GRAND_EXCHANGE.getArea().contains(getLocalPlayer()))
+		if (!BankLocation.GRAND_EXCHANGE.getArea(1).contains(Players.getLocal()))
 			return State.WALKING;
 		if (item == null)
 			return State.SETUP;
@@ -87,28 +89,28 @@ public class GETrader extends Script {
 	
 	@Override
 	public int onLoop() {
-		if (!running || !gui.isFinished() || !getLocalPlayer().isOnScreen() || Instance.isMouseInputEnabled())
+		if (!running || !gui.isFinished() || !Players.getLocal().isOnScreen() || Instance.isMouseInputEnabled())
 			return 0;
 		if (offers == null)
 			offers = gui.getOfferItems();
 		state = getState();
 		switch (state) {
 		case WALKING:
-			Walking.walk(WebBankArea.GRAND_EXCHANGE.getArea().getCenter().getRandomizedTile(2));
+			Walking.walk(BankLocation.GRAND_EXCHANGE.getArea(1).getCenter().getRandomizedTile(2));
 			if (Calculations.random(0, 20) > 2)
-				sleepUntil(() -> Walking.getDestinationDistance() < Calculations.random(6, 9), 6000);
+				Sleep.sleepUntil(() -> Walking.getDestinationDistance() < Calculations.random(6, 9), 6000);
 			break;
 		case SETUP:
 			if (offers.size() == 0) {
 				if (GrandExchange.isOpen()) {
 					GrandExchange.close();
-					sleepUntil(() -> !GrandExchange.isOpen(), 6000);
+					Sleep.sleepUntil(() -> !GrandExchange.isOpen(), 6000);
 				} else if (!Bank.isOpen()) {
-					Bank.openClosest();
-					sleepUntil(() -> Bank.isOpen(), 6000);
+					Bank.open();
+					Sleep.sleepUntil(() -> Bank.isOpen(), 6000);
 				} else if (Bank.isOpen()) {
 					Bank.depositAllItems();
-					sleepUntil(() -> Inventory.emptySlotCount() == 28, 6000);
+					Sleep.sleepUntil(() -> Inventory.emptySlotCount() == 28, 6000);
 					onExit();
 				}
 			}
@@ -124,21 +126,21 @@ public class GETrader extends Script {
 				if (bankGP == -1) {
 					if (GrandExchange.isOpen()) {
 						GrandExchange.close();
-						sleepUntil(() -> !GrandExchange.isOpen(), 6000);
+						Sleep.sleepUntil(() -> !GrandExchange.isOpen(), 6000);
 					} else if (!Bank.isOpen()) {
-						Bank.openClosest();
-						sleepUntil(() -> Bank.isOpen(), 6000);
+						Bank.open();
+						Sleep.sleepUntil(() -> Bank.isOpen(), 6000);
 					} else if (Bank.isOpen() && Bank.contains(COINS)) {
 						bankGP = Bank.count(COINS);
 						if (bankGP + Inventory.count(COINS) > item.getPrice()) {
 							if (Inventory.contains(COINS) || Inventory.emptySlotCount() > 0) {
 								Bank.getChild(COINS).interact("Withdraw-All-but-1");
 								bankGP = 1;
-								sleepUntil(() -> Bank.count(COINS) <= 1, 6000);
+								Sleep.sleepUntil(() -> Bank.count(COINS) <= 1, 6000);
 							} else {
 								bankGP = -1;
 								Bank.depositAllItems();
-								sleepUntil(() -> Inventory.emptySlotCount() == 28, 6000);
+								Sleep.sleepUntil(() -> Inventory.emptySlotCount() == 28, 6000);
 							}
 						} else {//not enough money
 							//do nothing here, code will fix itself
@@ -154,16 +156,16 @@ public class GETrader extends Script {
 				}
 			} else if (Bank.isOpen()) {
 				Bank.close();
-				sleepUntil(() -> !Bank.isOpen(), 6000);
+				Sleep.sleepUntil(() -> !Bank.isOpen(), 6000);
 			} else if (!GrandExchange.isOpen()) {
 				GrandExchange.open();
-				sleepUntil(() -> GrandExchange.isOpen(), 6000);
+				Sleep.sleepUntil(() -> GrandExchange.isOpen(), 6000);
 			} else if (status == OfferStatus.MAKING_OFFER) {
 				if (GrandExchange.isGeneralOpen()) {
 					slot = GrandExchange.getFirstOpenSlot();
 					if (slot > -1) {
 						GrandExchange.openBuyScreen(slot);
-						sleepUntil(() -> GrandExchange.isBuyOpen(), 6000);
+						Sleep.sleepUntil(() -> GrandExchange.isBuyOpen(), 6000);
 					} else {//there's no open slots
 						if (GrandExchange.isReadyToCollect()) {
 							GrandExchange.collect();
@@ -173,11 +175,11 @@ public class GETrader extends Script {
 				} else if (GrandExchange.isBuyOpen()) {
 					if (GrandExchange.getCurrentChosenItem() == null) {
 						GrandExchange.addBuyItem(item.getItem().getName());
-						sleepUntil(() -> GrandExchange.getCurrentChosenItemID() == item.getItem().getID(), 6000);
+						Sleep.sleepUntil(() -> GrandExchange.getCurrentChosenItemID() == item.getItem().getID(), 6000);
 					} else if (GrandExchange.getCurrentChosenItemID() == item.getItem().getID()) {
 						if (GrandExchange.getCurrentAmount() != (int) item.getQuantity()) {
 							GrandExchange.setQuantity((int) item.getQuantity());
-							sleepUntil(() -> GrandExchange.getCurrentAmount() == (int) item.getQuantity(), 6000);
+							Sleep.sleepUntil(() -> GrandExchange.getCurrentAmount() == (int) item.getQuantity(), 6000);
 						}
 						if (item.getIncrements().size() > 0) {
 							for (int increment : item.getIncrements()) {
@@ -206,7 +208,7 @@ public class GETrader extends Script {
 								}
 								if (increment > 0) {//custom price
 									GrandExchange.setPrice(increment);
-									sleepUntil(() -> GrandExchange.getCurrentPrice() == increment, 6000);
+									Sleep.sleepUntil(() -> GrandExchange.getCurrentPrice() == increment, 6000);
 								}
 							}
 						}
@@ -222,7 +224,7 @@ public class GETrader extends Script {
 								price = Integer.MAX_VALUE;
 							GrandExchange.setPrice((int) price);
 							final long finalPrice = price;
-							sleepUntil(() -> GrandExchange.getCurrentPrice() == finalPrice, 6000);
+							Sleep.sleepUntil(() -> GrandExchange.getCurrentPrice() == finalPrice, 6000);
 							
 							
 							
@@ -236,10 +238,10 @@ public class GETrader extends Script {
 						}
 						if (GrandExchange.getCurrentPrice() != (int) item.getPrice() && increments == 0) {
 							GrandExchange.setPrice((int) item.getPrice());
-							sleepUntil(() -> GrandExchange.getCurrentPrice() == (int) item.getPrice(), 6000);
+							Sleep.sleepUntil(() -> GrandExchange.getCurrentPrice() == (int) item.getPrice(), 6000);
 						}
 						GrandExchange.confirm();
-						sleepUntil(() -> GrandExchange.isGeneralOpen(), 6000);
+						Sleep.sleepUntil(() -> GrandExchange.isGeneralOpen(), 6000);
 						if (GrandExchange.slotContainsItem(slot)) {
 							status = OfferStatus.WAITING_ON_OFFER;
 							waitTimer = new Timer();
@@ -269,14 +271,14 @@ public class GETrader extends Script {
 							waitTime = -1;
 							GrandExchange.cancelOffer(slot);
 							hasCancelled = true;
-							sleepUntil(() -> Widgets.getWidgetChild(465, 23, 2) != null && Widgets.getWidgetChild(465, 23, 2).getItemStack() > 0, 6000);
+							Sleep.sleepUntil(() -> Widgets.getWidgetChild(465, 23, 2) != null && Widgets.getWidgetChild(465, 23, 2).getItemStack() > 0, 6000);
 						}
 					} else {//just waiting for item to buy
 						if (waitTimer.elapsed() > 60000) {//cancel this order and move on
 							waitTime = -1;
 							GrandExchange.cancelOffer(slot);
 							hasCancelled = true;
-							sleepUntil(() -> Widgets.getWidgetChild(465, 23, 2) != null && Widgets.getWidgetChild(465, 23, 2).getItemStack() > 0, 6000);
+							Sleep.sleepUntil(() -> Widgets.getWidgetChild(465, 23, 2) != null && Widgets.getWidgetChild(465, 23, 2).getItemStack() > 0, 6000);
 						}
 					}
 				} else {
@@ -286,7 +288,7 @@ public class GETrader extends Script {
 						if (collectItem.getItemStack() > 0) {
 							sleep(1000, 1500);
 							collectItem.interact("Collect");
-							sleepUntil(() -> !GrandExchange.isBuyOpen(), 2000);
+							Sleep.sleepUntil(() -> !GrandExchange.isBuyOpen(), 2000);
 							if (!GrandExchange.isBuyOpen()) {
 								hasCancelled = false;
 								status = OfferStatus.MAKING_OFFER;
@@ -297,7 +299,7 @@ public class GETrader extends Script {
 							} else {
 								hasCancelled = false;
 								back.interact();
-								sleepUntil(() -> !GrandExchange.isBuyOpen(), 2000);
+								Sleep.sleepUntil(() -> !GrandExchange.isBuyOpen(), 2000);
 							}
 						}
 					}
@@ -310,25 +312,25 @@ public class GETrader extends Script {
 		case SELLING:
 			if (Equipment.contains(item.getItem().getID()) && !GrandExchange.isOpen()) {//remove equipment
 				Tabs.open(Tab.EQUIPMENT);
-				sleepUntil(() -> Tabs.isOpen(Tab.EQUIPMENT), 2000);
+				Sleep.sleepUntil(() -> Tabs.isOpen(Tab.EQUIPMENT), 2000);
 				if (Tabs.isOpen(Tab.EQUIPMENT)) {
 					for (EquipmentSlot slot : EquipmentSlot.values()) {
 						if (Equipment.getIdForSlot(slot.getSlot()) == item.getItem().getID()) {
 							Equipment.unequip(slot);
-							sleepUntil(() -> Inventory.contains(item.getItem().getID()), 2000);
+							Sleep.sleepUntil(() -> Inventory.contains(item.getItem().getID()), 2000);
 							break;
 						}
 					}
 				}
 				Tabs.open(Tab.INVENTORY);
-				sleepUntil(() -> Tabs.isOpen(Tab.INVENTORY), 2000);
+				Sleep.sleepUntil(() -> Tabs.isOpen(Tab.INVENTORY), 2000);
 			} else if (Inventory.count(item.getItem().getID()) < item.getQuantity() && !GrandExchange.isOpen())  {
 				if (GrandExchange.isOpen()) {//open GE
 					GrandExchange.close();
-					sleepUntil(() -> !GrandExchange.isOpen(), 6000);
+					Sleep.sleepUntil(() -> !GrandExchange.isOpen(), 6000);
 				} else if (!Bank.isOpen()) {//open bank
-					Bank.openClosest();
-					sleepUntil(() -> Bank.isOpen(), 6000);
+					Bank.open();
+					Sleep.sleepUntil(() -> Bank.isOpen(), 6000);
 				} else if (Bank.isOpen()) {//bank is open
 					int inventory = Inventory.count(item.getItem().getID());
 					int bank = Bank.count(item.getItem().getID());
@@ -337,22 +339,22 @@ public class GETrader extends Script {
 						item.setQuantity(quantity);
 					if (inventory < item.getQuantity() && bank > 0) {
 						Bank.withdraw(item.getItem().getID(), (int) (item.getQuantity() - inventory));
-						sleepUntil(() -> Inventory.count(item.getItem().getID()) == (int) item.getQuantity(), 6000);
+						Sleep.sleepUntil(() -> Inventory.count(item.getItem().getID()) == (int) item.getQuantity(), 6000);
 					}
 				}
 			} else if (Bank.isOpen()) {
 				Bank.close();
-				sleepUntil(() -> !Bank.isOpen(), 6000);
+				Sleep.sleepUntil(() -> !Bank.isOpen(), 6000);
 			} else if (!GrandExchange.isOpen()) {
 				GrandExchange.open();
-				sleepUntil(() -> GrandExchange.isOpen(), 6000);
+				Sleep.sleepUntil(() -> GrandExchange.isOpen(), 6000);
 			} else if (Inventory.count(item.getItem().getID()) >= item.getQuantity() || slot > -1 && GrandExchange.slotContainsItem(slot)) {
 				if (status == OfferStatus.MAKING_OFFER) {
 					if (GrandExchange.isGeneralOpen()) {
 						slot = GrandExchange.getFirstOpenSlot();
 						if (slot > -1) {
 							GrandExchange.openSellScreen(slot);
-							sleepUntil(() -> GrandExchange.isSellOpen(), 6000);
+							Sleep.sleepUntil(() -> GrandExchange.isSellOpen(), 6000);
 						} else {//there's no open slots
 							if (GrandExchange.isReadyToCollect()) {
 								GrandExchange.collect();
@@ -362,11 +364,11 @@ public class GETrader extends Script {
 					} else if (GrandExchange.isSellOpen()) {
 						if (GrandExchange.getCurrentChosenItem() == null) {
 							GrandExchange.addSellItem(item.getItem().getName());
-							sleepUntil(() -> GrandExchange.getCurrentChosenItemID() == item.getItem().getID(), 6000);
+							Sleep.sleepUntil(() -> GrandExchange.getCurrentChosenItemID() == item.getItem().getID(), 6000);
 						} else if (GrandExchange.getCurrentChosenItemID() == item.getItem().getID()) {
 							if (GrandExchange.getCurrentAmount() != (int) item.getQuantity()) {
 								GrandExchange.setQuantity((int) item.getQuantity());
-								sleepUntil(() -> GrandExchange.getCurrentAmount() == (int) item.getQuantity(), 6000);
+								Sleep.sleepUntil(() -> GrandExchange.getCurrentAmount() == (int) item.getQuantity(), 6000);
 							}
 							if (item.getIncrements().size() > 0 && increments == 0) {
 								for (int increment : item.getIncrements()) {
@@ -395,7 +397,7 @@ public class GETrader extends Script {
 									}
 									if (increment > 0) {//custom price
 										GrandExchange.setPrice(increment);
-										sleepUntil(() -> GrandExchange.getCurrentPrice() == increment, 6000);
+										Sleep.sleepUntil(() -> GrandExchange.getCurrentPrice() == increment, 6000);
 									}
 								}
 							}
@@ -411,14 +413,14 @@ public class GETrader extends Script {
 									price = Integer.MAX_VALUE;
 								GrandExchange.setPrice((int) price);
 								final long finalPrice = price;
-								sleepUntil(() -> GrandExchange.getCurrentPrice() == finalPrice, 6000);
+								Sleep.sleepUntil(() -> GrandExchange.getCurrentPrice() == finalPrice, 6000);
 							}
 							if (GrandExchange.getCurrentPrice() != (int) item.getPrice() && increments == 0) {
 								GrandExchange.setPrice((int) item.getPrice());
-								sleepUntil(() -> GrandExchange.getCurrentPrice() == (int) item.getPrice(), 6000);
+								Sleep.sleepUntil(() -> GrandExchange.getCurrentPrice() == (int) item.getPrice(), 6000);
 							}
 							GrandExchange.confirm();
-							sleepUntil(() -> GrandExchange.isGeneralOpen(), 6000);
+							Sleep.sleepUntil(() -> GrandExchange.isGeneralOpen(), 6000);
 							if (GrandExchange.slotContainsItem(slot)) {
 								status = OfferStatus.WAITING_ON_OFFER;
 								waitTimer = new Timer();
@@ -447,14 +449,14 @@ public class GETrader extends Script {
 								waitTime = -1;
 								GrandExchange.cancelOffer(slot);
 								hasCancelled = true;
-								sleepUntil(() -> Widgets.getWidgetChild(465, 23, 2) != null && Widgets.getWidgetChild(465, 23, 2).getItemStack() > 0, 6000);
+								Sleep.sleepUntil(() -> Widgets.getWidgetChild(465, 23, 2) != null && Widgets.getWidgetChild(465, 23, 2).getItemStack() > 0, 6000);
 							}
 						} else {//just waiting for item to sell
 							if (waitTimer.elapsed() > 60000) {//cancel this order and move on
 								waitTime = -1;
 								GrandExchange.cancelOffer(slot);
 								hasCancelled = true;
-								sleepUntil(() -> Widgets.getWidgetChild(465, 23, 2) != null && Widgets.getWidgetChild(465, 23, 2).getItemStack() > 0, 6000);
+								Sleep.sleepUntil(() -> Widgets.getWidgetChild(465, 23, 2) != null && Widgets.getWidgetChild(465, 23, 2).getItemStack() > 0, 6000);
 							} else {
 								
 							}
@@ -469,7 +471,7 @@ public class GETrader extends Script {
 									collectItem.interact("Collect-note");
 								else
 									collectItem.interact("Collect-item");
-								sleepUntil(() -> !GrandExchange.isSellOpen(), 2000);
+								Sleep.sleepUntil(() -> !GrandExchange.isSellOpen(), 2000);
 								if (!GrandExchange.isSellOpen()) {
 									hasCancelled = false;
 									status = OfferStatus.MAKING_OFFER;
@@ -480,7 +482,7 @@ public class GETrader extends Script {
 								} else {
 									hasCancelled = false;
 									back.interact();
-									sleepUntil(() -> !GrandExchange.isSellOpen(), 2000);
+									Sleep.sleepUntil(() -> !GrandExchange.isSellOpen(), 2000);
 								}
 							}
 						}

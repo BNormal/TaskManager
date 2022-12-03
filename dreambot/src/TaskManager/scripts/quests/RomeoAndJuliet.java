@@ -12,6 +12,7 @@ import org.dreambot.api.methods.container.impl.Inventory;
 import org.dreambot.api.methods.dialogues.Dialogues;
 import org.dreambot.api.methods.interactive.GameObjects;
 import org.dreambot.api.methods.interactive.NPCs;
+import org.dreambot.api.methods.interactive.Players;
 import org.dreambot.api.methods.map.Area;
 import org.dreambot.api.methods.map.Map;
 import org.dreambot.api.methods.map.Tile;
@@ -19,12 +20,13 @@ import org.dreambot.api.methods.tabs.Tabs;
 import org.dreambot.api.methods.walking.impl.Walking;
 import org.dreambot.api.methods.widget.Widgets;
 import org.dreambot.api.script.Category;
+import org.dreambot.api.utilities.Sleep;
 import org.dreambot.api.wrappers.interactive.GameObject;
 import org.dreambot.api.wrappers.widgets.WidgetChild;
 
-import TaskManager.utilities.Utilities;
 import TaskManager.Script;
 import TaskManager.ScriptDetails;
+import TaskManager.utilities.Utilities;
 
 @ScriptDetails(author = "NumberZ", category = Category.QUEST, name = "Romeo and Juliet", version = 1.0, description = "Completes the Romeo and Juliet quest.")
 public class RomeoAndJuliet extends Script {
@@ -103,7 +105,7 @@ public class RomeoAndJuliet extends Script {
 	@Override
 	public int onLoop() {
 		state = getState();
-		if (dangerArea.contains(getLocalPlayer())) {
+		if (dangerArea.contains(Players.getLocal())) {
 			if (Walking.getRunEnergy() >= 2 && !Walking.isRunEnabled()) {
 				Walking.toggleRun();
 			}
@@ -111,47 +113,47 @@ public class RomeoAndJuliet extends Script {
 		switch (state) {
 		case PROGRESS:
 			if (progressId == 0) {//quest not started
-				if (romeosArea.contains(getLocalPlayer())) {
+				if (romeosArea.contains(Players.getLocal())) {
 					NPCs.closest("Romeo").interact();
-					sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
+					Sleep.sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
 				} else {
 					Walking.walk(romeosArea.getRandomTile());
-					sleepUntil(() -> Walking.getDestinationDistance() < 6, 6000);
+					Sleep.sleepUntil(() -> Walking.getDestinationDistance() < 6, 6000);
 				}
 			} else if (progressId == 2 || progressId == 7) {//go to juliet for the first time or giving her potion
-				if (getLocalPlayer().getX() > 10000)
+				if (Players.getLocal().getX() > 10000)
 					;//cutscene, don't do anything
-				else if (getLocalPlayer().getZ() == 0) {//first floor
-					if (getLocalPlayer().getX() > 3168) {
+				else if (Players.getLocal().getZ() == 0) {//first floor
+					if (Players.getLocal().getX() > 3168) {
 						Walking.walk(new Tile(3165 + Calculations.random(1, 2), 3433 + Calculations.random(1, 2), 0));
-						sleepUntil(() -> Walking.getDestinationDistance() < 4, 6000);
-					} else if(getLocalPlayer().getX() < 3172) {
+						Sleep.sleepUntil(() -> Walking.getDestinationDistance() < 4, 6000);
+					} else if(Players.getLocal().getX() < 3172) {
 						if (!Map.canReach(new Tile(3164, 3433, 0))) {
 							GameObjects.closest("Door").interactForceRight("Open");
-							sleepUntil(() -> Map.canReach(new Tile(3164, 3433, 0)), 6000);
+							Sleep.sleepUntil(() -> Map.canReach(new Tile(3164, 3433, 0)), 6000);
 						} else {
 							Walking.walk(new Tile(3160 + Calculations.random(1, 2), 3435 + Calculations.random(1, 2), 0));
-							sleepUntil(() -> Walking.getDestinationDistance() < 4, 6000);
+							Sleep.sleepUntil(() -> Walking.getDestinationDistance() < 4, 6000);
 							GameObjects.closest("Staircase").interactForceRight("Climb-up");
-							sleepUntil(() -> getLocalPlayer().getZ() == 1, 6000);
+							Sleep.sleepUntil(() -> Players.getLocal().getZ() == 1, 6000);
 						}
 					}
-				} else if (getLocalPlayer().getZ() == 1) {//second floor
+				} else if (Players.getLocal().getZ() == 1) {//second floor
 					if (!Map.canReach(new Tile(3158, 3429, 1))) {
 						GameObjects.getTopObjectOnTile(new Tile(3157, 3430, 1)).interactForceRight("Open");
 						//getObject(new Tile(3157, 3430, 1), "Door").interactForceRight("Open");
-						sleepUntil(() -> Map.canReach(new Tile(3158, 3429, 1)), 6000);
+						Sleep.sleepUntil(() -> Map.canReach(new Tile(3158, 3429, 1)), 6000);
 					} else {
 						if (!Map.canReach(new Tile(3158, 3428, 1))) {
 							GameObjects.getTopObjectOnTile(new Tile(3158, 3426, 1)).interactForceRight("Open");
 							//getObject(new Tile(3158, 3426, 1), "Door").interactForceRight("Open");
-							sleepUntil(() -> Map.canReach(new Tile(3158, 3428, 1)), 6000);
+							Sleep.sleepUntil(() -> Map.canReach(new Tile(3158, 3428, 1)), 6000);
 						} else {
 							if (progressId == 2 && !Inventory.contains("Message") || progressId == 7 && Inventory.contains("Cadava potion")) {
 								Walking.walk(new Tile(3158 + Calculations.random(-1, 2), 3428, 1));
-								sleepUntil(() -> Walking.getDestinationDistance() < 4, 6000);
+								Sleep.sleepUntil(() -> Walking.getDestinationDistance() < 4, 6000);
 								NPCs.closest("Juliet").interact();
-								sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
+								Sleep.sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
 							} else {
 								if (progressId == 2)
 									progressId = 3;//Message for Romeo
@@ -162,94 +164,94 @@ public class RomeoAndJuliet extends Script {
 					}
 				}
 			} else if (progressId == 3 || progressId == 8) {//has Message for Romeo or doesn't have potion anymore
-				if (getLocalPlayer().getX() > 10000)
+				if (Players.getLocal().getX() > 10000)
 					;//cutscene, don't do anything
 				else if (Widgets.getWidget(277) != null && Widgets.getWidget(277).isVisible())
 					progressId = 9;//Quest complete!
-				else if (getLocalPlayer().getZ() == 1) {
+				else if (Players.getLocal().getZ() == 1) {
 					if (!Map.canReach(new Tile(3158, 3429, 1))) {
 						GameObjects.getTopObjectOnTile(new Tile(3158, 3426, 1)).interactForceRight("Open");
 						//getObject(new Tile(3158, 3426, 1), "Door").interactForceRight("Open");
-						sleepUntil(() -> Map.canReach(new Tile(3158, 3429, 1)), 6000);
+						Sleep.sleepUntil(() -> Map.canReach(new Tile(3158, 3429, 1)), 6000);
 					} else {
 						if (!Map.canReach(new Tile(3155, 3433, 1))) {
 							GameObjects.getTopObjectOnTile(new Tile(3157, 3430, 1)).interactForceRight("Open");
 							//getObject(new Tile(3157, 3430, 1), "Door").interactForceRight("Open");
-							sleepUntil(() -> Map.canReach(new Tile(3155, 3433, 1)), 6000);
+							Sleep.sleepUntil(() -> Map.canReach(new Tile(3155, 3433, 1)), 6000);
 						} else {
 							Walking.walk(new Tile(3155 + Calculations.random(-1, 2), 3433, 1));
-							sleepUntil(() -> Walking.getDestinationDistance() < 4, 6000);
+							Sleep.sleepUntil(() -> Walking.getDestinationDistance() < 4, 6000);
 							GameObjects.closest("Staircase").interactForceRight("Climb-down");
-							sleepUntil(() -> getLocalPlayer().getZ() == 0, 6000);
+							Sleep.sleepUntil(() -> Players.getLocal().getZ() == 0, 6000);
 						}
 					}
-				} else if (getLocalPlayer().getZ() == 0) {
-					 if (getLocalPlayer().getX() < 3165) {
+				} else if (Players.getLocal().getZ() == 0) {
+					 if (Players.getLocal().getX() < 3165) {
 						if (!Map.canReach(new Tile(3166, 3433, 0))) {
 							GameObjects.getTopObjectOnTile(new Tile(3165, 3433, 0)).interactForceRight("Open");
 							//getObject(new Tile(3165, 3433, 0), "Door").interactForceRight("Open");
-							sleepUntil(() -> Map.canReach(new Tile(3165, 3433, 0)), 6000);
+							Sleep.sleepUntil(() -> Map.canReach(new Tile(3165, 3433, 0)), 6000);
 						} else {
 							Walking.walk(new Tile(3211 + Calculations.random(1, 2), 3424 + Calculations.random(1, 2), 0));
-							sleepUntil(() -> Walking.getDestinationDistance() < 4, 6000);
+							Sleep.sleepUntil(() -> Walking.getDestinationDistance() < 4, 6000);
 						}
-					 } else if (romeosArea.contains(getLocalPlayer())) {
+					 } else if (romeosArea.contains(Players.getLocal())) {
 						NPCs.closest("Romeo").interact();
-						sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
 					} else {
 						Walking.walk(new Tile(3211 + Calculations.random(1, 2), 3424 + Calculations.random(1, 2), 0));
-						sleepUntil(() -> Walking.getDestinationDistance() < 4, 6000);
+						Sleep.sleepUntil(() -> Walking.getDestinationDistance() < 4, 6000);
 					}
 				}
 			} else if (progressId == 4) {//going talk to father lawrence
-				if (fatherArea.contains(getLocalPlayer())) {
+				if (fatherArea.contains(Players.getLocal())) {
 					NPCs.closest("Father Lawrence").interact();
-					sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
+					Sleep.sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
 				} else {
 					Walking.walk(fatherArea.getRandomTile());
-					sleepUntil(() -> Walking.getDestinationDistance() < 6, 6000);
+					Sleep.sleepUntil(() -> Walking.getDestinationDistance() < 6, 6000);
 				}
 			} else if (progressId == 5) {//talk to the potion maker guy
-				if (apothecaryArea.contains(getLocalPlayer())) {
+				if (apothecaryArea.contains(Players.getLocal())) {
 					NPCs.closest("Apothecary").interact();
-					sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
+					Sleep.sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
 				} else {
-					if ((new Tile(3192, 3403, 0)).distance(getLocalPlayer()) < 7) {
+					if ((new Tile(3192, 3403, 0)).distance(Players.getLocal()) < 7) {
 						if (!Map.canReach(new Tile(3192, 3403, 0))) {
 							GameObjects.getTopObjectOnTile(new Tile(3192, 3403, 0)).interactForceRight("Open");
 							//getObject(new Tile(3192, 3403, 0), "Door").interactForceRight("Open");
-							sleepUntil(() -> Map.canReach(new Tile(3192, 3403, 0)), 6000);
+							Sleep.sleepUntil(() -> Map.canReach(new Tile(3192, 3403, 0)), 6000);
 						}
 					}
 					Walking.walk(apothecaryArea.getRandomTile());
-					sleepUntil(() -> Walking.getDestinationDistance() < 6, 6000);
+					Sleep.sleepUntil(() -> Walking.getDestinationDistance() < 6, 6000);
 				}
 			} else if (progressId == 6) {//grabbing some berries
 				if (Inventory.contains("Cadava potion")) {
 					progressId = 7;
 				} else if (!Inventory.contains("Cadava berries")) {
 				
-					if ((new Tile(3267, 3368, 0)).distance(getLocalPlayer()) > 7) {
+					if ((new Tile(3267, 3368, 0)).distance(Players.getLocal()) > 7) {
 						Walking.walk(new Tile(3267 + Calculations.random(-1, 3), 3368 + Calculations.random(-1, 3), 0));
-						sleepUntil(() -> Walking.getDestinationDistance() < 4, 6000);
+						Sleep.sleepUntil(() -> Walking.getDestinationDistance() < 4, 6000);
 					} else {
 						GameObjects.closest(33183).interact();//berry bush
-						sleepUntil(() -> Inventory.contains("Cadava berries"), 6000);
+						Sleep.sleepUntil(() -> Inventory.contains("Cadava berries"), 6000);
 					}
 				} else {
-					if (apothecaryArea.contains(getLocalPlayer())) {
+					if (apothecaryArea.contains(Players.getLocal())) {
 						NPCs.closest("Apothecary").interact();
-						sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
 					} else {
-						if ((new Tile(3192, 3403, 0)).distance(getLocalPlayer()) < 7) {
+						if ((new Tile(3192, 3403, 0)).distance(Players.getLocal()) < 7) {
 							if (!Map.canReach(new Tile(3192, 3403, 0))) {
 								GameObjects.getTopObjectOnTile(new Tile(3192, 3403, 0)).interactForceRight("Open");
 								//getObject(new Tile(3192, 3403, 0), "Door").interactForceRight("Open");
-								sleepUntil(() -> Map.canReach(new Tile(3192, 3403, 0)), 6000);
+								Sleep.sleepUntil(() -> Map.canReach(new Tile(3192, 3403, 0)), 6000);
 							}
 						}
 						Walking.walk(apothecaryArea.getRandomTile());
-						sleepUntil(() -> Walking.getDestinationDistance() < 6, 6000);
+						Sleep.sleepUntil(() -> Walking.getDestinationDistance() < 6, 6000);
 					}
 				}
 			}

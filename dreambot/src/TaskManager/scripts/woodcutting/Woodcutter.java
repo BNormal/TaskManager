@@ -8,22 +8,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.dreambot.api.methods.Calculations;
-import org.dreambot.api.methods.MethodProvider;
 import org.dreambot.api.methods.container.impl.Inventory;
 import org.dreambot.api.methods.container.impl.bank.Bank;
+import org.dreambot.api.methods.container.impl.bank.BankLocation;
 import org.dreambot.api.methods.container.impl.equipment.Equipment;
 import org.dreambot.api.methods.container.impl.equipment.EquipmentSlot;
 import org.dreambot.api.methods.dialogues.Dialogues;
 import org.dreambot.api.methods.filter.Filter;
 import org.dreambot.api.methods.interactive.GameObjects;
+import org.dreambot.api.methods.interactive.Players;
 import org.dreambot.api.methods.map.Area;
 import org.dreambot.api.methods.skills.Skill;
 import org.dreambot.api.methods.skills.SkillTracker;
 import org.dreambot.api.methods.skills.Skills;
 import org.dreambot.api.methods.walking.impl.Walking;
-import org.dreambot.api.methods.walking.web.node.impl.bank.WebBankArea;
 import org.dreambot.api.methods.widget.Widgets;
 import org.dreambot.api.script.Category;
+import org.dreambot.api.utilities.Logger;
+import org.dreambot.api.utilities.Sleep;
 import org.dreambot.api.wrappers.interactive.GameObject;
 import org.dreambot.api.wrappers.items.Item;
 import org.dreambot.core.Instance;
@@ -34,9 +36,9 @@ import com.google.gson.reflect.TypeToken;
 
 import TaskManager.Script;
 import TaskManager.ScriptDetails;
-import TaskManager.utilities.Utilities;
-import TaskManager.scripts.woodcutting.WoodcutterData.Tree;
 import TaskManager.scripts.woodcutting.WoodcutterData.Axe;
+import TaskManager.scripts.woodcutting.WoodcutterData.Tree;
+import TaskManager.utilities.Utilities;
 
 @ScriptDetails(author = "NumberZ", category = Category.WOODCUTTING, name = "Woodcutter", version = 1.0, description = "Cuts trees in various areas.")
 public class Woodcutter extends Script {
@@ -62,7 +64,7 @@ public class Woodcutter extends Script {
 			gui.open();
 		} catch (Exception e) {
 			e.printStackTrace();
-			MethodProvider.log(e.toString());
+			Logger.log(e.toString());
 		}
 	}
 	
@@ -80,7 +82,7 @@ public class Woodcutter extends Script {
 	public int onLoop() {
 		if (Widgets.getWidget(122) == null) {
 			return 0;
-		} else if (!tracking && getLocalPlayer().isOnScreen()) {
+		} else if (!tracking && Players.getLocal().isOnScreen()) {
 			tracking = true;
 			SkillTracker.reset(Skill.WOODCUTTING);
 			SkillTracker.start(Skill.WOODCUTTING);
@@ -102,7 +104,7 @@ public class Woodcutter extends Script {
 					if (!Inventory.contains(selectedTreeType.getLogFromTree().getLogId()))
 						dropping = false;
 				}
-			} else if (getLocalPlayer().isAnimating()) {
+			} else if (Players.getLocal().isAnimating()) {
 				
 			} else if (ableToCut()) {
 				handleWoodcutting();
@@ -114,17 +116,17 @@ public class Woodcutter extends Script {
 				else {
 					Walking.walk(location.getBankArea().getCenter().getRandomizedTile(2));
 					if (Calculations.random(0, 20) > 1) {
-						sleepUntil(() -> Walking.getDestinationDistance() < Calculations.random(6, 9), 6000);
+						Sleep.sleepUntil(() -> Walking.getDestinationDistance() < Calculations.random(6, 9), 6000);
 					}
 				}
 			} else if (readyToCut()) {
 				if (Bank.isOpen()) {
 					Bank.close();
-					sleepUntil(() -> !Bank.isOpen(), Calculations.random(3000, 5000));
+					Sleep.sleepUntil(() -> !Bank.isOpen(), Calculations.random(3000, 5000));
 				} else {
 					Walking.walk(location.getWoodCuttingArea().getCenter().getRandomizedTile(2));
 					if (Calculations.random(0, 20) > 1) {
-						sleepUntil(() -> Walking.getDestinationDistance() < Calculations.random(6, 9), 6000);
+						Sleep.sleepUntil(() -> Walking.getDestinationDistance() < Calculations.random(6, 9), 6000);
 					}
 				}
 			}
@@ -134,16 +136,16 @@ public class Woodcutter extends Script {
 
 	private boolean handleWoodcutting() {
 		boolean result = true;
-		if (!getLocalPlayer().isMoving() && !getLocalPlayer().isAnimating()) {
+		if (!Players.getLocal().isMoving() && !Players.getLocal().isAnimating()) {
 			if (currentTree == null || !currentTree.exists()) {
 				currentTree = GameObjects.closest(treeFilter());
-				if (currentTree != null && !currentTree.isOnScreen() && getLocalPlayer().distance(currentTree) < 5)
+				if (currentTree != null && !currentTree.isOnScreen() && Players.getLocal().distance(currentTree) < 5)
 					currentTree = null;
 			}
 			if (currentTree != null) {
 				currentTree.interact("Chop down");
-				sleepUntil(() -> getLocalPlayer().isAnimating() || Dialogues.inDialogue() || currentTree == null, Calculations.random(12000, 15400));
-				//sleepUntil(() -> !getLocalPlayer().isAnimating(), Calculations.random(12000, 15400));
+				Sleep.sleepUntil(() -> Players.getLocal().isAnimating() || Dialogues.inDialogue() || currentTree == null, Calculations.random(12000, 15400));
+				//Sleep.sleepUntil(() -> !Players.getLocal().isAnimating(), Calculations.random(12000, 15400));
 			}
 		}
 		return result;
@@ -162,14 +164,14 @@ public class Woodcutter extends Script {
 		boolean results = false;
 		if (ableToBank()) {
 			if (!Bank.isOpen()) {
-				Bank.openClosest();
-				sleepUntil(() -> Bank.isOpen(), Calculations.random(3000, 5000));
+				Bank.open();
+				Sleep.sleepUntil(() -> Bank.isOpen(), Calculations.random(3000, 5000));
 			} else {
 				Axe = getBestAxe();
 				if (!hasAxe()) {
 					if (Bank.contains(Axe)) {
 						Bank.withdraw(Axe);
-						sleepUntil(() -> Inventory.contains(Axe), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Inventory.contains(Axe), Calculations.random(3000, 5000));
 					} else {
 						if (!Bank.contains(Axe) && !hasAxe()) {
 							onExit();
@@ -202,7 +204,7 @@ public class Woodcutter extends Script {
 	}
 
 	private boolean ableToCut() {
-		return readyToCut() && (location.getWoodCuttingArea().contains(getLocalPlayer()) || currentTree != null && currentTree.distance(getLocalPlayer()) < 5);
+		return readyToCut() && (location.getWoodCuttingArea().contains(Players.getLocal()) || currentTree != null && currentTree.distance(Players.getLocal()) < 5);
 	}
 
 	private boolean readyToCut() {
@@ -214,7 +216,7 @@ public class Woodcutter extends Script {
 	}
 
 	private boolean ableToBank() {
-		return needsToBank() && (location.getBankArea().contains(getLocalPlayer()) || location.getBankArea().getCenter().distance(getLocalPlayer()) < 7);
+		return needsToBank() && (location.getBankArea().contains(Players.getLocal()) || location.getBankArea().getCenter().distance(Players.getLocal()) < 7);
 	}
 
 	private boolean hasAxe() {
@@ -293,12 +295,12 @@ public class Woodcutter extends Script {
 	}
 	
 	public static enum WoodcuttingSpot {
-		Varrock_West(WebBankArea.VARROCK_WEST.getArea(), new Area(3160, 3423, 3170, 3411, 0), Tree.TREE, Tree.OAK_TREE),
-		Grand_Exchange_South(WebBankArea.GRAND_EXCHANGE.getArea(), new Area(3150, 3462, 3160, 3450, 0), Tree.TREE),
-		Varrock_Castle_North(WebBankArea.GRAND_EXCHANGE.getArea(), new Area(3203, 3505, 3223, 3499, 0), Tree.YEW_TREE),
-		Edgeville(WebBankArea.EDGEVILLE.getArea(), new Area(3085, 3481, 3088, 3468, 0), Tree.YEW_TREE),
-		Draynor(WebBankArea.DRAYNOR_MARKET.getArea(), new Area(3082, 3239, 3090, 3226, 0), Tree.WILLOW_TREE),
-		Port_Sarim(WebBankArea.DRAYNOR_MARKET.getArea(), new Area(3056, 3356, 3064, 3250, 0), Tree.WILLOW_TREE),
+		Varrock_West(BankLocation.VARROCK_WEST.getArea(1), new Area(3160, 3423, 3170, 3411, 0), Tree.TREE, Tree.OAK_TREE),
+		Grand_Exchange_South(BankLocation.GRAND_EXCHANGE.getArea(1), new Area(3150, 3462, 3160, 3450, 0), Tree.TREE),
+		Varrock_Castle_North(BankLocation.GRAND_EXCHANGE.getArea(1), new Area(3203, 3505, 3223, 3499, 0), Tree.YEW_TREE),
+		Edgeville(BankLocation.EDGEVILLE.getArea(1), new Area(3085, 3481, 3088, 3468, 0), Tree.YEW_TREE),
+		Draynor(BankLocation.DRAYNOR.getArea(1), new Area(3082, 3239, 3090, 3226, 0), Tree.WILLOW_TREE),
+		Port_Sarim(BankLocation.DRAYNOR.getArea(1), new Area(3056, 3356, 3064, 3250, 0), Tree.WILLOW_TREE),
 		Lumbridge_General_Store(Utilities.getLumbridgeBank(), new Area(3193, 3249, 3205, 3238, 0), Tree.TREE, Tree.OAK_TREE),
 		Lumbridge_Pond(Utilities.getLumbridgeBank(), new Area(3162, 3274, 3167, 3264, 0), Tree.WILLOW_TREE),
 		Lumbridge_River(Utilities.getLumbridgeBank(), new Area(3232, 3246, 3238, 3237, 0), Tree.WILLOW_TREE);

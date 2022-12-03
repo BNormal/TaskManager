@@ -116,7 +116,7 @@ public class WoodcutterData {
 
 		public boolean meetsAllReqsToUse() {
 			for (int i = 0; i < levelReq.length - 1; i++) {
-				if (Skills.getBoostedLevels(levelReq[i].getSkill()) < levelReq[i].getLevelReq())
+				if (Skills.getBoostedLevel(levelReq[i].getSkill()) < levelReq[i].getLevelReq())
 					return false;
 			}
 			return true;
@@ -124,7 +124,7 @@ public class WoodcutterData {
 		
 		public boolean meetsAllReqsToWield() {
 			for (int i = 0; i < levelReq.length; i++) {
-				if (Skills.getBoostedLevels(levelReq[i].getSkill()) < levelReq[i].getLevelReq())
+				if (Skills.getBoostedLevel(levelReq[i].getSkill()) < levelReq[i].getLevelReq())
 					return false;
 			}
 			return true;

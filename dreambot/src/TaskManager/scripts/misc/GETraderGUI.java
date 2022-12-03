@@ -1,52 +1,18 @@
 package TaskManager.scripts.misc;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonIOException;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
-import com.google.gson.reflect.TypeToken;
-
-import javax.swing.JFrame;
-import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
-import javax.swing.JLabel;
-import javax.swing.JScrollPane;
-import javax.swing.JSpinner;
-import javax.swing.JTextArea;
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.DefaultListModel;
-import javax.swing.ImageIcon;
-import javax.swing.JPanel;
-import javax.swing.border.EtchedBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.text.DefaultFormatter;
-import javax.swing.JList;
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.JFormattedTextField;
-import javax.swing.JButton;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingConstants;
-import javax.swing.border.LineBorder;
-import javax.swing.UIManager;
-
-import java.awt.event.ActionListener;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.EventQueue;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Insets;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
-import java.awt.Graphics;
-import java.awt.Insets;
-import java.awt.Point;
-import java.awt.Component;
-import java.awt.EventQueue;
-import java.awt.Font;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -63,7 +29,40 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.awt.Color;
+
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JFormattedTextField;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.LineBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.text.DefaultFormatter;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonIOException;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
 
 import TaskManager.utilities.Utilities;
 
@@ -107,11 +106,6 @@ public class GETraderGUI {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Throwable e) {
-			e.printStackTrace();
-		}
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -256,7 +250,7 @@ public class GETraderGUI {
 		spinnerCurrentPrice.setFocusable(false);
 		spinnerCurrentPrice.setToolTipText("Desired price for selected item");
 		spinnerCurrentPrice.setEnabled(false);
-		spinnerCurrentPrice.setModel(new SpinnerNumberModel(new Long(1), null, null, new Long(1)));
+		spinnerCurrentPrice.setModel(new SpinnerNumberModel(1, null, null, 1));
 		spinnerCurrentPrice.setBounds(256, 150, 106, 20);
 		JComponent comp = spinnerCurrentPrice.getEditor();
 		JFormattedTextField field = (JFormattedTextField) comp.getComponent(0);
@@ -298,7 +292,7 @@ public class GETraderGUI {
 		spinnerQuantity.setFocusable(false);
 		spinnerQuantity.setToolTipText("Desired quantity for selected item");
 		spinnerQuantity.setEnabled(false);
-		spinnerQuantity.setModel(new SpinnerNumberModel(new Long(1), null, null, new Long(1)));
+		spinnerQuantity.setModel(new SpinnerNumberModel(1, null, null, 1));
 		spinnerQuantity.setBounds(372, 150, 106, 20);
 		JFormattedTextField field2 = (JFormattedTextField) spinnerQuantity.getEditor().getComponent(0);
 		DefaultFormatter formatter2 = (DefaultFormatter) field2.getFormatter();
@@ -628,7 +622,7 @@ public class GETraderGUI {
 					JsonObject value = (JsonObject) entry.getValue();
 					String name = value.get("name").toString();
 					name = name.substring(1, name.length() - 1);
-					DisplayItem item = new DisplayItem(new Integer(value.get("id").toString()), name, value.get("members").toString().equals("true"));
+					DisplayItem item = new DisplayItem(Integer.parseInt(value.get("id").toString()), name, value.get("members").toString().equals("true"));
 					itemList.put(item.getID(), item);
 				}
 				try {

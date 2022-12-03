@@ -1,6 +1,5 @@
 package TaskManager.utilities;
 
-
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -14,11 +13,11 @@ import java.util.List;
 
 import javax.swing.ImageIcon;
 
-import org.dreambot.api.methods.MethodProvider;
+import org.dreambot.api.methods.container.impl.bank.BankLocation;
 import org.dreambot.api.methods.interactive.GameObjects;
 import org.dreambot.api.methods.map.Area;
 import org.dreambot.api.methods.map.Tile;
-import org.dreambot.api.methods.walking.web.node.impl.bank.WebBankArea;
+import org.dreambot.api.utilities.Logger;
 import org.dreambot.api.wrappers.interactive.GameObject;
 
 import TaskManager.Script;
@@ -33,43 +32,42 @@ public class Utilities {
 			Constructor<?> ctor = clazz.getConstructor();
 			Object object = ctor.newInstance();
 			return (Script) object;
-		} catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			MethodProvider.log(e);
-			MethodProvider.log(e.getLocalizedMessage());
-			MethodProvider.log(e.getMessage());
+		} catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException
+				| IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			Logger.log(e);
+			Logger.log(e.getLocalizedMessage());
+			Logger.log(e.getMessage());
 			e.printStackTrace();
 		}
 		return null;
 	}
 	
 	public static Area getLumbridgeBank() {
-		Area lumbridgeBank = WebBankArea.LUMBRIDGE.getArea();
+		Area lumbridgeBank = BankLocation.LUMBRIDGE.getArea(1);
 		lumbridgeBank.setZ(2);
 		return lumbridgeBank;
 	}
 	
 	public List<GameObject> getObjectsFromTile(Tile tile) {
 		List<GameObject> objects = GameObjects.all(object -> {
-			 boolean accepted = false;
-			 if (tile.getX() == object.getX() && tile.getY() == object.getY() && tile.getZ() == object.getZ()) {
-				 accepted = true;
-			 }
-			 return accepted;
+			boolean accepted = false;
+			if (tile.getX() == object.getX() && tile.getY() == object.getY() && tile.getZ() == object.getZ()) {
+				accepted = true;
+			}
+			return accepted;
 		});
 		return objects;
 	}
 	
 	public static GameObject getObject(Tile tile, String name) {
 		List<GameObject> objects = GameObjects.all(object -> {
-            boolean accepted = false;
-            if(object.getName().toLowerCase().contains(name.toLowerCase()) && 
-            		tile.getX() == object.getX() && 
-            		tile.getY() == object.getY() && 
-            		tile.getZ() == object.getZ()) {
-					accepted = true;
-            }
-            return accepted;
-        });
+			boolean accepted = false;
+			if (object.getName().toLowerCase().contains(name.toLowerCase()) && tile.getX() == object.getX()
+					&& tile.getY() == object.getY() && tile.getZ() == object.getZ()) {
+				accepted = true;
+			}
+			return accepted;
+		});
 		if (objects.size() <= 0)
 			return null;
 		else
@@ -78,29 +76,43 @@ public class Utilities {
 	
 	public GameObject getObject(Tile tile, String name, String option) {
 		List<GameObject> objects = GameObjects.all(object -> {
-            boolean accepted = false;
-            if(object.getName().toLowerCase().contains(name.toLowerCase()) && 
-            		tile.getX() == object.getX() && 
-            		tile.getY() == object.getY() && 
-            		tile.getZ() == object.getZ()) {
-            	String[] actions = object.getActions();
+			boolean accepted = false;
+			if (object.getName().toLowerCase().contains(name.toLowerCase()) && tile.getX() == object.getX()
+					&& tile.getY() == object.getY() && tile.getZ() == object.getZ()) {
+				String[] actions = object.getActions();
 				for (int j = 0; j < actions.length; j++) {
 					if (actions[j].contains(option))
-							accepted = true;
+						accepted = true;
 				}
-            }
-            return accepted;
-        });
+			}
+			return accepted;
+		});
 		if (objects.size() <= 0)
 			return null;
 		else
 			return objects.get(0);
 	}
 	
+	public static void drawItem(Graphics2D g, BufferedImage item, int id, int amount, int x, int y) {
+		if (item != null) {
+			g.setColor(new Color(0.353f, 0.322f, 0.271f, 0.55F));
+			g.fillRect(x, y, 38, 37);
+			g.setColor(new Color(0.22f, 0.188f, 0.137f, 1.0F));
+			g.drawRect(x, y, 38, 37);
+			g.setColor(new Color(0.353f, 0.322f, 0.271f, 1.0F));
+			g.drawRect(x + 1, y + 1, 36, 35);
+			g.drawImage(item, x + 2, y + 7, null);
+			g.setColor(Color.BLACK);
+			g.drawString(amount + "", x + 4, y + 13);
+			g.setColor(Color.WHITE);
+			g.drawString(amount + "", x + 3, y + 12);
+		}
+	}
+
 	public static void drawShadowString(Graphics2D g, String s, int x, int y) {
 		drawShadowString(g, s, x, y, Color.WHITE, Color.BLACK);
 	}
-	
+
 	public static void drawShadowString(Graphics2D g, String s, int x, int y, Color face, Color shadow) {
 		g.setColor(shadow);
 		g.drawString(s, x + 1, y + 1);
@@ -124,22 +136,25 @@ public class Utilities {
 		double y = (299 * color.getRed() + 587 * color.getGreen() + 114 * color.getBlue()) / 1000;
 		return y >= 128 ? Color.black : Color.white;
 	}
-	
+
 	public static Color HexToColor(String hex) {
 		return HexToColor(hex, 255);
 	}
-	
+
 	public static Color HexToColor(String hex, int alpha) {
-	    hex = hex.replace("#", "");
-	    return new Color(Integer.valueOf(hex.substring(0, 2), 16), Integer.valueOf(hex.substring(2, 4), 16), Integer.valueOf(hex.substring(4, 6), 16), alpha);
+		hex = hex.replace("#", "");
+		return new Color(
+			Integer.valueOf(hex.substring(0, 2), 16), Integer.valueOf(hex.substring(2, 4), 16),
+			Integer.valueOf(hex.substring(4, 6), 16), alpha
+		);
 	}
-	
-	public static String insertCommas(long number){
+
+	public static String insertCommas(long number) {
 		return insertCommas(number + "");
 	}
-	
-	public static String insertCommas(String str){
-		if(str.length() < 4){
+
+	public static String insertCommas(String str) {
+		if (str.length() < 4) {
 			return str;
 		}
 		return insertCommas(str.substring(0, str.length() - 3)) + "," + str.substring(str.length() - 3, str.length());
@@ -151,28 +166,30 @@ public class Utilities {
 	
 	public static String getJsonFromURL(URL url) throws Exception {
 		BufferedReader reader = null;
-	    try {
-	        reader = new BufferedReader(new InputStreamReader(url.openStream()));
-	        StringBuffer buffer = new StringBuffer();
-	        int read;
-	        char[] chars = new char[1024];
-	        while ((read = reader.read(chars)) != -1) {
-	        	buffer.append(chars, 0, read);
-	        }
-	        return buffer.toString();
-	    } finally {
-	        if (reader != null)
-	            reader.close();
-	    }
+		try {
+			reader = new BufferedReader(new InputStreamReader(url.openStream()));
+			StringBuffer buffer = new StringBuffer();
+			int read;
+			char[] chars = new char[1024];
+			while ((read = reader.read(chars)) != -1) {
+				buffer.append(chars, 0, read);
+			}
+			return buffer.toString();
+		} finally {
+			if (reader != null)
+				reader.close();
+		}
 	}
 	
 	public static ImageIcon mergeIcons(ImageIcon background, ImageIcon foreground, Point location) {
-        // For simplicity we will presume the images are of identical size
-        final BufferedImage combinedImage = new BufferedImage(background.getIconWidth(), background.getIconHeight(), BufferedImage.TYPE_INT_ARGB );
-        Graphics2D g = combinedImage.createGraphics();
-        g.drawImage(background.getImage(), 0, 0, null);
-        g.drawImage(foreground.getImage(), (int) location.getX(), (int) location.getY(), null);
-        g.dispose();
-        return new ImageIcon(combinedImage);
+		// For simplicity we will presume the images are of identical size
+		final BufferedImage combinedImage = new BufferedImage(
+			background.getIconWidth(), background.getIconHeight(), BufferedImage.TYPE_INT_ARGB
+		);
+		Graphics2D g = combinedImage.createGraphics();
+		g.drawImage(background.getImage(), 0, 0, null);
+		g.drawImage(foreground.getImage(), (int) location.getX(), (int) location.getY(), null);
+		g.dispose();
+		return new ImageIcon(combinedImage);
 	}
 }

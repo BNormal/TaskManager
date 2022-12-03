@@ -13,6 +13,7 @@ import org.dreambot.api.methods.container.impl.Inventory;
 import org.dreambot.api.methods.dialogues.Dialogues;
 import org.dreambot.api.methods.interactive.GameObjects;
 import org.dreambot.api.methods.interactive.NPCs;
+import org.dreambot.api.methods.interactive.Players;
 import org.dreambot.api.methods.item.GroundItems;
 import org.dreambot.api.methods.map.Area;
 import org.dreambot.api.methods.map.Map;
@@ -21,6 +22,7 @@ import org.dreambot.api.methods.tabs.Tabs;
 import org.dreambot.api.methods.walking.impl.Walking;
 import org.dreambot.api.methods.widget.Widgets;
 import org.dreambot.api.script.Category;
+import org.dreambot.api.utilities.Sleep;
 import org.dreambot.api.wrappers.widgets.WidgetChild;
 
 import TaskManager.Script;
@@ -133,9 +135,11 @@ public class CookAssistant extends Script implements Serializable {
 					else if (options.contains("I'll get right on it.")) {
 						Dialogues.chooseOption(1); 
 						}
-					else if (options.contains("Yes.")) {
+					else if (options.contains("Yes."))
 						Dialogues.chooseOption(1);
-					}
+					else if (options.contains("Yes."))
+						Dialogues.chooseOption(1);
+					
 				}
 
 			} else {
@@ -145,12 +149,12 @@ public class CookAssistant extends Script implements Serializable {
 			break;
 
 		case TALK_COOK:
-			if (kitchen.contains(getLocalPlayer())) {
+			if (kitchen.contains(Players.getLocal())) {
 				NPCs.closest("Cook").interact();
-				sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
+				Sleep.sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
 			} else {
 				Walking.walk(kitchen.getRandomTile());
-				sleepUntil(() -> Walking.getDestinationDistance() < 6, 6000);
+				Sleep.sleepUntil(() -> Walking.getDestinationDistance() < 6, 6000);
 			}
 			interfaceItem = Widgets.getWidgetChild(548, 60);
 
@@ -161,12 +165,12 @@ public class CookAssistant extends Script implements Serializable {
 				GroundItems.closest("pot").interact();
 
 			if (!Inventory.contains("Egg")) {
-				if (eggArea.contains(getLocalPlayer())) {
+				if (eggArea.contains(Players.getLocal())) {
 					GroundItems.closest("Egg").interactForceRight("Take");
-					sleepUntil(() -> Inventory.contains("Egg"), 3000);
+					Sleep.sleepUntil(() -> Inventory.contains("Egg"), 3000);
 				} else {
 					Walking.walk(eggArea.getRandomTile());
-					sleepUntil(() -> Walking.getDestinationDistance() < 6, 6000);
+					Sleep.sleepUntil(() -> Walking.getDestinationDistance() < 6, 6000);
 					if (!Map.canReach(new Tile(3180, 3291, 0))) {
 						GameObjects.closest("Gate").interactForceRight("Open");
 					}
@@ -178,13 +182,13 @@ public class CookAssistant extends Script implements Serializable {
 
 		case GET_FLOUR:
 			if (!Inventory.contains("Grain")) {
-				if (wheatArea.contains(getLocalPlayer())) {
+				if (wheatArea.contains(Players.getLocal())) {
 					GameObjects.closest(15506).interactForceRight("Pick");
-					sleepUntil(() -> Inventory.contains("Grain"), 3000);
+					Sleep.sleepUntil(() -> Inventory.contains("Grain"), 3000);
 				} else {
 					if (!Inventory.contains("Grain")) {
 						Walking.walk(wheatArea.getRandomTile());
-						sleepUntil(() -> Walking.getDestinationDistance() < 6, 6000);
+						Sleep.sleepUntil(() -> Walking.getDestinationDistance() < 6, 6000);
 						if (!Map.canReach(new Tile(3161, 3293, 0))) {
 							GameObjects.closest("Gate").interactForceRight("Open");
 						}
@@ -194,10 +198,10 @@ public class CookAssistant extends Script implements Serializable {
 			}
 			if (Inventory.contains("Grain")) { // Changes grain to flour
 				Walking.walk(flourMill.getRandomTile());
-				sleepUntil(() -> Walking.getDestinationDistance() < 6, 6000);
+				Sleep.sleepUntil(() -> Walking.getDestinationDistance() < 6, 6000);
 				if (!Map.canReach(new Tile(3167, 3304, 0))) {
 					GameObjects.closest("Large door").interactForceRight("Open");
-					sleepUntil(() -> GameObjects.closest("Large door").interactForceRight("Open") , 6000);
+					Sleep.sleepUntil(() -> GameObjects.closest("Large door").interactForceRight("Open") , 6000);
 				}
 				GameObjects.closest(12964).interact();
 				sleep(3000);
@@ -221,37 +225,37 @@ public class CookAssistant extends Script implements Serializable {
 		case GET_MILK:
 
 			if (!Inventory.contains("Bucket")) {
-				if (bucketArea.contains(getLocalPlayer())) {
+				if (bucketArea.contains(Players.getLocal())) {
 					GroundItems.closest("Bucket").interactForceRight("Take");
-					sleepUntil(() -> Inventory.contains("Bucket"), 3000);
+					Sleep.sleepUntil(() -> Inventory.contains("Bucket"), 3000);
 				} else {
 					if (!Inventory.contains("Bucket")) {
 						Walking.walk(bucketArea.getRandomTile());
-						sleepUntil(() -> Walking.getDestinationDistance() < 6, 6000);
+						Sleep.sleepUntil(() -> Walking.getDestinationDistance() < 6, 6000);
 						if (!Map.canReach(new Tile(3236, 3295, 0))) {
 							GameObjects.getTopObjectOnTile(new Tile(3236, 3295, 0))
 									.interactForceRight("Open");// door
-							sleepUntil(() -> Map.canReach(new Tile(3236, 3295, 0)), 6000);
+							Sleep.sleepUntil(() -> Map.canReach(new Tile(3236, 3295, 0)), 6000);
 						}
 						if (!Map.canReach(new Tile(3229, 3291, 0))) {
 							GameObjects.getTopObjectOnTile(new Tile(3230, 3291, 0))
 									.interactForceRight("Open");// door
-							sleepUntil(() -> Map.canReach(new Tile(3229, 3291, 0)), 6000);
+							Sleep.sleepUntil(() -> Map.canReach(new Tile(3229, 3291, 0)), 6000);
 						}
 					}
 				}
 			}
 
 			if (Inventory.contains("Bucket")) { // Changes from bucket to milk
-				if (milkArea.contains(getLocalPlayer())) {
+				if (milkArea.contains(Players.getLocal())) {
 					GameObjects.closest(8689).interactForceRight("Milk");
-					sleepUntil(() -> Inventory.contains("Bucket of milk"), 3000);
+					Sleep.sleepUntil(() -> Inventory.contains("Bucket of milk"), 3000);
 				} else {
 					Walking.walk(milkArea.getRandomTile());
-					sleepUntil(() -> Walking.getDestinationDistance() < 6, 6000);
+					Sleep.sleepUntil(() -> Walking.getDestinationDistance() < 6, 6000);
 					if (!Map.canReach(new Tile(3254, 3266, 0))) {
 						GameObjects.getTopObjectOnTile(new Tile(3253, 3267, 0)).interactForceRight("Open");// door
-						sleepUntil(() -> Map.canReach(new Tile(3254, 3266, 0)), 6000);
+						Sleep.sleepUntil(() -> Map.canReach(new Tile(3254, 3266, 0)), 6000);
 					}
 				}
 
@@ -260,12 +264,12 @@ public class CookAssistant extends Script implements Serializable {
 			break;
 
 		case TURN_IN:
-			if (kitchen.contains(getLocalPlayer())) {
+			if (kitchen.contains(Players.getLocal())) {
 				NPCs.closest("Cook").interact();
-				sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
+				Sleep.sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
 			} else {
 				Walking.walk(kitchen.getRandomTile());
-				sleepUntil(() -> Walking.getDestinationDistance() < 6, 6000);
+				Sleep.sleepUntil(() -> Walking.getDestinationDistance() < 6, 6000);
 			}
 			break;
 		case FINISHED:

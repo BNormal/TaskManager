@@ -3,12 +3,9 @@ package TaskManager.scripts.misc;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.Rectangle;
 import java.util.Date;
 
 import org.dreambot.api.ClientSettings;
-import org.dreambot.api.input.Mouse;
 import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.container.impl.Inventory;
 import org.dreambot.api.methods.container.impl.equipment.Equipment;
@@ -17,16 +14,16 @@ import org.dreambot.api.methods.filter.Filter;
 import org.dreambot.api.methods.input.Keyboard;
 import org.dreambot.api.methods.interactive.GameObjects;
 import org.dreambot.api.methods.interactive.NPCs;
+import org.dreambot.api.methods.interactive.Players;
 import org.dreambot.api.methods.map.Tile;
 import org.dreambot.api.methods.tabs.Tab;
 import org.dreambot.api.methods.tabs.Tabs;
 import org.dreambot.api.methods.walking.impl.Walking;
 import org.dreambot.api.methods.widget.Widgets;
-import org.dreambot.api.randoms.RandomEvent;
 import org.dreambot.api.script.Category;
+import org.dreambot.api.utilities.Sleep;
 import org.dreambot.api.wrappers.interactive.GameObject;
 import org.dreambot.api.wrappers.interactive.NPC;
-import org.dreambot.api.wrappers.widgets.Menu;
 import org.dreambot.api.wrappers.widgets.WidgetChild;
 
 import TaskManager.utilities.Utilities;
@@ -62,7 +59,7 @@ public class TutorialIsle extends Script {
 		if (Dialogues.inDialogue()) {
 			return State.DIALOGUE;
 		}
-		if (getLocalPlayer().getX() > 3200 && getLocalPlayer().getX() < 3300 && getLocalPlayer().getY() > 3200 && getLocalPlayer().getY() < 3300)
+		if (Players.getLocal().getX() > 3200 && Players.getLocal().getX() < 3300 && Players.getLocal().getY() > 3200 && Players.getLocal().getY() < 3300)
 			return State.FINISHED;
 		return State.NOTHING;
 	}
@@ -83,33 +80,33 @@ public class TutorialIsle extends Script {
 			if (Widgets.getWidgetChild(558, 12).getText().equals("*")) {
 				interfaceItem.interact();
 				Keyboard.type("zezima", true);
-				sleepUntil(() -> Widgets.getWidgetChild(558, 13).getText().contains("not available"), Calculations.random(3000, 5000));
+				Sleep.sleepUntil(() -> Widgets.getWidgetChild(558, 13).getText().contains("not available"), Calculations.random(3000, 5000));
 			} else if (Widgets.getWidgetChild(558, 13).getText().contains("not available")) {
 				WidgetChild typeNameTextField = Widgets.getWidgetChild(558, Calculations.random(14, 16));
 				typeNameTextField.interact();
-				sleepUntil(() -> Widgets.getWidgetChild(558, 13).getText().contains("<col=00ff00>available"), Calculations.random(3000, 5000));
+				Sleep.sleepUntil(() -> Widgets.getWidgetChild(558, 13).getText().contains("<col=00ff00>available"), Calculations.random(3000, 5000));
 			} else if (Widgets.getWidgetChild(558, 13).getText().contains("<col=00ff00>available")) {
 				Widgets.getWidgetChild(558, 18).interact();
-				sleepUntil(() -> Widgets.getWidgetChild(558, 18) == null || !Widgets.getWidgetChild(558, 18).isVisible(), Calculations.random(3000, 5000));
+				Sleep.sleepUntil(() -> Widgets.getWidgetChild(558, 18) == null || !Widgets.getWidgetChild(558, 18).isVisible(), Calculations.random(3000, 5000));
 			}
 			break;
 		case CHARACTER_CREATION:
 			interfaceItem.interact();
-			sleepUntil(() -> Widgets.getWidgetChild(679, 68, 9) == null || !Widgets.getWidgetChild(679, 68, 9).isVisible(), Calculations.random(3000, 5000));
+			Sleep.sleepUntil(() -> Widgets.getWidgetChild(679, 68, 9) == null || !Widgets.getWidgetChild(679, 68, 9).isVisible(), Calculations.random(3000, 5000));
 			break;
 		case FOLLOWING_INSTRUCTION:
 			if (interfaceItem != null && interfaceItem.isVisible()) {
 				String text = interfaceItem.getChild(0).getText();
 				if (text.contains("Getting started")) {
 					NPCs.closest("Gielinor Guide").interact();
-					sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
+					Sleep.sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
 				} else if (text.contains("Settings menu")) { // Clicks on setting tab and then should continue to go into fixed mode
 					if (ClientSettings.isResizableActive()) {
 						if (Tabs.isOpen(Tab.OPTIONS)) {
 							String currentTab = Widgets.getWidgetChild(116, 2).getText();
 							if (currentTab.equals("Controls Settings")) {
 								Widgets.getWidgetChild(116, 70).interact();
-								sleepUntil(() -> Widgets.getWidgetChild(116, 2).getText().equals("Audio Settings"), Calculations.random(3000, 5000));
+								Sleep.sleepUntil(() -> Widgets.getWidgetChild(116, 2).getText().equals("Audio Settings"), Calculations.random(3000, 5000));
 							} else if (currentTab.equals("Audio Settings")) {
 								WidgetChild musicW = Widgets.getWidgetChild(116, 14);//Music
 								if (musicW.getActions()[0].equals("Mute")) {
@@ -125,186 +122,186 @@ public class TutorialIsle extends Script {
 								}
 								if (musicW.getActions()[0].equals("Unmute") && effectW.getActions()[0].equals("Unmute") && areaW.getActions()[0].equals("Unmute")) {
 									Widgets.getWidgetChild(116, 71).interact();
-									sleepUntil(() -> Widgets.getWidgetChild(116, 2).getText().equals("Display Settings"), Calculations.random(3000, 5000));
+									Sleep.sleepUntil(() -> Widgets.getWidgetChild(116, 2).getText().equals("Display Settings"), Calculations.random(3000, 5000));
 								}
 							} else if (currentTab.equals("Display Settings")) {
 								if (Widgets.getWidgetChild(116, 37) == null || !Widgets.getWidgetChild(116, 37).isVisible()) {//checks if dropdown menu is opened
 									Widgets.getWidgetChild(116, 12, 4).interact();//clicked to open dropdown
-									sleepUntil(() -> Widgets.getWidgetChild(116, 37) != null, Calculations.random(3000, 5000));
+									Sleep.sleepUntil(() -> Widgets.getWidgetChild(116, 37) != null, Calculations.random(3000, 5000));
 								} else {
 									Widgets.getWidgetChild(116, 37, 1).interact();
-									sleepUntil(() -> !ClientSettings.isResizableActive(), Calculations.random(3000, 5000));
+									Sleep.sleepUntil(() -> !ClientSettings.isResizableActive(), Calculations.random(3000, 5000));
 								}
 							}
 						} else {
 							Tabs.openWithMouse(Tab.OPTIONS);
-							sleepUntil(() -> Tabs.isOpen(Tab.OPTIONS), Calculations.random(3000, 5000));
+							Sleep.sleepUntil(() -> Tabs.isOpen(Tab.OPTIONS), Calculations.random(3000, 5000));
 						}
 					} else {
 						NPCs.closest("Gielinor Guide").interact();
-						sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
 					}
 				} else if (text.contains("Moving on")) {
 					if (text.contains("you've just cooked")) {// cooks shrimp on fire
 						Walking.walk(new Tile(3093 + Calculations.random(-3, 0), 3092 + Calculations.random(0, 2), 0));
 						GameObjects.closest("Gate").interactForceRight("Open");
-						sleepUntil(() -> getLocalPlayer().getX() < 3090, Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Players.getLocal().getX() < 3090, Calculations.random(3000, 5000));
 					} else if (text.contains("with the yellow arrow")) {// clicks on door to chef
 						Walking.walk(new Tile(3082 + Calculations.random(-3, 0), 3084 + Calculations.random(0, 2), 0));
-						sleepUntil(() -> getLocalPlayer().isMoving(), Calculations.random(3000, 5000));
-						sleepUntil(() -> !getLocalPlayer().isMoving(), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Players.getLocal().isMoving(), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> !Players.getLocal().isMoving(), Calculations.random(3000, 5000));
 						GameObjects.closest("Door").interact();
-						sleepUntil(() -> getLocalPlayer().getX() < 3079, Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Players.getLocal().getX() < 3079, Calculations.random(3000, 5000));
 					} else if (text.contains("Well done! You've baked")) {
 						Walking.walk(new Tile(3074 + Calculations.random(-1, 0), 3089 + Calculations.random(0, 1), 0));
-						sleepUntil(() -> getLocalPlayer().isMoving(), Calculations.random(3000, 5000));
-						sleepUntil(() -> !getLocalPlayer().isMoving(), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Players.getLocal().isMoving(), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> !Players.getLocal().isMoving(), Calculations.random(3000, 5000));
 						GameObjects.closest("Door").interact();
-						sleepUntil(() -> getLocalPlayer().getX() < 3072, Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Players.getLocal().getX() < 3072, Calculations.random(3000, 5000));
 					} else if (text.contains("When you get there, click")) {
 						Walking.walk(new Tile(3086 + Calculations.random(-1, 0), 3127 + Calculations.random(0, 1), 0));
-						sleepUntil(() -> getLocalPlayer().isMoving(), Calculations.random(3000, 5000));
-						sleepUntil(() -> !getLocalPlayer().isMoving(), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Players.getLocal().isMoving(), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> !Players.getLocal().isMoving(), Calculations.random(3000, 5000));
 						GameObjects.closest("Door").interact();
-						sleepUntil(() -> getLocalPlayer().getY() < 3125, Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Players.getLocal().getY() < 3125, Calculations.random(3000, 5000));
 					} else if (text.contains("It's time to enter")) {
 						GameObjects.closest("Ladder").interactForceRight("Climb-down");
-						sleepUntil(() -> getLocalPlayer().getX() > 3094, Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Players.getLocal().getX() > 3094, Calculations.random(3000, 5000));
 					} else if (text.contains("made your first weapon")) {
 						Walking.walk(new Tile(3094 + Calculations.random(-1, 0), 9501 + Calculations.random(0, 1), 0));
-						sleepUntil(() -> getLocalPlayer().isMoving(), Calculations.random(3000, 5000));
-						sleepUntil(() -> !getLocalPlayer().isMoving(), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Players.getLocal().isMoving(), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> !Players.getLocal().isMoving(), Calculations.random(3000, 5000));
 						GameObjects.closest("Gate").interact();
-						sleepUntil(() -> getLocalPlayer().getY() > 9503, Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Players.getLocal().getY() > 9503, Calculations.random(3000, 5000));
 					} else if (text.contains("just talk to the combat instructor")) {
 						Walking.walk(new Tile(3111 + Calculations.random(-1, 0), 9525 + Calculations.random(0, 1), 0));
-						sleepUntil(() -> getLocalPlayer().isMoving(), Calculations.random(3000, 5000));
-						sleepUntil(() -> !getLocalPlayer().isMoving(), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Players.getLocal().isMoving(), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> !Players.getLocal().isMoving(), Calculations.random(3000, 5000));
 						GameObjects.closest("Ladder").interact();
-						sleepUntil(() -> getLocalPlayer().getY() < 3130, Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Players.getLocal().getY() < 3130, Calculations.random(3000, 5000));
 					} else if (text.contains("Polls are run")) {
 						interfaceItem = Widgets.getWidgetChild(310, 11);
 						if (interfaceItem != null && interfaceItem.isVisible()) {
 							interfaceItem.interact();
 						} else {
 							Walking.walk(new Tile(3124, 3124, 0));
-							sleepUntil(() -> getLocalPlayer().isMoving(), Calculations.random(3000, 5000));
-							sleepUntil(() -> !getLocalPlayer().isMoving(), Calculations.random(3000, 5000));
+							Sleep.sleepUntil(() -> Players.getLocal().isMoving(), Calculations.random(3000, 5000));
+							Sleep.sleepUntil(() -> !Players.getLocal().isMoving(), Calculations.random(3000, 5000));
 							GameObjects.closest("Door").interact();
-							sleepUntil(() -> getLocalPlayer().getX() > 3124, Calculations.random(3000, 5000));
+							Sleep.sleepUntil(() -> Players.getLocal().getX() > 3124, Calculations.random(3000, 5000));
 						}
 					} else if (text.contains("Continue through the next door.")) {
 						Walking.walk(new Tile(3129, 3124, 0));
-						sleepUntil(() -> getLocalPlayer().isMoving(), Calculations.random(3000, 5000));
-						sleepUntil(() -> !getLocalPlayer().isMoving(), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Players.getLocal().isMoving(), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> !Players.getLocal().isMoving(), Calculations.random(3000, 5000));
 						GameObjects.closest("Door").interact();
-						sleepUntil(() -> getLocalPlayer().getX() > 3129, Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Players.getLocal().getX() > 3129, Calculations.random(3000, 5000));
 					} else {
 						GameObjects.closest("Door").interact();
-						sleepUntil(() -> getLocalPlayer().getX() > 3097, Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Players.getLocal().getX() > 3097, Calculations.random(3000, 5000));
 					}
 				} else if (text.contains("Moving around")) {
 					Walking.walk(new Tile(3103 + Calculations.random(-3, 0), 3096 + Calculations.random(0, 2), 0));
-					sleepUntil(() -> NPCs.closest("Survival Expert").distance(getLocalPlayer()) < 5, Calculations.random(3000, 5000));
+					Sleep.sleepUntil(() -> NPCs.closest("Survival Expert").distance(Players.getLocal()) < 5, Calculations.random(3000, 5000));
 					NPCs.closest("Survival Expert").interact();
-					sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
+					Sleep.sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
 				} else if (text.contains("You've been given an item")) {
 					Tabs.openWithMouse(Tab.INVENTORY);
 				} else if (text.contains("Fishing")) {
 					NPCs.closest("Fishing spot").interactForceRight("Net");
-					sleepUntil(() -> getLocalPlayer().isAnimating(), Calculations.random(3000, 5000));
-					sleepUntil(() -> !getLocalPlayer().isAnimating(), Calculations.random(3000, 5000));
+					Sleep.sleepUntil(() -> Players.getLocal().isAnimating(), Calculations.random(3000, 5000));
+					Sleep.sleepUntil(() -> !Players.getLocal().isAnimating(), Calculations.random(3000, 5000));
 				} else if (text.contains("gained some experience")) {
 					Tabs.openWithMouse(Tab.SKILLS);
 				} else if (text.contains("Skills and Experience")) {
 					NPCs.closest("Survival Expert").interact();
-					sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
+					Sleep.sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
 				} else if (text.contains("Woodcutting")) {
 					GameObject tree = GameObjects.closest("Tree");
 					tree.interact();
-					sleepUntil(() -> getLocalPlayer().isAnimating(), Calculations.random(3000, 5000));
-					sleepUntil(() -> !getLocalPlayer().isAnimating(), Calculations.random(3000, 5000));
+					Sleep.sleepUntil(() -> Players.getLocal().isAnimating(), Calculations.random(3000, 5000));
+					Sleep.sleepUntil(() -> !Players.getLocal().isAnimating(), Calculations.random(3000, 5000));
 				} else if (text.contains("Firemaking")) {
 					Inventory.get("Logs").useOn("Tinderbox");
-					sleepUntil(() -> getLocalPlayer().isAnimating(), Calculations.random(3000, 5000));
-					sleepUntil(() -> !getLocalPlayer().isAnimating(), Calculations.random(3000, 5000));
+					Sleep.sleepUntil(() -> Players.getLocal().isAnimating(), Calculations.random(3000, 5000));
+					Sleep.sleepUntil(() -> !Players.getLocal().isAnimating(), Calculations.random(3000, 5000));
 				} else if (text.contains("Cooking") && !text.contains("dough")) {
 					if (text.contains("to the chef")) {
 						NPCs.closest("Master Chef").interact();
-						sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
 					} else {
 						Inventory.get("Raw shrimps").useOn(GameObjects.closest("Fire"));
-						sleepUntil(() -> getLocalPlayer().isAnimating(), Calculations.random(3000, 5000));
-						sleepUntil(() -> !getLocalPlayer().isAnimating(), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Players.getLocal().isAnimating(), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> !Players.getLocal().isAnimating(), Calculations.random(3000, 5000));
 					}
 				} else if (text.contains("Making dough")) {
 					Inventory.get("Pot of flour").useOn("Bucket of water");
-					sleepUntil(() -> Inventory.contains("Bread dough"), Calculations.random(3000, 5000));
+					Sleep.sleepUntil(() -> Inventory.contains("Bread dough"), Calculations.random(3000, 5000));
 				} else if (text.contains("Cooking dough")) {
 					Inventory.get("Bread dough").useOn(GameObjects.closest("Range"));
-					sleepUntil(() -> getLocalPlayer().isAnimating(), Calculations.random(3000, 5000));
-					sleepUntil(() -> !getLocalPlayer().isAnimating(), Calculations.random(3000, 5000));
+					Sleep.sleepUntil(() -> Players.getLocal().isAnimating(), Calculations.random(3000, 5000));
+					Sleep.sleepUntil(() -> !Players.getLocal().isAnimating(), Calculations.random(3000, 5000));
 				} else if (text.contains("Fancy a run?")) {
 					if (Walking.isRunEnabled()) {
 						Walking.walk(new Tile(3086 + Calculations.random(-1, 0), 3127 + Calculations.random(0, 2), 0));
 						Walking.toggleRun();
-						sleepUntil(() -> !Walking.isRunEnabled(), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> !Walking.isRunEnabled(), Calculations.random(3000, 5000));
 						Walking.toggleRun();
-						sleepUntil(() -> Walking.isRunEnabled(), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Walking.isRunEnabled(), Calculations.random(3000, 5000));
 					}
 				} else if (text.contains("Quests")) {
 					NPCs.closest("Quest Guide").interact();
-					sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
+					Sleep.sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
 				} else if (text.contains("Quest journal")) {
 					Tabs.openWithMouse(Tab.QUEST);
 					if (Tabs.isOpen(Tab.QUEST)) {
 						NPCs.closest("Quest Guide").interact();
-						sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
 					}
 				} else if (text.contains("Mining and Smithing")) {
-					if (getLocalPlayer().getY() < 9510) {
+					if (Players.getLocal().getY() < 9510) {
 						NPCs.closest("Mining Instructor").interact();
-						sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
 					} else {
 						Walking.walk(new Tile(3081 + Calculations.random(-3, 0), 9505 + Calculations.random(0, 2), 0));
-						sleepUntil(() -> getLocalPlayer().isMoving(), Calculations.random(3000, 5000));
-						sleepUntil(() -> !getLocalPlayer().isMoving(), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Players.getLocal().isMoving(), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> !Players.getLocal().isMoving(), Calculations.random(3000, 5000));
 					}
 				} else if (text.contains("you just need some copper")) {
 					GameObjects.closest(10079).interact();// copper rock
-					sleepUntil(() -> Inventory.contains("Copper ore"), Calculations.random(5000, 8000));
+					Sleep.sleepUntil(() -> Inventory.contains("Copper ore"), Calculations.random(5000, 8000));
 				} else if (text.contains("It's quite simple really. To mine a rock")) {
 					GameObjects.closest(10080).interact();// tin rock
-					sleepUntil(() -> Inventory.contains("Tin ore"), Calculations.random(5000, 8000));
+					Sleep.sleepUntil(() -> Inventory.contains("Tin ore"), Calculations.random(5000, 8000));
 				} else if (text.contains("Smelting")) {
 					if (text.contains("You've made a bronze")) {
 						NPCs.closest("Mining Instructor").interact();
-						sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
 					} else {
 						if (Calculations.random(0, 5) > 3)
 							Inventory.get("Tin ore").useOn(GameObjects.closest("Furnace"));
 						else
 							Inventory.get("Copper ore").useOn(GameObjects.closest("Furnace"));
-						sleepUntil(() -> Inventory.contains("Bronze bar"), Calculations.random(5000, 8000));
+						Sleep.sleepUntil(() -> Inventory.contains("Bronze bar"), Calculations.random(5000, 8000));
 					}
 				} else if (text.contains("Smithing a dagger")) {
 					interfaceItem = Widgets.getWidgetChild(312, 9);
 					if (interfaceItem != null && interfaceItem.isVisible()) {
 						interfaceItem.interact();
-						sleepUntil(() -> getLocalPlayer().isAnimating(), Calculations.random(3000, 5000));
-						sleepUntil(() -> !getLocalPlayer().isAnimating(), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Players.getLocal().isAnimating(), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> !Players.getLocal().isAnimating(), Calculations.random(3000, 5000));
 					} else {
 						Inventory.get("Bronze bar").useOn(GameObjects.closest("Anvil"));
-						sleepUntil(() -> Inventory.contains("Bronze bar"), Calculations.random(5000, 8000));
+						Sleep.sleepUntil(() -> Inventory.contains("Bronze bar"), Calculations.random(5000, 8000));
 					}
 				} else if (text.contains("In this area you will find")) {//Combat
-					if (getLocalPlayer().getX() < 3100) {
+					if (Players.getLocal().getX() < 3100) {
 						Walking.walk(new Tile(3106 + Calculations.random(-1, 0), 9509 + Calculations.random(0, 1), 0));
-						sleepUntil(() -> getLocalPlayer().isMoving(), Calculations.random(3000, 5000));
-						sleepUntil(() -> !getLocalPlayer().isMoving(), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Players.getLocal().isMoving(), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> !Players.getLocal().isMoving(), Calculations.random(3000, 5000));
 					} else {
 						NPCs.closest("Combat Instructor").interact();
-						sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
 					}
 				} else if (text.contains("Equipping items")) {
 					Tabs.openWithMouse(Tab.EQUIPMENT);
@@ -316,72 +313,72 @@ public class TutorialIsle extends Script {
 				} else if (text.contains("Equipment stats")) {
 					if (Inventory.contains("Bronze dagger")) {
 						Inventory.get("Bronze dagger").interact();
-						sleepUntil(() -> Equipment.contains("Bronze dagger"), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Equipment.contains("Bronze dagger"), Calculations.random(3000, 5000));
 					}
 					interfaceItem = Widgets.getWidgetChild(84, 3, 11);
 					if (interfaceItem != null && interfaceItem.isVisible()) {
 						interfaceItem.interact();
 					}
 					NPCs.closest("Combat Instructor").interact();
-					sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
+					Sleep.sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
 				} else if (text.contains("Unequipping items")) {
 					if (Inventory.contains("Bronze sword")) {
 						Inventory.get("Bronze sword").interact();
-						sleepUntil(() -> Equipment.contains("Bronze sword"), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Equipment.contains("Bronze sword"), Calculations.random(3000, 5000));
 					}
 					if (Inventory.contains("Wooden shield")) {
 						Inventory.get("Wooden shield").interact();
-						sleepUntil(() -> Equipment.contains("Wooden shield"), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Equipment.contains("Wooden shield"), Calculations.random(3000, 5000));
 					}
 				} else if (text.contains("Combat interface")) {
 					if (!Tabs.isOpen(Tab.COMBAT)) {
 						Tabs.openWithMouse(Tab.COMBAT);
 					} else {
 						Walking.walk(new Tile(3113 + Calculations.random(-1, 0), 9518 + Calculations.random(0, 1), 0));
-						sleepUntil(() -> getLocalPlayer().isMoving(), Calculations.random(3000, 5000));
-						sleepUntil(() -> !getLocalPlayer().isMoving(), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Players.getLocal().isMoving(), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> !Players.getLocal().isMoving(), Calculations.random(3000, 5000));
 						GameObjects.closest("Gate").interact();
-						sleepUntil(() -> getLocalPlayer().getX() < 3111, Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Players.getLocal().getX() < 3111, Calculations.random(3000, 5000));
 					}
 				} else if (text.contains("to slay some rats!")) {
 					NPCs.closest(getFilteredNPCs("Giant rat")).interact("Attack");
-					sleepUntil(() -> getLocalPlayer().isInCombat(), Calculations.random(3000, 5000));
-					sleepUntil(() -> !getLocalPlayer().isInCombat(), Calculations.random(25000, 35000));
+					Sleep.sleepUntil(() -> Players.getLocal().isInCombat(), Calculations.random(3000, 5000));
+					Sleep.sleepUntil(() -> !Players.getLocal().isInCombat(), Calculations.random(25000, 35000));
 				} else if (text.contains("made your first kill!")) {
-					if (getLocalPlayer().getX() < 3111 && getLocalPlayer().getY() > 9512) {
+					if (Players.getLocal().getX() < 3111 && Players.getLocal().getY() > 9512) {
 						GameObjects.closest("Gate").interact();
-						sleepUntil(() -> getLocalPlayer().getX() > 3110, Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Players.getLocal().getX() > 3110, Calculations.random(3000, 5000));
 					}
-					if (getLocalPlayer().getY() > 9513) {
+					if (Players.getLocal().getY() > 9513) {
 						Walking.walk(new Tile(3108 + Calculations.random(-1, 0), 9511 + Calculations.random(0, 1), 0));
-						sleepUntil(() -> getLocalPlayer().isMoving(), Calculations.random(3000, 5000));
-						sleepUntil(() -> !getLocalPlayer().isMoving(), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Players.getLocal().isMoving(), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> !Players.getLocal().isMoving(), Calculations.random(3000, 5000));
 					}
 					NPCs.closest("Combat Instructor").interact();
-					sleepUntil(() -> Dialogues.canContinue(), Calculations.random(8000, 10000));
+					Sleep.sleepUntil(() -> Dialogues.canContinue(), Calculations.random(8000, 10000));
 				} else if (text.contains("Rat ranging")) {
 					if (!Tabs.isOpen(Tab.INVENTORY)) {
 						if (Calculations.random(0, 5) > 3)
 							Tabs.openWithFKey(Tab.INVENTORY);
 						else
 							Tabs.openWithMouse(Tab.INVENTORY);
-						sleepUntil(() -> Tabs.isOpen(Tab.INVENTORY), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Tabs.isOpen(Tab.INVENTORY), Calculations.random(3000, 5000));
 					}
 					if (Inventory.contains("Shortbow")) {
 						Inventory.get("Shortbow").interact();
-						sleepUntil(() -> Equipment.contains("Shortbow"), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Equipment.contains("Shortbow"), Calculations.random(3000, 5000));
 					} else if (Inventory.contains("Bronze arrow")) {
 						Inventory.get("Bronze arrow").interact();
-						sleepUntil(() -> Equipment.contains("Bronze arrow"), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Equipment.contains("Bronze arrow"), Calculations.random(3000, 5000));
 					} else {
-						if (getLocalPlayer().getX() < 3106) {
+						if (Players.getLocal().getX() < 3106) {
 							Walking.walk(new Tile(3108 + Calculations.random(-1, 0), 9511 + Calculations.random(0, 1), 0));
-							sleepUntil(() -> getLocalPlayer().isMoving(), Calculations.random(3000, 5000));
-							sleepUntil(() -> !getLocalPlayer().isMoving(), Calculations.random(3000, 5000));
+							Sleep.sleepUntil(() -> Players.getLocal().isMoving(), Calculations.random(3000, 5000));
+							Sleep.sleepUntil(() -> !Players.getLocal().isMoving(), Calculations.random(3000, 5000));
 						}
 						NPCs.closest(getFilteredNPCs("Giant rat")).interact("Attack");
-						sleepUntil(() -> getLocalPlayer().isInCombat(), Calculations.random(3000, 5000));
-						sleepUntil(() -> !getLocalPlayer().isInCombat(), Calculations.random(25000, 35000));
+						Sleep.sleepUntil(() -> Players.getLocal().isInCombat(), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> !Players.getLocal().isInCombat(), Calculations.random(25000, 35000));
 					}
 				} else if (text.contains("Banking")) {
 					if (Widgets.getWidgetChild(12, 2) != null && Widgets.getWidgetChild(12, 2).isVisible()) {
@@ -393,8 +390,8 @@ public class TutorialIsle extends Script {
 						}
 					} else {
 						Walking.walk(new Tile(3122 + Calculations.random(-1, 0), 3123 + Calculations.random(0, 1), 0));
-						sleepUntil(() -> getLocalPlayer().isMoving(), Calculations.random(3000, 5000));
-						sleepUntil(() -> !getLocalPlayer().isMoving(), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Players.getLocal().isMoving(), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> !Players.getLocal().isMoving(), Calculations.random(3000, 5000));
 						GameObjects.closest("Bank booth").interact();
 						sleep(1000);
 					}
@@ -404,42 +401,42 @@ public class TutorialIsle extends Script {
 						sleep(1000);
 					} else {
 						NPCs.closest("Account Guide").interact();
-						sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
 					}
 				} else if (text.contains("Prayer") && !text.contains("menu")) {
-					if (getLocalPlayer().getX() > 3124 && getLocalPlayer().getY() > 3110) {
+					if (Players.getLocal().getX() > 3124 && Players.getLocal().getY() > 3110) {
 						Walking.walk(new Tile(3128 + Calculations.random(-1, 0), 3107 + Calculations.random(-1, 0), 0));
-						sleepUntil(() -> getLocalPlayer().isMoving(), Calculations.random(3000, 5000));
-						sleepUntil(() -> !getLocalPlayer().isMoving(), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Players.getLocal().isMoving(), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> !Players.getLocal().isMoving(), Calculations.random(3000, 5000));
 					} else {
 						NPCs.closest("Brother Brace").interact();
-						sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
 					}
 				} else if (text.contains("Prayer menu")) {
 					Tabs.openWithMouse(Tab.PRAYER);
 					sleep(1000);
 					NPCs.closest("Brother Brace").interact();
-					sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
+					Sleep.sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
 				} else if (text.contains("Friends and Ignore")) {
 					Tabs.openWithMouse(Tab.FRIENDS);
 					sleep(1000);
 					NPCs.closest("Brother Brace").interact();
-					sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
+					Sleep.sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
 				} else if (text.contains("Your final instructor")) {
-					if (getLocalPlayer().getY() > 3102) {
+					if (Players.getLocal().getY() > 3102) {
 						Walking.walk(new Tile(3122, 3103, 0));
-						sleepUntil(() -> getLocalPlayer().isMoving(), Calculations.random(3000, 5000));
-						sleepUntil(() -> !getLocalPlayer().isMoving(), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Players.getLocal().isMoving(), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> !Players.getLocal().isMoving(), Calculations.random(3000, 5000));
 						GameObjects.closest("Door").interact();
-						sleepUntil(() -> getLocalPlayer().getY() < 3103, Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Players.getLocal().getY() < 3103, Calculations.random(3000, 5000));
 					} else {
-						if (getLocalPlayer().getX() < 3136) {
+						if (Players.getLocal().getX() < 3136) {
 							Walking.walk(new Tile(3141 + Calculations.random(-1, 0), 3087 + Calculations.random(-1, 0), 0));
-							sleepUntil(() -> getLocalPlayer().isMoving(), Calculations.random(3000, 5000));
-							sleepUntil(() -> !getLocalPlayer().isMoving(), Calculations.random(3000, 5000));
+							Sleep.sleepUntil(() -> Players.getLocal().isMoving(), Calculations.random(3000, 5000));
+							Sleep.sleepUntil(() -> !Players.getLocal().isMoving(), Calculations.random(3000, 5000));
 						}
 						NPCs.closest("Magic Instructor").interact();
-						sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
+						Sleep.sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
 					}
 				} else if (text.contains("your final menu")) {
 					Tabs.openWithMouse(Tab.MAGIC);
@@ -447,22 +444,22 @@ public class TutorialIsle extends Script {
 					
 				} else if (text.contains("your magic interface. All of your")) {
 					NPCs.closest("Magic Instructor").interact();
-					sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
+					Sleep.sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
 				} else if (text.contains("Magic casting")) {
 					Walking.walk(new Tile(3140 + Calculations.random(-1, 0), 3091, 0));
-					sleepUntil(() -> getLocalPlayer().isMoving(), Calculations.random(3000, 5000));
-					sleepUntil(() -> !getLocalPlayer().isMoving(), Calculations.random(3000, 5000));
+					Sleep.sleepUntil(() -> Players.getLocal().isMoving(), Calculations.random(3000, 5000));
+					Sleep.sleepUntil(() -> !Players.getLocal().isMoving(), Calculations.random(3000, 5000));
 					interfaceItem = Widgets.getWidgetChild(218, 6);
 					if (interfaceItem != null && interfaceItem.isVisible()) {
 						interfaceItem.interact();
 						NPC chicken = NPCs.closest(getFilteredNPCs("Chicken"));
 						chicken.interact("Cast");
-						sleepUntil(() -> getLocalPlayer().isAnimating(), Calculations.random(1000, 3000));
-						sleepUntil(() -> !getLocalPlayer().isAnimating(), Calculations.random(1000, 3000));
+						Sleep.sleepUntil(() -> Players.getLocal().isAnimating(), Calculations.random(1000, 3000));
+						Sleep.sleepUntil(() -> !Players.getLocal().isAnimating(), Calculations.random(1000, 3000));
 					}
 				} else if (text.contains("To the mainland")) {
 					NPCs.closest("Magic Instructor").interact();
-					sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
+					Sleep.sleepUntil(() -> Dialogues.canContinue(), Calculations.random(3000, 5000));
 				}
 			}
 			break;

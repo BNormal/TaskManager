@@ -131,7 +131,7 @@ public class MinerData {
 		
 		public boolean meetsAllReqsToUse() {
 			for (int i = 0; i < levelReqs.length - 1; i++) {
-				if (Skills.getBoostedLevels(levelReqs[i].getSkill()) < levelReqs[i].getLevelReq())
+				if (Skills.getBoostedLevel(levelReqs[i].getSkill()) < levelReqs[i].getLevelReq())
 					return false;
 			}
 			return true;
@@ -139,7 +139,7 @@ public class MinerData {
 		
 		public boolean meetsAllReqsToWield() {
 			for (int i = 0; i < levelReqs.length; i++) {
-				if (Skills.getBoostedLevels(levelReqs[i].getSkill()) < levelReqs[i].getLevelReq())
+				if (Skills.getBoostedLevel(levelReqs[i].getSkill()) < levelReqs[i].getLevelReq())
 					return false;
 			}
 			return true;
